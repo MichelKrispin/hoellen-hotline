@@ -158,19 +158,19 @@ Abnahme:
 
 Ziel: Drei Browser gelangen verständlich und ohne Backend in dieselbe Lobby.
 
-- [ ] Offer-/Answer-Codec mit Kompression, Base64URL und URL-Fragment implementieren.
-- [ ] Links aus der konfigurierten Vite-Basis ohne nicht deployte Unterroute erzeugen.
-- [ ] Non-Trickle-ICE inklusive Timeout bauen; bei Timeout keinen unvollständigen Link ausgeben, sondern einen verständlichen neuen Versuch anbieten.
-- [ ] Host verwaltet zwei getrennte Gastslots und zwei `RTCPeerConnection`s.
-- [ ] Einladungs- und Antwortlinks je Slot kopier-/einfügbar machen; Answers werden in die bestehende Host-Lobby importiert und nicht durch Navigation geöffnet.
-- [ ] Offer-Fragment nach erfolgreicher Übernahme sicher aus der Adresszeile entfernen; bei versehentlich geöffneten Answer-Links das Kopieren und die Rückkehr zum bestehenden Host-Tab ermöglichen, bevor das Fragment entfernt wird.
-- [ ] Clipboard-Fehler behandeln und immer markierbare Felder für manuelles Kopieren/Einfügen bereitstellen.
-- [ ] `HELLO/WELCOME`, Protokollversion, Session-ID, einmalige Nonce, Peer-Slot und gastseitig neu erzeugte `connectionId` prüfen; verbrauchte oder ersetzte Payloads innerhalb der laufenden Lobby gegen Wiederverwendung sperren und keine global garantierte Einmaligkeit vortäuschen.
-- [ ] harte Grenzen vor und nach Dekompression sowie verständliche Fehler für zu große Linkdaten implementieren.
-- [ ] Rollenwahl nach dem Prinzip „freie Rolle selbst wählen“ und Ready-Check implementieren.
-- [ ] Ping, Verbindungsqualität und „Verbindung testen“ anzeigen.
-- [ ] klare Erklärung für gescheiterte direkte Verbindung ohne TURN anbieten.
-- [ ] optionale Room-Service-Schnittstelle nur als deaktivierten Adaptervertrag definieren; keine öffentliche Suche im MVP vortäuschen.
+- [x] Offer-/Answer-Codec mit Kompression, Base64URL und URL-Fragment implementieren.
+- [x] Links aus der konfigurierten Vite-Basis ohne nicht deployte Unterroute erzeugen.
+- [x] Non-Trickle-ICE inklusive Timeout bauen; bei Timeout keinen unvollständigen Link ausgeben, sondern einen verständlichen neuen Versuch anbieten.
+- [x] Host verwaltet zwei getrennte Gastslots und zwei `RTCPeerConnection`s.
+- [x] Einladungs- und Antwortlinks je Slot kopier-/einfügbar machen; Answers werden in die bestehende Host-Lobby importiert und nicht durch Navigation geöffnet.
+- [x] Offer-Fragment nach erfolgreicher Übernahme sicher aus der Adresszeile entfernen; bei versehentlich geöffneten Answer-Links das Kopieren und die Rückkehr zum bestehenden Host-Tab ermöglichen, bevor das Fragment entfernt wird.
+- [x] Clipboard-Fehler behandeln und immer markierbare Felder für manuelles Kopieren/Einfügen bereitstellen.
+- [x] `HELLO/WELCOME`, Protokollversion, Session-ID, einmalige Nonce, Peer-Slot und gastseitig neu erzeugte `connectionId` prüfen; verbrauchte oder ersetzte Payloads innerhalb der laufenden Lobby gegen Wiederverwendung sperren und keine global garantierte Einmaligkeit vortäuschen.
+- [x] harte Grenzen vor und nach Dekompression sowie verständliche Fehler für zu große Linkdaten implementieren.
+- [x] Rollenwahl nach dem Prinzip „freie Rolle selbst wählen“ und Ready-Check implementieren.
+- [x] Ping, Verbindungsqualität und „Verbindung testen“ anzeigen.
+- [x] klare Erklärung für gescheiterte direkte Verbindung ohne TURN anbieten.
+- [x] optionale Room-Service-Schnittstelle nur als deaktivierten Adaptervertrag definieren; keine öffentliche Suche im MVP vortäuschen.
 
 Abnahme:
 

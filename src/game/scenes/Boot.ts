@@ -5,6 +5,6 @@ export class Boot extends Phaser.Scene {
     super("Boot");
   }
   create(): void {
-    this.scene.start("Title");
+    this.scene.start(location.hash ? "Lobby" : "Title");
   }
 }

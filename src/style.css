@@ -17,3 +17,132 @@ body {
 canvas {
   display: block;
 }
+.lobby-overlay {
+  position: fixed;
+  inset: 4% 5%;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  color: #f4e1bd;
+  font:
+    16px Arial,
+    sans-serif;
+  pointer-events: none;
+}
+.lobby-card {
+  box-sizing: border-box;
+  width: min(1180px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 24px 30px;
+  background: #261a25f2;
+  border: 3px solid #91604a;
+  box-shadow: 0 20px 60px #000a;
+  pointer-events: auto;
+}
+.lobby-card h1,
+.lobby-card h2,
+.lobby-card h3 {
+  font-family: Georgia, serif;
+  margin: 0 0 10px;
+}
+.lobby-card h1 {
+  font-size: 34px;
+}
+.lobby-card h1 span {
+  color: #68d8dc;
+  letter-spacing: 0.12em;
+}
+.lobby-card h2 {
+  margin-top: 18px;
+  font-size: 24px;
+}
+.lobby-card h3 {
+  font-size: 18px;
+}
+.lobby-card p {
+  line-height: 1.4;
+  margin: 8px 0 14px;
+}
+.lobby-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+.lobby-card label {
+  display: block;
+  margin: 8px 0;
+}
+.lobby-card input,
+.lobby-card textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  padding: 9px;
+  background: #e9c99a;
+  color: #30232a;
+  border: 2px solid #91604a;
+  font:
+    14px Arial,
+    sans-serif;
+}
+.lobby-card textarea {
+  min-height: 60px;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+.lobby-card button {
+  margin: 4px 6px 4px 0;
+  padding: 9px 13px;
+  background: #e9a84c;
+  color: #211423;
+  border: 2px solid #ffcc7d;
+  font:
+    bold 15px Arial,
+    sans-serif;
+  cursor: pointer;
+}
+.lobby-card button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.lobby-card button[aria-pressed="true"] {
+  background: #68d8dc;
+}
+.lobby-card button:focus-visible,
+.lobby-card input:focus-visible,
+.lobby-card textarea:focus-visible {
+  outline: 3px solid #68d8dc;
+  outline-offset: 2px;
+}
+.slot-box,
+.member {
+  padding: 10px;
+  margin: 9px 0;
+  background: #392b37;
+  border: 1px solid #6c5153;
+}
+.member span {
+  display: block;
+  margin-top: 4px;
+}
+.lobby-notice {
+  color: #ffcc7d;
+  min-height: 1.4em;
+}
+.lobby-footnote {
+  color: #b69b90;
+  font-size: 13px;
+}
+@media (max-width: 750px) {
+  .lobby-overlay {
+    inset: 1%;
+  }
+  .lobby-card {
+    padding: 15px;
+  }
+  .lobby-grid {
+    grid-template-columns: 1fr;
+  }
+}
