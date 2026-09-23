@@ -18,7 +18,7 @@ export function sceneHeader(
     2,
     TOKENS.color.agent,
   );
-  scene.add.text(DESIGN.safeX, 100, "HÖLLEN-HOTLINE  /  BATCH 0", {
+  scene.add.text(DESIGN.safeX, 100, "HÖLLEN-HOTLINE  /  PROTOTYP", {
     fontFamily: "Georgia, serif",
     fontSize: "28px",
     color: TOKENS.color.muted,
@@ -53,9 +53,11 @@ export function button(
   label: string,
   action: () => void,
   color: number = TOKENS.color.agent,
+  width = 430,
+  height = 82,
 ): void {
   const rect = scene.add
-    .rectangle(x, y, 430, 82, color)
+    .rectangle(x, y, width, height, color)
     .setInteractive({ useHandCursor: true });
   const text = scene.add
     .text(x, y, label, {

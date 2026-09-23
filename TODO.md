@@ -89,14 +89,14 @@ Abnahme:
 
 Ziel: Der Look ist früh verbindlich und bereits ohne Texte als Höllenbüro erkennbar.
 
-- [ ] Aus beiden Mockups eine interne Art Bible ableiten: Silhouetten, Materialien, Licht, Konturen, Farbkontraste und Comedy-Prinzipien.
-- [ ] Farbrollen definieren: glühendes Rot/Orange für Gefahr, kaltes Seelen-Cyan, Agent-Rot, Archiv-Violett, Dispatcher-Bernstein sowie Statusfarben mit Symbolunterstützung.
-- [ ] UI-Materialien als 9-Slice-Sets planen: geschwärztes Metall, schiefes Holz, vergilbtes Papier, Neonröhre, Bakelit.
-- [ ] gemeinsame Kontrollraum-Kulisse in Parallax-Ebenen zerlegen: Hintergrundhölle, Brücken/Silhouetten, Rohre/Ketten, Pult, Vordergrund-Requisiten.
-- [ ] pro Rolle eine eigene Bildkomposition als Wireframe erstellen; nur das eigene Pult ist interaktiv.
-- [ ] gemeinsame obere Statusleiste und reduzierte Kollegenanzeigen gestalten.
-- [ ] UI-Zoom, Tooltip-Stil, Fokusrahmen, reduzierte Bewegung und Kontrastmodus definieren.
-- [ ] erste Stilprobe im Spiel bauen: Pult-Rahmen, Papierkarte, Neonknopf, Druckanzeige und eine Figur mit Idle-Animation.
+- [x] Aus beiden Mockups eine interne Art Bible ableiten: Silhouetten, Materialien, Licht, Konturen, Farbkontraste und Comedy-Prinzipien.
+- [x] Farbrollen definieren: glühendes Rot/Orange für Gefahr, kaltes Seelen-Cyan, Agent-Rot, Archiv-Violett, Dispatcher-Bernstein sowie Statusfarben mit Symbolunterstützung.
+- [x] UI-Materialien als 9-Slice-Sets planen: geschwärztes Metall, schiefes Holz, vergilbtes Papier, Neonröhre, Bakelit.
+- [x] gemeinsame Kontrollraum-Kulisse in Parallax-Ebenen zerlegen: Hintergrundhölle, Brücken/Silhouetten, Rohre/Ketten, Pult, Vordergrund-Requisiten.
+- [x] pro Rolle eine eigene Bildkomposition als Wireframe erstellen; nur das eigene Pult ist interaktiv.
+- [x] gemeinsame obere Statusleiste und reduzierte Kollegenanzeigen gestalten.
+- [x] UI-Zoom, Tooltip-Stil, Fokusrahmen, reduzierte Bewegung und Kontrastmodus definieren.
+- [x] erste Stilprobe im Spiel bauen: Pult-Rahmen, Papierkarte, Neonknopf, Druckanzeige und eine Figur mit Idle-Animation.
 
 Abnahme:
 
