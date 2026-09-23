@@ -1,0 +1,11 @@
+# Deterministische Simulation (Version 1)
+
+Der Headless-Kern liegt in `src/game/state/simulation.ts`. Er liest validierte Content-Pakete; Szenen und Netzwerk sind noch nicht angebunden. Der Host erzeugt einen 128-Bit-Seed, startet `createSimulation`, ruft `advanceToTick` mit monoton steigenden ganzzahligen Ticks auf und führt Aktionen sowie externe Systemereignisse über `recordInput` aus. Abgewiesene Eingaben ändern weder Zustand noch Log.
+
+Ein Tick dauert 100 ms. Die Schichtuhr, Queue-Druck und Dialog-Cooldown werden ausschließlich in Ticks fortgeschrieben. Pausen stoppen die Schichtuhr und ihre Timer. Die Echtzeitbudgets für Netzwerkverbindungen liegen außerhalb des Kerns; ihr Ablauf wird als `DISCONNECT_EXPIRED` protokolliert. Der Host muss aus einer monotonen Uhr Tickziele ableiten, aber keine Uhrzeit in den kanonischen Zustand schreiben.
+
+Manuelle Seeds werden mit NFC normalisiert. Bereits angezeigte 32-stellige Hex-Seeds werden unverändert wieder eingelesen. Alle anderen Eingaben werden als UTF-8 mit zwei FNV-1a-64-Lanes auf 128 Bit abgebildet (`SEED_NORMALIZATION_VERSION = 1`). Der PRNG ist xorshift128+ (`PRNG_VERSION = 1`), mit vollständig serialisiertem Zustand aus zwei 64-Bit-Worten. Zufällige Entscheidungen nutzen ganzzahlige Ziehungen mit Rejection Sampling. Die Simulation ist `SIMULATION_VERSION = 1`.
+
+`createReplay` speichert Startkonfiguration, Seed, Versionen, Content-Hash, terminalen Host-Tick und angenommene Eingaben mit Tick und fortlaufender Reihenfolge. `replaySimulation` weist inkompatible Versionen, Content-Hashes und ungeordnete Logs zurück. Snapshots enthalten über `SimulationState.rngState` den aktuellen PRNG-Zustand; ein Vollreplay nimmt ihn ausschließlich aus dem Start-Seed. `canonicalState` sortiert Objektschlüssel für den Vergleich. Präsentationsereignisse sind nicht Teil dieses Vergleichs.
+
+Der Generator zieht Archetyp, Tags, Beschwerde, Ausnahmen und Maschinenlayout und prüft mögliche Ziele mit derselben Regel-Engine wie die Auflösung. Er versucht höchstens 128 zufällige Kandidaten und greift dann auf validierte Szenariobeispiele zurück. Falls unter den aktuellen Regeln und Druckwerten kein Ziel lösbar ist, bricht er mit einer Fehlermeldung ab. Content für spätere Eskalationsstufen muss deshalb passende Lösungen enthalten.

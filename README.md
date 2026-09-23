@@ -13,6 +13,8 @@ Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis
 
 Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](docs/content.md) beschrieben.
 
+Die Headless-Simulation aus Batch 3 ist in [docs/simulation.md](docs/simulation.md) beschrieben.
+
 ## Prüfen
 
 ```sh

@@ -33,7 +33,7 @@ export interface CaseState {
 }
 
 export interface MachineState {
-  controls: Record<string, number | boolean>;
+  controls: Record<string, number | boolean | string>;
   availableDestinations: DestinationId[];
 }
 

@@ -137,16 +137,16 @@ Abnahme:
 
 Ziel: Eine komplette Schicht kann headless simuliert werden.
 
-- [ ] 128-Bit-Seed, versionierte Normalisierung manueller Seed-Eingaben und deterministischen PRNG mit vollständig serialisierbarem Zustand implementieren.
-- [ ] PRNG-Algorithmus, Simulationsversion und festen ganzzahligen Tick festschreiben; Vollreplays enthalten Startkonfiguration, Seed, Versionen und Content-Hash, Snapshots/optionale Checkpoints zusätzlich den jeweils aktuellen PRNG-Zustand.
-- [ ] reinen Reducer und Commands für Lobby, Schicht, Fälle, Regeln, Maschine, Pause und Ergebnis bauen; monotone Netzwerk-Timeouts bleiben außerhalb des kanonischen Zustands und werden nur als geordnete Systemereignisse eingespeist.
-- [ ] Host-Tick und monotone Schichtuhr definieren; Timer, Cooldowns und Druckänderungen auf feste Ticks abbilden, Client-Uhren sind nur Darstellung.
-- [ ] angenommene Aktionen und zustandswirksame externe Systemereignisse am Host eindeutig nach Tick und monotoner Ordnungsnummer protokollieren; im deterministischen Kern weder Wanduhr noch unbeständige Objektiteration oder ungeklärte Gleitkommaarithmetik verwenden.
-- [ ] Fallzustandsautomat implementieren: `queued -> active -> investigating -> approved -> routing -> resolved` sowie Abbruchzustände.
-- [ ] Regel-Engine mit Priorität, Ausnahme, Konflikt und nachvollziehbarer Begründung bauen.
-- [ ] Generator so einschränken, dass mindestens ein gültiges Ziel existiert.
-- [ ] Druckwerte, Eskalationsstufen, Fehlergrade und Schichtende implementieren.
-- [ ] Domain-Events für Präsentation emittieren, z. B. `STAMP_APPLIED`, `CALLER_ANGERED`, `ROUTE_FAILED`.
+- [x] 128-Bit-Seed, versionierte Normalisierung manueller Seed-Eingaben und deterministischen PRNG mit vollständig serialisierbarem Zustand implementieren.
+- [x] PRNG-Algorithmus, Simulationsversion und festen ganzzahligen Tick festschreiben; Vollreplays enthalten Startkonfiguration, Seed, Versionen und Content-Hash, Snapshots/optionale Checkpoints zusätzlich den jeweils aktuellen PRNG-Zustand.
+- [x] reinen Reducer und Commands für Lobby, Schicht, Fälle, Regeln, Maschine, Pause und Ergebnis bauen; monotone Netzwerk-Timeouts bleiben außerhalb des kanonischen Zustands und werden nur als geordnete Systemereignisse eingespeist.
+- [x] Host-Tick und monotone Schichtuhr definieren; Timer, Cooldowns und Druckänderungen auf feste Ticks abbilden, Client-Uhren sind nur Darstellung.
+- [x] angenommene Aktionen und zustandswirksame externe Systemereignisse am Host eindeutig nach Tick und monotoner Ordnungsnummer protokollieren; im deterministischen Kern weder Wanduhr noch unbeständige Objektiteration oder ungeklärte Gleitkommaarithmetik verwenden.
+- [x] Fallzustandsautomat implementieren: `queued -> active -> investigating -> approved -> routing -> resolved` sowie Abbruchzustände.
+- [x] Regel-Engine mit Priorität, Ausnahme, Konflikt und nachvollziehbarer Begründung bauen.
+- [x] Generator so einschränken, dass mindestens ein gültiges Ziel existiert.
+- [x] Druckwerte, Eskalationsstufen, Fehlergrade und Schichtende implementieren.
+- [x] Domain-Events für Präsentation emittieren, z. B. `STAMP_APPLIED`, `CALLER_ANGERED`, `ROUTE_FAILED`.
 
 Abnahme:
 
