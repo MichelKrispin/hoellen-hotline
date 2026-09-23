@@ -41,7 +41,7 @@ Ecken, Nieten, Clips und Lichtreflexe liegen in festen Randsegmenten. Text und H
 
 ## Ebenen und Ansichten
 
-Von hinten nach vorn: 1 Hintergrundhölle mit Stadt und Lava, 2 Brücken und kleine Silhouetten, 3 Raumrohre/Ketten/Warnlichter, 4 rolleneigenes Pult und Figur, 5 Vordergrund mit Papier, Werkzeug und Gags. Die derzeitige Stilprobe setzt diese Ebenen mit Phaser Graphics um.
+Von hinten nach vorn: 1 Hintergrundhölle mit Stadt und Lava, 2 Brücken und kleine Silhouetten, 3 Raumrohre/Ketten/Warnlichter, 4 rolleneigenes Pult und Figur, 5 Vordergrund mit Papier, Werkzeug und Gags. Die Stilprobe zeichnet die Kulisse als getrennte Phaser-Graphics-Ebenen. Brücken und Raumarmaturen reagieren leicht unterschiedlich auf Zeigerbewegung; bei reduzierter Bewegung bleiben sie stehen. Auf dem Titelbild kennzeichnen Telefon, Aktenstapel und Hebelbank die drei Figuren auch ohne Rollenlabels.
 
 ```text
 Gemeinsam:  [ROLLE] [QUEUE] [ZEIT] [STRESS] [FALL-ID] [FREIGABE]

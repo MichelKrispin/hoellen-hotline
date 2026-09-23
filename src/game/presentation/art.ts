@@ -133,7 +133,11 @@ export function gauge(
 }
 
 export function room(scene: Phaser.Scene, offset = 0): void {
-  const g = scene.add.graphics();
+  const backdrop = scene.add.graphics();
+  const bridge = scene.add.graphics();
+  const fixtures = scene.add.graphics();
+  const foreground = scene.add.graphics();
+  let g = backdrop;
   g.fillGradientStyle(0x271927, 0x271927, 0x9b392f, 0xb94325).fillRect(
     0,
     0,
@@ -165,7 +169,8 @@ export function room(scene: Phaser.Scene, offset = 0): void {
     g.fillTriangle(x - 9, 555 - h, x + 35, 530 - h, x + 75, 555 - h);
     g.fillStyle(C.fire, 0.55).fillRect(x + 14, 600 - h, 7, 12);
   }
-  g.fillStyle(0x130f1a).fillRect(0, 615, DESIGN.width, 200);
+  g = bridge;
+  g.fillStyle(0x130f1a).fillRect(-20, 615, DESIGN.width + 40, 200);
   g.lineStyle(17, 0x201722).lineBetween(0, 494, DESIGN.width, 577);
   g.lineStyle(4, 0x8e4636, 0.55).lineBetween(0, 481, DESIGN.width, 564);
   for (let i = 0; i < 23; i++) {
@@ -180,6 +185,7 @@ export function room(scene: Phaser.Scene, offset = 0): void {
     );
     g.fillStyle(C.fire, 0.8).fillCircle(x + 16, 519 + i * 4, 3);
   }
+  g = fixtures;
   for (let i = 0; i < 7; i++) {
     const x = i * 320 - 60;
     g.fillStyle(0x281c24).fillRoundedRect(x, 260, 32, 600, 12);
@@ -196,6 +202,7 @@ export function room(scene: Phaser.Scene, offset = 0): void {
     const y = 145 + ((i * 139) % 610);
     g.fillStyle(i % 3 ? C.ember : C.fire, 0.35).fillCircle(x, y, 2 + (i % 3));
   }
+  g = foreground;
   g.fillStyle(C.wood).fillRect(0, 870, DESIGN.width, 210);
   g.lineStyle(12, C.woodEdge).lineBetween(0, 875, DESIGN.width, 875);
   g.lineStyle(4, 0x241622).lineBetween(0, 1018, DESIGN.width, 1018);
@@ -206,6 +213,90 @@ export function room(scene: Phaser.Scene, offset = 0): void {
       i * 157 + 76,
       1060,
     );
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+      const shift = pointer.x / DESIGN.width - 0.5;
+      bridge.x = -shift * 10;
+      fixtures.x = -shift * 22;
+    });
+  }
+}
+
+export function telephone(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  scale = 1,
+): void {
+  const g = scene.add.graphics();
+  g.setPosition(x, y).setScale(scale);
+  g.fillStyle(0x100d15, 0.6).fillEllipse(0, 14, 304, 53);
+  g.fillStyle(C.bakelite).fillRoundedRect(-134, -66, 268, 96, 24);
+  g.lineStyle(7, C.metalEdge).strokeRoundedRect(-134, -66, 268, 96, 24);
+  g.fillStyle(0x130f19).fillRoundedRect(-124, -110, 248, 39, 17);
+  g.lineStyle(7, C.agent).strokeRoundedRect(-124, -110, 248, 39, 17);
+  g.fillStyle(C.fire).fillCircle(0, -20, 26);
+  g.fillStyle(0x110e16).fillCircle(0, -20, 12);
+  for (const side of [-1, 1]) {
+    g.fillStyle(C.metalEdge).fillCircle(side * 90, -17, 13);
+    g.fillStyle(0x100d15).fillCircle(side * 90, -17, 7);
+  }
+  g.lineStyle(8, C.bakelite).strokeEllipse(136, -18, 80, 89);
+}
+
+export function archiveStack(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  scale = 1,
+): void {
+  const g = scene.add.graphics();
+  g.setPosition(x, y).setScale(scale);
+  for (let i = 0; i < 7; i++) {
+    const shift = (i % 3) * 8 - 8;
+    const yy = -i * 27;
+    g.fillStyle(0x33212a).fillRoundedRect(-120 + shift, yy - 28, 240, 31, 4);
+    g.lineStyle(3, C.woodEdge).strokeRoundedRect(
+      -120 + shift,
+      yy - 28,
+      240,
+      31,
+      4,
+    );
+    g.fillStyle(C.paper).fillRect(-94 + shift, yy - 24, 154, 22);
+    g.lineStyle(2, 0x8c604b).lineBetween(
+      -76 + shift,
+      yy - 13,
+      43 + shift,
+      yy - 13,
+    );
+  }
+  g.fillStyle(C.paper).fillRoundedRect(-100, -257, 194, 56, 4);
+  g.lineStyle(4, 0x9d7155).strokeRoundedRect(-100, -257, 194, 56, 4);
+  g.fillStyle(C.archivist).fillCircle(70, -230, 13);
+}
+
+export function leverConsole(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  scale = 1,
+): void {
+  const g = scene.add.graphics();
+  g.setPosition(x, y).setScale(scale);
+  g.fillStyle(C.metal).fillRoundedRect(-152, -108, 304, 145, 14);
+  g.lineStyle(7, C.metalEdge).strokeRoundedRect(-152, -108, 304, 145, 14);
+  for (let i = 0; i < 3; i++) {
+    const xx = -92 + i * 92;
+    g.fillStyle(0x110d17).fillRoundedRect(xx - 21, -48, 42, 66, 9);
+    g.lineStyle(10, 0x8d7772).lineBetween(xx, -34, xx + (i - 1) * 14, -136);
+    g.fillStyle(i === 1 ? C.error : C.dispatcher).fillCircle(
+      xx + (i - 1) * 14,
+      -141,
+      22,
+    );
+  }
+  g.fillStyle(C.error).fillCircle(123, -82, 10);
 }
 
 export function devil(

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "manifest": {
+    "schemaVersion": 1,
+    "id": "campaign.audit",
+    "version": "1.0.0",
+    "titleKey": "text.audit.title",
+    "descriptionKey": "text.audit.description",
+    "requiredCoreVersion": "1.0.0",
+    "dependencies": [{ "id": "campaign.core", "version": "1.0.0" }],
+    "chapters": ["campaign.audit.chapter.first"],
+    "contentPacks": ["campaign.audit.pack.base"],
+    "assetPack": "asset.audit.pack"
+  },
+  "chapters": [
+    {
+      "schemaVersion": 1,
+      "id": "campaign.audit.chapter.first",
+      "titleKey": "text.audit.chapter",
+      "scenarios": ["campaign.audit.scenario.first"]
+    }
+  ],
+  "scenarios": [
+    {
+      "schemaVersion": 1,
+      "id": "campaign.audit.scenario.first",
+      "mode": "campaign",
+      "titleKey": "text.audit.scenario",
+      "allowedContent": {
+        "archetypes": ["core.archetype.clerk"],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": ["core.destination.archive", "core.destination.wrath"],
+        "incidents": ["core.incident.jam"]
+      },
+      "casePlan": {
+        "count": 1,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": ["core.exception.stamped"],
+            "stamps": ["verified"],
+            "pressure": 35,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [],
+      "victory": { "kind": "resolveCases", "count": 1 }
+    }
+  ],
+  "packs": [
+    {
+      "schemaVersion": 1,
+      "id": "campaign.audit.pack.base",
+      "archetypes": [],
+      "complaints": [],
+      "tags": [],
+      "rules": [],
+      "exceptions": [],
+      "destinations": [],
+      "machineLayouts": [],
+      "incidents": [],
+      "dialogues": [],
+      "reactions": []
+    }
+  ],
+  "translations": {
+    "text.audit.title": "Audit aus der Oberhölle",
+    "text.audit.description": "Eine weitere Schicht.",
+    "text.audit.chapter": "Der Prüfer hört mit",
+    "text.audit.scenario": "Stempel unter Verdacht"
+  },
+  "assets": ["asset.audit.pack"]
+}

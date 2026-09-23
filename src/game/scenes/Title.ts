@@ -1,7 +1,17 @@
 import Phaser from "phaser";
 import { button, installDebugNavigation } from "./navigation";
 import { TOKENS } from "../../ui/tokens";
-import { devil, label, neon, paper, plate, room } from "../presentation/art";
+import {
+  archiveStack,
+  devil,
+  label,
+  leverConsole,
+  neon,
+  paper,
+  plate,
+  room,
+  telephone,
+} from "../presentation/art";
 
 const C = TOKENS.color;
 
@@ -17,9 +27,12 @@ export class Title extends Phaser.Scene {
     devil(this, 954, 744, 0.64, 0x71517b);
     devil(this, 1568, 675, 1.4, 0xa64131);
     plate(this, 107, 791, 1702, 266, C.wood, C.woodEdge);
-    paper(this, 750, 775, 397, 226);
-    label(this, 790, 819, "SEELEN-DOSSIER", 27, C.ink);
-    label(this, 790, 875, "☐  Wer ist schuld?", 25, C.ink);
+    telephone(this, 362, 863, 1.05);
+    archiveStack(this, 949, 907, 1.15);
+    leverConsole(this, 1571, 860, 1.1);
+    paper(this, 1082, 793, 238, 166);
+    label(this, 1103, 828, "EILT!", 30, C.ink);
+    label(this, 1103, 877, "SEIT 1666", 24, C.ink);
     neon(this, 318, 147, 1284, 320, C.fire);
     const title = this.add
       .text(960, 205, "Höllen-Hotline", {

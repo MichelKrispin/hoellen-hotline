@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "manifest": {
+    "schemaVersion": 1,
+    "id": "campaign.core",
+    "version": "1.0.0",
+    "titleKey": "text.core.title",
+    "descriptionKey": "text.core.description",
+    "requiredCoreVersion": "1.0.0",
+    "dependencies": [],
+    "chapters": ["core.chapter.first"],
+    "contentPacks": ["core.pack.base"],
+    "assetPack": "asset.core.pack"
+  },
+  "chapters": [
+    {
+      "schemaVersion": 1,
+      "id": "core.chapter.first",
+      "titleKey": "text.core.chapter",
+      "scenarios": ["core.scenario.first"]
+    }
+  ],
+  "scenarios": [
+    {
+      "schemaVersion": 1,
+      "id": "core.scenario.first",
+      "mode": "campaign",
+      "titleKey": "text.core.scenario",
+      "allowedContent": {
+        "archetypes": ["core.archetype.clerk"],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": ["core.destination.archive", "core.destination.wrath"],
+        "incidents": ["core.incident.jam"]
+      },
+      "casePlan": {
+        "count": 1,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": [],
+            "stamps": [],
+            "pressure": 20,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [],
+      "victory": { "kind": "resolveCases", "count": 1 }
+    }
+  ],
+  "packs": [
+    {
+      "schemaVersion": 1,
+      "id": "core.pack.base",
+      "archetypes": [
+        {
+          "schemaVersion": 1,
+          "id": "core.archetype.clerk",
+          "nameKey": "text.core.clerk",
+          "dossierKey": "text.core.dossier",
+          "possibleTags": ["core.tag.ink", "core.tag.queue"],
+          "possibleComplaints": ["core.complaint.missing-form"],
+          "dialogue": "core.dialogue.clerk",
+          "portrait": "asset.core.clerk"
+        }
+      ],
+      "complaints": [
+        {
+          "schemaVersion": 1,
+          "id": "core.complaint.missing-form",
+          "textKey": "text.core.complaint",
+          "hintTag": "core.tag.ink"
+        }
+      ],
+      "tags": [
+        {
+          "schemaVersion": 1,
+          "id": "core.tag.ink",
+          "textKey": "text.core.ink",
+          "symbol": "asset.core.ink"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.tag.queue",
+          "textKey": "text.core.queue",
+          "symbol": "asset.core.queue"
+        }
+      ],
+      "rules": [
+        {
+          "schemaVersion": 1,
+          "id": "core.rule.ink-red",
+          "textKey": "text.core.rule",
+          "priority": 10,
+          "destination": "core.destination.wrath",
+          "effect": "forbid",
+          "when": { "op": "hasTag", "id": "core.tag.ink" }
+        }
+      ],
+      "exceptions": [
+        {
+          "schemaVersion": 1,
+          "id": "core.exception.stamped",
+          "textKey": "text.core.exception",
+          "overrides": "core.rule.ink-red",
+          "priority": 20,
+          "destination": "core.destination.wrath",
+          "effect": "allow",
+          "when": { "op": "hasStamp", "id": "verified" }
+        }
+      ],
+      "destinations": [
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.archive",
+          "nameKey": "text.core.archive",
+          "descriptionKey": "text.core.archive-desc",
+          "symbol": "asset.core.archive",
+          "eligibility": { "op": "hasTag", "id": "core.tag.queue" },
+          "machineRequirements": [
+            { "control": "core.control.valve", "equals": true }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.wrath",
+          "nameKey": "text.core.wrath",
+          "descriptionKey": "text.core.wrath-desc",
+          "symbol": "asset.core.wrath",
+          "eligibility": { "op": "hasTag", "id": "core.tag.ink" },
+          "machineRequirements": [
+            { "control": "core.control.valve", "equals": false }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        }
+      ],
+      "machineLayouts": [
+        {
+          "schemaVersion": 1,
+          "id": "core.machine.switchboard",
+          "nameKey": "text.core.machine",
+          "controls": [
+            {
+              "id": "core.control.valve",
+              "kind": "toggle",
+              "values": [false, true],
+              "labelKey": "text.core.valve"
+            },
+            {
+              "id": "core.control.heat",
+              "kind": "dial",
+              "values": [0, 1],
+              "labelKey": "text.core.heat"
+            },
+            {
+              "id": "core.control.form",
+              "kind": "selector",
+              "values": ["red", "blue"],
+              "labelKey": "text.core.form"
+            }
+          ],
+          "availableDestinations": [
+            "core.destination.archive",
+            "core.destination.wrath"
+          ],
+          "bodyAsset": "asset.core.machine"
+        }
+      ],
+      "incidents": [
+        {
+          "schemaVersion": 1,
+          "id": "core.incident.jam",
+          "textKey": "text.core.jam",
+          "diagnosisKey": "text.core.jam-diagnosis",
+          "layout": "core.machine.switchboard",
+          "recovery": { "control": "core.control.heat", "equals": 0 },
+          "reaction": "core.reaction.wrong"
+        }
+      ],
+      "dialogues": [
+        {
+          "schemaVersion": 1,
+          "id": "core.dialogue.clerk",
+          "start": "hello",
+          "nodes": [
+            {
+              "id": "hello",
+              "textKey": "text.core.hello",
+              "choices": [
+                {
+                  "id": "ask",
+                  "textKey": "text.core.ask",
+                  "next": "answer",
+                  "revealTag": "core.tag.queue"
+                }
+              ]
+            },
+            { "id": "answer", "textKey": "text.core.answer", "choices": [] }
+          ]
+        }
+      ],
+      "reactions": [
+        {
+          "schemaVersion": 1,
+          "id": "core.reaction.ok",
+          "event": "correct",
+          "asset": "asset.core.ok",
+          "captionKey": "text.core.ok"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.reaction.maybe",
+          "event": "acceptable",
+          "asset": "asset.core.maybe",
+          "captionKey": "text.core.maybe"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.reaction.wrong",
+          "event": "wrong",
+          "asset": "asset.core.wrong",
+          "captionKey": "text.core.wrong"
+        }
+      ]
+    }
+  ],
+  "translations": {
+    "text.core.title": "Probezeit in der Ewigkeit",
+    "text.core.description": "Eine kurze Probeschicht.",
+    "text.core.chapter": "Erster Arbeitstag",
+    "text.core.scenario": "Die Leitung glüht",
+    "text.core.clerk": "Der Formularbeamte",
+    "text.core.dossier": "Hat jede Warteschlange alphabetisiert.",
+    "text.core.complaint": "Mein Formular ist verschwunden!",
+    "text.core.ink": "Rote Tinte",
+    "text.core.queue": "Warteschlange",
+    "text.core.rule": "Rote Tinte sperrt Zorn.",
+    "text.core.exception": "Mit Stempel doch zugelassen.",
+    "text.core.archive": "Archiv",
+    "text.core.archive-desc": "Für hoffnungslose Ablagefälle.",
+    "text.core.wrath": "Zorn",
+    "text.core.wrath-desc": "Heiß und laut.",
+    "text.core.machine": "Rohrpostverteiler",
+    "text.core.valve": "Ventil",
+    "text.core.heat": "Hitze",
+    "text.core.form": "Formular",
+    "text.core.jam": "Papierstau",
+    "text.core.jam-diagnosis": "Hitze auf null stellen.",
+    "text.core.hello": "Wo ist mein Antrag?",
+    "text.core.ask": "Warteten Sie lange?",
+    "text.core.answer": "Eine Ewigkeit.",
+    "text.core.ok": "Treffer",
+    "text.core.maybe": "Vertretbar",
+    "text.core.wrong": "Fehlleitung"
+  },
+  "assets": [
+    "asset.core.pack",
+    "asset.core.clerk",
+    "asset.core.ink",
+    "asset.core.queue",
+    "asset.core.archive",
+    "asset.core.wrath",
+    "asset.core.machine",
+    "asset.core.ok",
+    "asset.core.maybe",
+    "asset.core.wrong"
+  ]
+}

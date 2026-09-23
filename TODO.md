@@ -117,14 +117,14 @@ Konkrete Übertragung der Mockups:
 
 Ziel: Neue Kampagnen können als Content-Paket ergänzt werden.
 
-- [ ] versionierte Zod-Schemas für `CampaignManifest`, `Chapter`, `Scenario`, `CaseArchetype`, `Complaint`, `LifeTag`, `RuleClause`, `Exception`, `Destination`, `MachineLayout`, `Incident`, `DialogueTree` und `Reaction` definieren.
-- [ ] stabile, namespace-fähige IDs einführen, z. B. `core.destination.wrath` und `campaign.audit.rule.ink-red`.
-- [ ] Referenzprüfung, Duplikatprüfung, unerreichbare Dialogknoten und ungültige Zielbedingungen validieren.
-- [ ] Content Registry mit expliziter Lade-Reihenfolge und Konfliktfehlern implementieren.
-- [ ] Trennung von Daten und Code erzwingen: Bedingungen über begrenzte deklarative Prädikate statt frei ausführbarem Skript.
-- [ ] Content-Version und Save-/Replay-Kompatibilität festlegen; Gameplay-Hash über versionierte kanonische Serialisierung bilden, sodass Dateireihenfolge, Whitespace und rein kosmetische Assets ihn nicht unbeabsichtigt ändern.
-- [ ] CLI `content:validate` und kleine Fixture-Kampagne anlegen.
-- [ ] Übersetzbare Textschlüssel von Gameplay-IDs trennen.
+- [x] versionierte Zod-Schemas für `CampaignManifest`, `Chapter`, `Scenario`, `CaseArchetype`, `Complaint`, `LifeTag`, `RuleClause`, `Exception`, `Destination`, `MachineLayout`, `Incident`, `DialogueTree` und `Reaction` definieren.
+- [x] stabile, namespace-fähige IDs einführen, z. B. `core.destination.wrath` und `campaign.audit.rule.ink-red`.
+- [x] Referenzprüfung, Duplikatprüfung, unerreichbare Dialogknoten und ungültige Zielbedingungen validieren.
+- [x] Content Registry mit expliziter Lade-Reihenfolge und Konfliktfehlern implementieren.
+- [x] Trennung von Daten und Code erzwingen: Bedingungen über begrenzte deklarative Prädikate statt frei ausführbarem Skript.
+- [x] Content-Version und Save-/Replay-Kompatibilität festlegen; Gameplay-Hash über versionierte kanonische Serialisierung bilden, sodass Dateireihenfolge, Whitespace und rein kosmetische Assets ihn nicht unbeabsichtigt ändern.
+- [x] CLI `content:validate` und kleine Fixture-Kampagne anlegen.
+- [x] Übersetzbare Textschlüssel von Gameplay-IDs trennen.
 
 Abnahme:
 

@@ -1,0 +1,11 @@
+# Content-Pakete (Schema 1)
+
+`src/content/core/fixture.json` und `src/content/campaigns/audit/fixture.json` sind zwei ladbare Beispielkampagnen. Ein Paket ist reines JSON. `npm run content:validate` findet die Dateien unter `src/content`, ordnet sie anhand der Manifest-Abhängigkeiten und lädt sie mit `loadContent`. Zur Laufzeit kann derselbe Loader bereits importierte JSON-Daten in dieser Reihenfolge registrieren. Neue Inhalte brauchen keine Imports in Szenen, Reducer oder Rollenmodulen.
+
+Jedes Objekt besitzt `schemaVersion: 1`. Kampagnen besitzen eine SemVer-Version und verlangen die exakte Core-Content-Version `1.0.0`; Abhängigkeiten nennen Kampagnen-ID und exakte Version. Das Schema ist geschlossen: Zusätzliche Felder und frei ausführbarer Code werden abgewiesen. Neue Mechaniken erfordern eine neue Core-/Schema-Version. Die Fixture ist klein und keine vollständige Basiskampagne.
+
+Gameplay-IDs sind nach dem Muster `<namespace>.<typ>.<name>` aufgebaut, etwa `core.destination.wrath` und `campaign.audit.scenario.first`. `campaign.core` verwendet den Namespace `core`; andere Kampagnen verwenden ihre Manifest-ID. Text wird separat unter `text.*`, Assets unter `asset.*` referenziert. `translations` und `assets` dienen hier als Referenzkataloge. Die eigentliche Asset-Pipeline folgt in Batch 12.
+
+Prädikate verwenden ausschließlich `all`, `any`, `not`, `hasTag`, `hasStamp`, `destinationIs`, `pressureBelow` und `caseCountAtLeast`. Der Validator prüft Typen, ID-Eindeutigkeit, Referenzen, Maschinenanforderungen, Dialog-Erreichbarkeit, Regelprioritäten und jedes deklarierte Beispielszenario gegen seine Maschinenlayouts. `casePlan.samples` sind prüfbare Lösbarkeitsbeispiele; die spätere Generator-/Regel-Engine muss zusätzlich alle erzeugten Fälle prüfen.
+
+Der SHA-256-Gameplay-Hash nutzt kanonisches JSON mit sortierten Objektschlüsseln, Paket- und Entity-Sammlungen. Reihenfolgen mit Spielbedeutung, etwa Kapitel, Szenarien und Dialogoptionen, bleiben erhalten. Übersetzungen, Textschlüssel und kosmetische Asset-/Reaktionsbindungen gehen nicht in den Hash ein. `GAMEPLAY_HASH_VERSION = 1` ist Teil der serialisierten Eingabe. Save-/Replay-Daten müssen Content-Schema-Version, Gameplay-Hash-Version und Hash enthalten; `isReplayCompatible` akzeptiert nur exakte Übereinstimmung. Künftige Migrationen müssen explizit implementiert werden.

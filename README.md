@@ -11,11 +11,14 @@ npm run dev
 
 Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis. Die Rollenpulte sind visuelle Stilproben; Spielmechanik folgt in späteren Batches. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md).
 
+Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](docs/content.md) beschrieben.
+
 ## Prüfen
 
 ```sh
 npm run lint
 npm test
+npm run content:validate
 npm run build
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npm run test:e2e
 VITE_BASE=/hoellen_hotline/ npm run build
