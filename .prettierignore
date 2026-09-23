@@ -1,0 +1,9 @@
+package-lock.json
+dist
+node_modules
+playwright-report
+test-results
+*.png
+TODO.md
+gameplay.md
+hoellen-hotline-spezifikation.md
