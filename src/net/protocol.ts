@@ -8,6 +8,7 @@ export const PROTOCOL_VERSION = 1 as const;
 const hex128 = z.string().regex(/^[0-9a-f]{32}$/);
 const hashSchema = z.string().regex(/^[0-9a-f]{64}$/);
 const revisionSchema = z.number().int().nonnegative();
+const controlValue = z.union([z.string(), z.number(), z.boolean()]);
 const role = z.enum(["agent", "archivist", "dispatcher"]);
 const event = z.discriminatedUnion("kind", [
   z
@@ -114,13 +115,59 @@ const roleView = z.discriminatedUnion("role", [
       role: z.literal("dispatcher"),
       machine: z
         .object({
-          controls: z.record(
-            z.string(),
-            z.union([z.string(), z.number(), z.boolean()]),
-          ),
+          controls: z.record(z.string(), controlValue),
           availableDestinations: z.array(z.string()),
         })
         .strict(),
+      controls: z.array(
+        z
+          .object({
+            id: z.string(),
+            label: z.string(),
+            kind: z.enum(["toggle", "dial", "selector"]),
+            values: z.array(controlValue),
+            value: controlValue,
+          })
+          .strict(),
+      ),
+      destinations: z.array(
+        z
+          .object({
+            id: z.string(),
+            name: z.string(),
+            description: z.string(),
+            kind: z.enum(["standard", "special"]),
+            glyph: z.string(),
+            requirements: z.array(
+              z
+                .object({
+                  controlId: z.string(),
+                  label: z.string(),
+                  value: controlValue,
+                })
+                .strict(),
+            ),
+          })
+          .strict(),
+      ),
+      incident: z
+        .object({
+          id: z.string(),
+          name: z.string(),
+          diagnosis: z.string(),
+          recoveryControlId: z.string(),
+          recoveryValue: controlValue,
+        })
+        .strict()
+        .nullable(),
+      prepared: z.boolean(),
+      lastOutcome: z
+        .object({
+          caseId: z.string(),
+          outcome: z.enum(["correct", "acceptable", "wrong", "catastrophic"]),
+        })
+        .strict()
+        .nullable(),
     })
     .strict(),
 ]);
@@ -180,6 +227,8 @@ export const commandSchema = z.discriminatedUnion("kind", [
     controlId: z.string(),
     value: z.union([z.string(), z.number(), z.boolean()]),
   }),
+  z.object({ kind: z.literal("RECOVER_INCIDENT"), caseId: z.string() }),
+  z.object({ kind: z.literal("PREPARE"), caseId: z.string() }),
   z.object({ kind: z.literal("ROUTE_COMMIT"), caseId: z.string() }),
   z.object({ kind: z.literal("PAUSE") }),
   z.object({ kind: z.literal("RESUME") }),

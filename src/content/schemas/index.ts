@@ -175,6 +175,8 @@ export const DestinationSchema = base
     nameKey: textKey,
     descriptionKey: textKey,
     symbol: assetId,
+    kind: z.enum(["standard", "special"]).optional(),
+    glyph: z.string().min(1).max(3).optional(),
     eligibility: PredicateSchema,
     machineRequirements: z.array(machineRequirement),
     reactions: z.object({ correct: id, acceptable: id, wrong: id }).strict(),

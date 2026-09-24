@@ -140,6 +140,27 @@ export interface RuleEntryView {
   overrides: string | null;
 }
 
+export interface MachineControlView {
+  id: string;
+  label: string;
+  kind: "toggle" | "dial" | "selector";
+  values: (string | number | boolean)[];
+  value: string | number | boolean;
+}
+
+export interface DestinationView {
+  id: DestinationId;
+  name: string;
+  description: string;
+  kind: "standard" | "special";
+  glyph: string;
+  requirements: {
+    controlId: string;
+    label: string;
+    value: string | number | boolean;
+  }[];
+}
+
 export type RoleView =
   | {
       role: "agent";
@@ -165,7 +186,24 @@ export type RoleView =
       tagLabels: Record<string, string>;
       stamp: "verified" | "questionable" | "reject" | null;
     }
-  | { role: "dispatcher"; machine: MachineState };
+  | {
+      role: "dispatcher";
+      machine: MachineState;
+      controls: MachineControlView[];
+      destinations: DestinationView[];
+      incident: {
+        id: string;
+        name: string;
+        diagnosis: string;
+        recoveryControlId: string;
+        recoveryValue: string | number | boolean;
+      } | null;
+      prepared: boolean;
+      lastOutcome: {
+        caseId: CaseId;
+        outcome: "correct" | "acceptable" | "wrong" | "catastrophic";
+      } | null;
+    };
 
 export interface PlayerViewState {
   public: PublicShiftView;

@@ -37,6 +37,90 @@ const config: StartConfig = {
 };
 
 describe("deterministic simulation", () => {
+  it("requires incident recovery, machine preparation and all three approvals before routing", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    let state = createSimulation(config, "dispatcher safety", hash);
+    let serial = 0;
+    const attempt = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `dispatcher-${++serial}` as ActionId,
+          command,
+        },
+        packages,
+      );
+      if (!result.rejected) state = result.state;
+      return result.rejected;
+    };
+    for (const playerId of [agent, archivist, dispatcher])
+      expect(attempt(playerId, { kind: "READY", ready: true })).toBeUndefined();
+    expect(attempt(agent, { kind: "START" })).toBeUndefined();
+    const caseId = state.cases[0]!.id;
+    expect(attempt(agent, { kind: "ACCEPT_CASE", caseId })).toBeUndefined();
+    expect(
+      attempt(dispatcher, {
+        kind: "SELECT_DESTINATION",
+        caseId,
+        destinationId: "core.destination.archive",
+      }),
+    ).toBeUndefined();
+    expect(attempt(agent, { kind: "PREPARE", caseId })).toBe(
+      "No destination selected",
+    );
+    expect(attempt(dispatcher, { kind: "PREPARE", caseId })).toBe(
+      "Incident unresolved",
+    );
+    expect(attempt(dispatcher, { kind: "RECOVER_INCIDENT", caseId })).toBe(
+      "Incident recovery condition not met",
+    );
+    expect(
+      attempt(dispatcher, {
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: "core.control.heat",
+        value: 0,
+      }),
+    ).toBeUndefined();
+    expect(
+      attempt(dispatcher, { kind: "RECOVER_INCIDENT", caseId }),
+    ).toBeUndefined();
+    expect(attempt(dispatcher, { kind: "PREPARE", caseId })).toBe(
+      "Machine requirements not met",
+    );
+    expect(
+      attempt(dispatcher, {
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: "core.control.valve",
+        value: true,
+      }),
+    ).toBeUndefined();
+    expect(attempt(dispatcher, { kind: "PREPARE", caseId })).toBeUndefined();
+    expect(attempt(dispatcher, { kind: "ROUTE_COMMIT", caseId })).toBe(
+      "Routing not approved",
+    );
+    for (const playerId of [agent, archivist, dispatcher])
+      expect(
+        attempt(playerId, { kind: "APPROVE", caseId, approved: true }),
+      ).toBeUndefined();
+    expect(state.cases[0]!.status).toBe("approved");
+    expect(
+      attempt(dispatcher, {
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: "core.control.valve",
+        value: false,
+      }),
+    ).toBeUndefined();
+    expect(state.cases[0]!.prepared).toBe(false);
+    expect(state.cases[0]!.approvals.dispatcher).toBe(false);
+    expect(attempt(dispatcher, { kind: "ROUTE_COMMIT", caseId })).toBe(
+      "Routing not approved",
+    );
+  });
   it("validates archivist pin slots, replacement, removal and stamps on the host", async () => {
     const hash = (await loadContent(packages)).gameplayHash;
     let state = createSimulation(config, "archive", hash);
@@ -401,17 +485,35 @@ describe("deterministic simulation", () => {
     expect(state.shift.elapsedMs).toBe(frozen);
     system("RECONNECTED");
     state = advanceToTick(state, 131);
+    const destinationId = state.cases[0]!.trueDestination;
     send(dispatcher, {
       kind: "SELECT_DESTINATION",
       caseId,
-      destinationId: "core.destination.archive",
+      destinationId,
     });
-    send(dispatcher, {
-      kind: "MACHINE_CONTROL",
-      caseId,
-      controlId: "core.control.valve",
-      value: true,
-    });
+    const incident = packages[0]!.packs[0]!.incidents.find(
+      (item) => item.id === state.cases[0]!.incidentId,
+    );
+    if (incident) {
+      send(dispatcher, {
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: incident.recovery.control,
+        value: incident.recovery.equals,
+      });
+      send(dispatcher, { kind: "RECOVER_INCIDENT", caseId });
+    }
+    const destination = packages[0]!.packs[0]!.destinations.find(
+      (item) => item.id === destinationId,
+    )!;
+    for (const requirement of destination.machineRequirements)
+      send(dispatcher, {
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: requirement.control,
+        value: requirement.equals,
+      });
+    send(dispatcher, { kind: "PREPARE", caseId });
     send(agent, { kind: "APPROVE", caseId, approved: true });
     send(archivist, { kind: "APPROVE", caseId, approved: true });
     send(dispatcher, { kind: "APPROVE", caseId, approved: true });
@@ -543,14 +645,31 @@ describe("deterministic simulation", () => {
       send(dispatcher, {
         kind: "SELECT_DESTINATION",
         caseId,
-        destinationId: "core.destination.archive",
+        destinationId: state.cases[i]!.trueDestination,
       });
-      send(dispatcher, {
-        kind: "MACHINE_CONTROL",
-        caseId,
-        controlId: "core.control.valve",
-        value: true,
-      });
+      const incident = shiftPackages[0]!.packs[0]!.incidents.find(
+        (item) => item.id === state.cases[i]!.incidentId,
+      );
+      if (incident) {
+        send(dispatcher, {
+          kind: "MACHINE_CONTROL",
+          caseId,
+          controlId: incident.recovery.control,
+          value: incident.recovery.equals,
+        });
+        send(dispatcher, { kind: "RECOVER_INCIDENT", caseId });
+      }
+      const destination = shiftPackages[0]!.packs[0]!.destinations.find(
+        (item) => item.id === state.cases[i]!.trueDestination,
+      )!;
+      for (const requirement of destination.machineRequirements)
+        send(dispatcher, {
+          kind: "MACHINE_CONTROL",
+          caseId,
+          controlId: requirement.control,
+          value: requirement.equals,
+        });
+      send(dispatcher, { kind: "PREPARE", caseId });
       for (const player of config.players)
         send(player.id, { kind: "APPROVE", caseId, approved: true });
       send(dispatcher, { kind: "ROUTE_COMMIT", caseId });

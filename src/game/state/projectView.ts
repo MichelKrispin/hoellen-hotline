@@ -178,7 +178,46 @@ export function projectView(
         presentation: [],
       };
     }
-    case "dispatcher":
+    case "dispatcher": {
+      const controlViews = (layout?.controls ?? []).map((control) => ({
+        id: control.id,
+        label: translate(control.labelKey),
+        kind: control.kind,
+        values: [...control.values],
+        value: state.machine.controls[control.id] ?? control.values[0]!,
+      }));
+      const scenarioDestinations =
+        packages
+          .flatMap((pkg) => pkg.scenarios)
+          .find((item) => item.id === simState.scenarioId)?.allowedContent
+          .destinations ?? [];
+      const destinationViews = destinations
+        .filter(
+          (destination) =>
+            layout?.availableDestinations.includes(destination.id) &&
+            scenarioDestinations.includes(destination.id),
+        )
+        .map((destination) => ({
+          id: destination.id as never,
+          name: translate(destination.nameKey),
+          description: translate(destination.descriptionKey),
+          kind: destination.kind ?? ("standard" as const),
+          glyph: destination.glyph ?? "◇",
+          requirements: destination.machineRequirements.map((requirement) => ({
+            controlId: requirement.control,
+            label:
+              controlViews.find((control) => control.id === requirement.control)
+                ?.label ?? requirement.control,
+            value: requirement.equals,
+          })),
+        }));
+      const incident = packages
+        .flatMap((pkg) => pkg.packs)
+        .flatMap((pack) => pack.incidents)
+        .find((entry) => entry.id === simCase?.incidentId);
+      const lastResolved = [...state.cases]
+        .reverse()
+        .find((entry) => entry.status === "resolved") as SimCase | undefined;
       return {
         public: publicView,
         role: {
@@ -187,8 +226,28 @@ export function projectView(
             controls: { ...state.machine.controls },
             availableDestinations: [...state.machine.availableDestinations],
           },
+          controls: controlViews,
+          destinations: destinationViews,
+          incident:
+            incident && !simCase?.incidentRecovered
+              ? {
+                  id: incident.id,
+                  name: translate(incident.textKey),
+                  diagnosis: translate(incident.diagnosisKey),
+                  recoveryControlId: incident.recovery.control,
+                  recoveryValue: incident.recovery.equals,
+                }
+              : null,
+          prepared: simCase?.prepared ?? false,
+          lastOutcome: lastResolved?.outcome
+            ? {
+                caseId: lastResolved.id,
+                outcome: lastResolved.outcome,
+              }
+            : null,
         },
         presentation: [],
       };
+    }
   }
 }

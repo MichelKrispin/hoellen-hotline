@@ -243,13 +243,13 @@ Abnahme:
 
 Ziel: Routing fühlt sich wie eine widerspenstige physische Maschine an.
 
-- [ ] erstes Maschinenlayout mit 3–6 Controls und klaren Zustandsanzeigen bauen.
-- [ ] neun Ziele plus Sonderziel-Slots als datengetriebene Zielbank integrieren.
-- [ ] Vorbereitung, Sicherheitsfreigabe und finalen Hebel als getrennte Schritte implementieren.
-- [ ] Bedingungen wie Temperatur, Formularfarbe, Siegel und Ventilstellung abbilden.
-- [ ] Störungen mit Diagnosehinweis und Gegenaktion integrieren.
-- [ ] spürbar befriedigende Hebelanimation, Rückstoß, Funken, Rauch und Audio bauen.
-- [ ] korrekte und falsche Routing-Sequenz als kurze, abbrechbare Slapstick-Vignette integrieren.
+- [x] erstes Maschinenlayout mit 3–6 Controls und klaren Zustandsanzeigen bauen.
+- [x] neun Ziele plus Sonderziel-Slots als datengetriebene Zielbank integrieren.
+- [x] Vorbereitung, Sicherheitsfreigabe und finalen Hebel als getrennte Schritte implementieren.
+- [x] Bedingungen wie Temperatur, Formularfarbe, Siegel und Ventilstellung abbilden.
+- [x] Störungen mit Diagnosehinweis und Gegenaktion integrieren.
+- [x] spürbar befriedigende Hebelanimation, Rückstoß, Funken, Rauch und Audio bauen.
+- [x] korrekte und falsche Routing-Sequenz als kurze, abbrechbare Slapstick-Vignette integrieren.
 
 Abnahme:
 

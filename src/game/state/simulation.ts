@@ -46,6 +46,9 @@ export interface SimCase extends Omit<
   dialogueNode: string;
   discoveredTags: string[];
   suggestionUsed: boolean;
+  prepared: boolean;
+  incidentId: string | null;
+  incidentRecovered: boolean;
   outcome: "correct" | "acceptable" | "wrong" | "catastrophic" | null;
 }
 
@@ -100,6 +103,8 @@ export type SimCommand =
       controlId: string;
       value: ControlValue;
     }
+  | { kind: "RECOVER_INCIDENT"; caseId: CaseId }
+  | { kind: "PREPARE"; caseId: CaseId }
   | { kind: "ROUTE_COMMIT"; caseId: CaseId }
   | { kind: "PAUSE" }
   | { kind: "RESUME" }
@@ -282,6 +287,25 @@ function spawnCase(
   state.machine.controls = Object.fromEntries(
     layout.controls.map((control) => [control.id, control.values[0]!]),
   );
+  const incident = packages
+    .flatMap((pkg) => pkg.packs)
+    .flatMap((pack) => pack.incidents)
+    .find(
+      (entry) =>
+        entry.id === content.scenario.allowedContent.incidents[0] &&
+        entry.layout === layout.id,
+    );
+  const incidentActive = Boolean(incident) && state.cases.length % 2 === 0;
+  if (incidentActive && incident) {
+    const control = layout.controls.find(
+      (entry) => entry.id === incident.recovery.control,
+    );
+    const wrongValue = control?.values.find(
+      (value) => value !== incident.recovery.equals,
+    );
+    if (wrongValue !== undefined)
+      state.machine.controls[incident.recovery.control] = wrongValue;
+  }
   state.machine.availableDestinations =
     layout.availableDestinations as GameState["machine"]["availableDestinations"];
   state.cases.push({
@@ -304,6 +328,9 @@ function spawnCase(
     dialogueNode: dialogue.start,
     discoveredTags: [],
     suggestionUsed: false,
+    prepared: false,
+    incidentId: incidentActive ? incident!.id : null,
+    incidentRecovered: !incidentActive,
     outcome: null,
   });
 }
@@ -683,7 +710,10 @@ export function reduceInput(
           case "SELECT_DESTINATION":
             if (
               role !== "dispatcher" ||
-              !layout.availableDestinations.includes(command.destinationId)
+              !layout.availableDestinations.includes(command.destinationId) ||
+              !content.scenario.allowedContent.destinations.includes(
+                command.destinationId,
+              )
             )
               return reject("Unavailable destination");
             item.selectedDestination = command.destinationId as never;
@@ -692,6 +722,7 @@ export function reduceInput(
               archivist: false,
               dispatcher: false,
             };
+            item.prepared = false;
             item.status = "investigating";
             break;
           case "MACHINE_CONTROL": {
@@ -703,11 +734,47 @@ export function reduceInput(
               return reject("Invalid machine value");
             state.machine.controls[command.controlId] = command.value;
             item.approvals.dispatcher = false;
+            item.prepared = false;
+            item.status = "investigating";
+            break;
+          }
+          case "RECOVER_INCIDENT": {
+            if (
+              role !== "dispatcher" ||
+              !item.incidentId ||
+              item.incidentRecovered
+            )
+              return reject("No active incident");
+            const incident = packages
+              .flatMap((pkg) => pkg.packs)
+              .flatMap((pack) => pack.incidents)
+              .find((entry) => entry.id === item.incidentId)!;
+            if (
+              state.machine.controls[incident.recovery.control] !==
+              incident.recovery.equals
+            )
+              return reject("Incident recovery condition not met");
+            item.incidentRecovered = true;
+            item.prepared = false;
+            break;
+          }
+          case "PREPARE": {
+            if (role !== "dispatcher" || !item.selectedDestination)
+              return reject("No destination selected");
+            if (!item.incidentRecovered) return reject("Incident unresolved");
+            const destination = content.destinations.find(
+              (entry) => entry.id === item.selectedDestination,
+            )!;
+            if (!machineCanRoute(destination, layout, state.machine.controls))
+              return reject("Machine requirements not met");
+            item.prepared = true;
             break;
           }
           case "APPROVE":
             if (!item.selectedDestination)
               return reject("No destination selected");
+            if (role === "dispatcher" && command.approved && !item.prepared)
+              return reject("Machine not prepared");
             item.approvals[role] = command.approved;
             item.status = Object.values(item.approvals).every(Boolean)
               ? "approved"
@@ -717,9 +784,22 @@ export function reduceInput(
             if (
               role !== "dispatcher" ||
               item.status !== "approved" ||
-              !item.selectedDestination
+              !item.selectedDestination ||
+              !item.prepared ||
+              !item.incidentRecovered ||
+              !Object.values(item.approvals).every(Boolean)
             )
               return reject("Routing not approved");
+            if (
+              !machineCanRoute(
+                content.destinations.find(
+                  (entry) => entry.id === item.selectedDestination,
+                )!,
+                layout,
+                state.machine.controls,
+              )
+            )
+              return reject("Machine requirements changed");
             resolve(state, item, packages, events);
             break;
         }

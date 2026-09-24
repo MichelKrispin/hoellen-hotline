@@ -34,7 +34,20 @@
         ],
         "complaints": ["core.complaint.missing-form"],
         "tags": ["core.tag.ink", "core.tag.queue"],
-        "destinations": ["core.destination.archive", "core.destination.wrath"],
+        "destinations": [
+          "core.destination.archive",
+          "core.destination.wrath",
+          "core.destination.greed",
+          "core.destination.envy",
+          "core.destination.sloth",
+          "core.destination.lust",
+          "core.destination.gluttony",
+          "core.destination.pride",
+          "core.destination.limbo",
+          "core.destination.audit",
+          "core.destination.return",
+          "core.destination.quarantine"
+        ],
         "incidents": ["core.incident.jam"]
       },
       "casePlan": {
@@ -54,7 +67,10 @@
       "machineLayouts": ["core.machine.switchboard"],
       "startingRules": ["core.rule.ink-red"],
       "mutators": [],
-      "victory": { "kind": "resolveCases", "count": 1 }
+      "victory": {
+        "kind": "resolveCases",
+        "count": 1
+      }
     }
   ],
   "packs": [
@@ -135,7 +151,10 @@
           "priority": 10,
           "destination": "core.destination.wrath",
           "effect": "forbid",
-          "when": { "op": "hasTag", "id": "core.tag.ink" }
+          "when": {
+            "op": "hasTag",
+            "id": "core.tag.ink"
+          }
         }
       ],
       "exceptions": [
@@ -147,7 +166,10 @@
           "priority": 20,
           "destination": "core.destination.wrath",
           "effect": "allow",
-          "when": { "op": "hasStamp", "id": "verified" }
+          "when": {
+            "op": "hasStamp",
+            "id": "verified"
+          }
         }
       ],
       "destinations": [
@@ -157,9 +179,69 @@
           "nameKey": "text.core.archive",
           "descriptionKey": "text.core.archive-desc",
           "symbol": "asset.core.archive",
-          "eligibility": { "op": "hasTag", "id": "core.tag.queue" },
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.queue"
+          },
           "machineRequirements": [
-            { "control": "core.control.valve", "equals": true }
+            {
+              "control": "core.control.valve",
+              "equals": true
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          },
+          "kind": "standard",
+          "glyph": "▤"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.wrath",
+          "nameKey": "text.core.wrath",
+          "descriptionKey": "text.core.wrath-desc",
+          "symbol": "asset.core.wrath",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.ink"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.valve",
+              "equals": false
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          },
+          "kind": "standard",
+          "glyph": "♨"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.greed",
+          "nameKey": "text.core.destination.greed",
+          "descriptionKey": "text.core.destination.greed-desc",
+          "symbol": "asset.core.destination.greed",
+          "kind": "standard",
+          "glyph": "◆",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.ink"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.heat",
+              "equals": 1
+            },
+            {
+              "control": "core.control.form",
+              "equals": "red"
+            }
           ],
           "reactions": {
             "correct": "core.reaction.ok",
@@ -169,13 +251,249 @@
         },
         {
           "schemaVersion": 1,
-          "id": "core.destination.wrath",
-          "nameKey": "text.core.wrath",
-          "descriptionKey": "text.core.wrath-desc",
-          "symbol": "asset.core.wrath",
-          "eligibility": { "op": "hasTag", "id": "core.tag.ink" },
+          "id": "core.destination.envy",
+          "nameKey": "text.core.destination.envy",
+          "descriptionKey": "text.core.destination.envy-desc",
+          "symbol": "asset.core.destination.envy",
+          "kind": "standard",
+          "glyph": "◉",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.queue"
+          },
           "machineRequirements": [
-            { "control": "core.control.valve", "equals": false }
+            {
+              "control": "core.control.valve",
+              "equals": false
+            },
+            {
+              "control": "core.control.seal",
+              "equals": true
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.sloth",
+          "nameKey": "text.core.destination.sloth",
+          "descriptionKey": "text.core.destination.sloth-desc",
+          "symbol": "asset.core.destination.sloth",
+          "kind": "standard",
+          "glyph": "☾",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.queue"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.heat",
+              "equals": 0
+            },
+            {
+              "control": "core.control.pressure",
+              "equals": 1
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.lust",
+          "nameKey": "text.core.destination.lust",
+          "descriptionKey": "text.core.destination.lust-desc",
+          "symbol": "asset.core.destination.lust",
+          "kind": "standard",
+          "glyph": "♥",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.ink"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.form",
+              "equals": "blue"
+            },
+            {
+              "control": "core.control.seal",
+              "equals": false
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.gluttony",
+          "nameKey": "text.core.destination.gluttony",
+          "descriptionKey": "text.core.destination.gluttony-desc",
+          "symbol": "asset.core.destination.gluttony",
+          "kind": "standard",
+          "glyph": "✦",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.queue"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.heat",
+              "equals": 1
+            },
+            {
+              "control": "core.control.valve",
+              "equals": true
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.pride",
+          "nameKey": "text.core.destination.pride",
+          "descriptionKey": "text.core.destination.pride-desc",
+          "symbol": "asset.core.destination.pride",
+          "kind": "standard",
+          "glyph": "♛",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.ink"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.pressure",
+              "equals": 2
+            },
+            {
+              "control": "core.control.seal",
+              "equals": true
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.limbo",
+          "nameKey": "text.core.destination.limbo",
+          "descriptionKey": "text.core.destination.limbo-desc",
+          "symbol": "asset.core.destination.limbo",
+          "kind": "standard",
+          "glyph": "◇",
+          "eligibility": {
+            "op": "hasTag",
+            "id": "core.tag.queue"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.form",
+              "equals": "blue"
+            },
+            {
+              "control": "core.control.diverter",
+              "equals": "neutral"
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.audit",
+          "nameKey": "text.core.destination.audit",
+          "descriptionKey": "text.core.destination.audit-desc",
+          "symbol": "asset.core.destination.audit",
+          "kind": "special",
+          "glyph": "⌁",
+          "eligibility": {
+            "op": "hasStamp",
+            "id": "verified"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.form",
+              "equals": "red"
+            },
+            {
+              "control": "core.control.seal",
+              "equals": true
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.return",
+          "nameKey": "text.core.destination.return",
+          "descriptionKey": "text.core.destination.return-desc",
+          "symbol": "asset.core.destination.return",
+          "kind": "special",
+          "glyph": "↶",
+          "eligibility": {
+            "op": "hasStamp",
+            "id": "questionable"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.diverter",
+              "equals": "return"
+            },
+            {
+              "control": "core.control.pressure",
+              "equals": 0
+            }
+          ],
+          "reactions": {
+            "correct": "core.reaction.ok",
+            "acceptable": "core.reaction.maybe",
+            "wrong": "core.reaction.wrong"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.destination.quarantine",
+          "nameKey": "text.core.destination.quarantine",
+          "descriptionKey": "text.core.destination.quarantine-desc",
+          "symbol": "asset.core.destination.quarantine",
+          "kind": "special",
+          "glyph": "⊘",
+          "eligibility": {
+            "op": "hasStamp",
+            "id": "reject"
+          },
+          "machineRequirements": [
+            {
+              "control": "core.control.valve",
+              "equals": false
+            },
+            {
+              "control": "core.control.seal",
+              "equals": true
+            }
           ],
           "reactions": {
             "correct": "core.reaction.ok",
@@ -207,11 +525,39 @@
               "kind": "selector",
               "values": ["red", "blue"],
               "labelKey": "text.core.form"
+            },
+            {
+              "id": "core.control.seal",
+              "kind": "toggle",
+              "values": [false, true],
+              "labelKey": "text.core.seal"
+            },
+            {
+              "id": "core.control.diverter",
+              "kind": "selector",
+              "values": ["left", "neutral", "return"],
+              "labelKey": "text.core.diverter"
+            },
+            {
+              "id": "core.control.pressure",
+              "kind": "dial",
+              "values": [0, 1, 2],
+              "labelKey": "text.core.pressure"
             }
           ],
           "availableDestinations": [
             "core.destination.archive",
-            "core.destination.wrath"
+            "core.destination.wrath",
+            "core.destination.greed",
+            "core.destination.envy",
+            "core.destination.sloth",
+            "core.destination.lust",
+            "core.destination.gluttony",
+            "core.destination.pride",
+            "core.destination.limbo",
+            "core.destination.audit",
+            "core.destination.return",
+            "core.destination.quarantine"
           ],
           "bodyAsset": "asset.core.machine"
         }
@@ -223,7 +569,10 @@
           "textKey": "text.core.jam",
           "diagnosisKey": "text.core.jam-diagnosis",
           "layout": "core.machine.switchboard",
-          "recovery": { "control": "core.control.heat", "equals": 0 },
+          "recovery": {
+            "control": "core.control.heat",
+            "equals": 0
+          },
           "reaction": "core.reaction.wrong"
         }
       ],
@@ -332,7 +681,11 @@
               "textKey": "text.core.end-queue",
               "choices": []
             },
-            { "id": "end-ink", "textKey": "text.core.end-ink", "choices": [] },
+            {
+              "id": "end-ink",
+              "textKey": "text.core.end-ink",
+              "choices": []
+            },
             {
               "id": "end-neutral",
               "textKey": "text.core.end-neutral",
@@ -419,7 +772,30 @@
     "text.core.end-neutral": "Ich warte dann am Apparat.",
     "text.core.ok": "Treffer",
     "text.core.maybe": "Vertretbar",
-    "text.core.wrong": "Fehlleitung"
+    "text.core.wrong": "Fehlleitung",
+    "text.core.destination.greed": "Habgier",
+    "text.core.destination.greed-desc": "Die Kasse für unsterbliche Ansprüche.",
+    "text.core.destination.envy": "Neid",
+    "text.core.destination.envy-desc": "Der Vergleichsschalter ohne Ausgang.",
+    "text.core.destination.sloth": "Trägheit",
+    "text.core.destination.sloth-desc": "Eine Warteliege mit Nummernautomat.",
+    "text.core.destination.lust": "Lust",
+    "text.core.destination.lust-desc": "Das Herzarchiv mit blauen Formularen.",
+    "text.core.destination.gluttony": "Völlerei",
+    "text.core.destination.gluttony-desc": "Der endlose Kantinenflur.",
+    "text.core.destination.pride": "Hochmut",
+    "text.core.destination.pride-desc": "Eine Chefetage ohne Mitarbeiter.",
+    "text.core.destination.limbo": "Vorhölle",
+    "text.core.destination.limbo-desc": "Der Wartebereich für ungeklärte Fälle.",
+    "text.core.destination.audit": "Sonderprüfung",
+    "text.core.destination.audit-desc": "Temporärer Revisionsschacht.",
+    "text.core.destination.return": "Rücklauf",
+    "text.core.destination.return-desc": "Sonderrohr für widersprüchliche Akten.",
+    "text.core.destination.quarantine": "Quarantäne",
+    "text.core.destination.quarantine-desc": "Sonderslot für gesperrte Sendungen.",
+    "text.core.seal": "Siegel",
+    "text.core.diverter": "Weiche",
+    "text.core.pressure": "Rohrdruck"
   },
   "assets": [
     "asset.core.pack",
@@ -431,6 +807,16 @@
     "asset.core.machine",
     "asset.core.ok",
     "asset.core.maybe",
-    "asset.core.wrong"
+    "asset.core.wrong",
+    "asset.core.destination.greed",
+    "asset.core.destination.envy",
+    "asset.core.destination.sloth",
+    "asset.core.destination.lust",
+    "asset.core.destination.gluttony",
+    "asset.core.destination.pride",
+    "asset.core.destination.limbo",
+    "asset.core.destination.audit",
+    "asset.core.destination.return",
+    "asset.core.destination.quarantine"
   ]
 }

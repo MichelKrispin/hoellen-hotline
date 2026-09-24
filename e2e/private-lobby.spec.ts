@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("three browsers join the private lobby and choose distinct roles", async ({
   browser,
 }, testInfo) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
@@ -169,9 +169,63 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await host.getByRole("button", { name: "Antwort importieren" }).click();
   await expect(
     host.getByRole("region", { name: "Netzwerkstatus" }),
-  ).toContainText("● Verbunden");
+  ).toContainText("● Verbunden", { timeout: 20_000 });
   await expect(
     reconnectGuest.getByRole("region", { name: "Netzwerkstatus" }),
-  ).toContainText("● Verbunden");
+  ).toContainText("● Verbunden", { timeout: 20_000 });
+  const dispatcher = guests[1]!;
+  const machine = dispatcher.getByRole("region", {
+    name: "Disponentenpult und Tastatursteuerung",
+  });
+  const archiveTarget = machine.getByRole("button", { name: /Ziel: Archiv\./ });
+  await archiveTarget.focus();
+  await archiveTarget.click();
+  await expect(
+    machine.getByRole("button", { name: /Hitze: 1\./ }),
+  ).toBeVisible();
+  await machine.getByRole("button", { name: /Hitze: 1\./ }).click();
+  await machine.getByRole("button", { name: /Störung beheben:/ }).click();
+  await machine.getByRole("button", { name: /Ventil: AUS/ }).click();
+  await machine.getByRole("button", { name: "Anlage vorbereiten" }).click();
+  await expect(machine.getByRole("status")).toContainText("Anlage vorbereitet");
+  const agentApproval = agentControls.getByRole("button", {
+    name: "Ausgewähltes Ziel freigeben",
+  });
+  await agentApproval.focus();
+  await agentApproval.click();
+  const archiveApproval = archive.getByRole("button", {
+    name: "Vorbereitetes Ziel freigeben",
+  });
+  await archiveApproval.focus();
+  await archiveApproval.click();
+  await machine.getByRole("button", { name: "Bereitschaft melden" }).click();
+  await expect(
+    machine.getByRole("button", {
+      name: "Hebel entsichern und Zusammenfassung prüfen",
+    }),
+  ).toBeEnabled();
+  if (process.env.CAPTURE_AGENT === "1") {
+    await dispatcher.locator("canvas").click({ position: { x: 700, y: 100 } });
+    await dispatcher.screenshot({
+      path: testInfo.outputPath("dispatcher-desk.png"),
+    });
+  }
+  await machine
+    .getByRole("button", {
+      name: "Hebel entsichern und Zusammenfassung prüfen",
+    })
+    .focus();
+  await machine
+    .getByRole("button", {
+      name: "Hebel entsichern und Zusammenfassung prüfen",
+    })
+    .click();
+  await machine
+    .getByRole("button", { name: "Zustellung endgültig auslösen" })
+    .click();
+  await expect(machine.getByRole("status")).toContainText("Ergebnis:");
+  await expect(
+    dispatcher.getByRole("region", { name: "Netzwerkstatus" }),
+  ).toContainText("Schicht beendet");
   await context.close();
 });

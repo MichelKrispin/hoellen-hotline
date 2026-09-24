@@ -116,14 +116,41 @@ describe("host simulation over role-filtered channels", () => {
     ).toBeNull();
     await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(6));
     expect(
-      agent.submit({ kind: "APPROVE", caseId, approved: true }),
+      dispatcher.view?.role.role === "dispatcher"
+        ? dispatcher.view.role.incident?.diagnosis
+        : null,
+    ).toContain("Hitze");
+    expect(
+      dispatcher.submit({
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: "core.control.heat",
+        value: 0,
+      }),
     ).toBeNull();
     await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(7));
+    expect(dispatcher.submit({ kind: "RECOVER_INCIDENT", caseId })).toBeNull();
+    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(8));
+    expect(
+      dispatcher.submit({
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: "core.control.valve",
+        value: true,
+      }),
+    ).toBeNull();
+    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(9));
+    expect(dispatcher.submit({ kind: "PREPARE", caseId })).toBeNull();
+    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(10));
+    expect(
+      agent.submit({ kind: "APPROVE", caseId, approved: true }),
+    ).toBeNull();
+    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(11));
     expect(host.submit({ kind: "APPROVE", caseId, approved: true })).toBeNull();
     expect(
       dispatcher.submit({ kind: "APPROVE", caseId, approved: true }),
     ).toBeNull();
-    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(9));
+    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(13));
     const oldPacket = sentToAgent.find((raw) => raw.includes("STATE_PATCH"))!;
     expect(oldPacket).toBeDefined();
     hostChannels[1]!.readyState = "closed";
@@ -154,7 +181,9 @@ describe("host simulation over role-filtered channels", () => {
     await vi.waitFor(() => expect(agent.error).toBe("Duplicate action ID"));
     expect(host.getDebugState()!.entries).toBe(entriesBeforeDuplicate);
     expect(dispatcher.submit({ kind: "ROUTE_COMMIT", caseId })).toBeNull();
-    await vi.waitFor(() => expect(host.getDebugState()?.entries).toBe(12));
+    await vi.waitFor(() =>
+      expect(host.getDebugState()?.entries).toBe(entriesBeforeDuplicate + 1),
+    );
     await vi.waitFor(() =>
       expect(agent.view?.public.revision).toBe(host.view?.public.revision),
     );

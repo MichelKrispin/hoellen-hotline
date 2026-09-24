@@ -91,6 +91,7 @@ const gameplayOmitted = new Set([
   "assetPack",
   "portrait",
   "symbol",
+  "glyph",
   "bodyAsset",
   "reactions",
   "reaction",

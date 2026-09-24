@@ -6,6 +6,7 @@ import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
 import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
+import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
 import {
   devil,
   gauge,
@@ -117,11 +118,11 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   }
 }
 
-function dispatcherDesk(scene: Phaser.Scene): void {
+function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "ZIELBANK  /  ROUTING", C.dispatcher);
   devil(scene, 296, 661, 1.24, 0xa64131);
   plate(scene, 546, 322, 842, 549, C.metal);
-  label(scene, 595, 351, "ZIEL WÄHLEN", 28);
+  if (!live) label(scene, 595, 351, "ZIEL WÄHLEN", 28);
   const rows: [string, number, string][] = [
     ["ZORN", C.error, "♨"],
     ["LUST", 0xd773c7, "♥"],
@@ -130,31 +131,41 @@ function dispatcherDesk(scene: Phaser.Scene): void {
     ["NEID", C.cyan, "◉"],
     ["TRÄGHEIT", 0x7aa6e6, "☾"],
   ];
-  rows.forEach(([name, color, symbol], i) => {
-    const x = 575 + (i % 2) * 389;
-    const y = 401 + Math.floor(i / 2) * 139;
-    neon(scene, x, y, 344, 106, color);
-    label(scene, x + 24, y + 28, `${symbol}  ${name}`, 29);
-  });
-  const g = scene.add.graphics();
-  g.lineStyle(14, 0x1b141e).lineBetween(590, 978, 1335, 978);
-  for (let i = 0; i < 5; i++) {
-    const x = 660 + i * 145;
-    g.fillStyle(0x17121a).fillRoundedRect(x - 21, 868, 42, 111, 12);
-    g.lineStyle(15, 0x716063).lineBetween(x, 905, x + (i % 2 ? -29 : 26), 818);
-    g.fillStyle(i % 2 ? C.error : C.dispatcher).fillCircle(
-      x + (i % 2 ? -29 : 26),
-      812,
-      22,
-    );
+  if (!live)
+    rows.forEach(([name, color, symbol], i) => {
+      const x = 575 + (i % 2) * 389;
+      const y = 401 + Math.floor(i / 2) * 139;
+      neon(scene, x, y, 344, 106, color);
+      label(scene, x + 24, y + 28, `${symbol}  ${name}`, 29);
+    });
+  if (!live) {
+    const g = scene.add.graphics();
+    g.lineStyle(14, 0x1b141e).lineBetween(590, 978, 1335, 978);
+    for (let i = 0; i < 5; i++) {
+      const x = 660 + i * 145;
+      g.fillStyle(0x17121a).fillRoundedRect(x - 21, 868, 42, 111, 12);
+      g.lineStyle(15, 0x716063).lineBetween(
+        x,
+        905,
+        x + (i % 2 ? -29 : 26),
+        818,
+      );
+      g.fillStyle(i % 2 ? C.error : C.dispatcher).fillCircle(
+        x + (i % 2 ? -29 : 26),
+        812,
+        22,
+      );
+    }
   }
   paper(scene, 1430, 340, 344, 331);
-  label(scene, 1470, 381, "ROUTE", 32, C.ink);
-  label(scene, 1470, 467, "Noch kein Ziel", 26, C.ink, 270);
-  gauge(scene, 1604, 782, 87, 0.52);
-  label(scene, 1480, 898, "KESSELDRUCK", 26);
-  neon(scene, 1432, 932, 342, 79, C.error);
-  label(scene, 1451, 951, "↗  ZUSTELLEN", 29);
+  if (!live) {
+    label(scene, 1470, 381, "ROUTE", 32, C.ink);
+    label(scene, 1470, 467, "Noch kein Ziel", 26, C.ink, 270);
+    gauge(scene, 1604, 782, 87, 0.52);
+    label(scene, 1480, 898, "KESSELDRUCK", 26);
+    neon(scene, 1432, 932, 342, 79, C.error);
+    label(scene, 1451, 951, "↗  ZUSTELLEN", 29);
+  }
 }
 
 export class Game extends Phaser.Scene {
@@ -163,6 +174,7 @@ export class Game extends Phaser.Scene {
   private overlay: GameNetworkOverlay | null = null;
   private agentPanel: AgentPanel | null = null;
   private archivistPanel: ArchivistPanel | null = null;
+  private dispatcherPanel: DispatcherPanel | null = null;
   constructor() {
     super("Game");
   }
@@ -184,7 +196,7 @@ export class Game extends Phaser.Scene {
     statusBar(this, this.role);
     if (this.role === "agent") agentDesk(this, Boolean(this.network));
     if (this.role === "archivist") archiveDesk(this, Boolean(this.network));
-    if (this.role === "dispatcher") dispatcherDesk(this);
+    if (this.role === "dispatcher") dispatcherDesk(this, Boolean(this.network));
     button(
       this,
       1671,
@@ -207,7 +219,11 @@ export class Game extends Phaser.Scene {
       this.agentPanel = new AgentPanel(this, this.network);
     if (this.network && this.role === "archivist")
       this.archivistPanel = new ArchivistPanel(this, this.network);
+    if (this.network && this.role === "dispatcher")
+      this.dispatcherPanel = new DispatcherPanel(this, this.network);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.dispatcherPanel?.destroy();
+      this.dispatcherPanel = null;
       this.archivistPanel?.destroy();
       this.archivistPanel = null;
       this.agentPanel?.destroy();
