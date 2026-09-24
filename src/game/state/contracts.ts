@@ -105,6 +105,7 @@ export interface PublicShiftView {
   phase: Phase;
   revision: number;
   elapsedMs: number;
+  pauseReason: "host-menu" | "disconnect" | null;
   queueLength: number;
   queuePressure: number;
   boilerPressure: number;
@@ -114,8 +115,31 @@ export interface PublicShiftView {
   suggestedDestination: DestinationId | null;
   archivePins: string[];
   selectedDestination: DestinationId | null;
-  colleagues: { role: Role; connected: boolean; ready: boolean }[];
+  colleagues: {
+    role: Role;
+    activity: "sucht" | "spricht" | "bereitet vor" | "bereit" | "getrennt";
+  }[];
   approvals: { agent: boolean; archivist: boolean; dispatcher: boolean };
+  approvalLog: { role: Role; approved: boolean; tick: number }[];
+  modifiers: {
+    ruleId: RuleId;
+    text: string;
+    state: "announced" | "active";
+  }[];
+  report: null | {
+    seed: string;
+    contentHash: string;
+    endReason: string;
+    elapsedMs: number;
+    averageCaseMs: number;
+    score: ScoreState;
+    cases: {
+      id: CaseId;
+      outcome: "correct" | "acceptable" | "wrong" | "catastrophic" | null;
+      selectedDestination: DestinationId | null;
+      trueDestination: DestinationId;
+    }[];
+  };
 }
 
 export interface ArchiveRecordView {

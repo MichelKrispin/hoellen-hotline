@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("three browsers join the private lobby and choose distinct roles", async ({
   browser,
 }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(480_000);
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
@@ -50,7 +50,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
       page.getByRole("button", {
         name: ["Agent", "Archivar", "Disponent"][index]!,
       }),
-    ).toHaveAttribute("aria-pressed", "true");
+    ).toHaveAttribute("aria-pressed", "true", { timeout: 20_000 });
     await page.getByRole("button", { name: "Bereit melden" }).click();
     await expect(
       page.getByRole("button", { name: "Bereits bereit ✓" }),
@@ -223,9 +223,42 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await machine
     .getByRole("button", { name: "Zustellung endgültig auslösen" })
     .click();
+  for (let caseNumber = 2; caseNumber <= 8; caseNumber++) {
+    await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
+    await archiveTarget.click();
+    if (caseNumber % 2 === 1) {
+      await machine.getByRole("button", { name: /Hitze: 1\./ }).click();
+      await machine.getByRole("button", { name: /Störung beheben:/ }).click();
+    }
+    await machine.getByRole("button", { name: /Ventil: AUS/ }).click();
+    await machine.getByRole("button", { name: "Anlage vorbereiten" }).click();
+    await agentApproval.click();
+    await archiveApproval.click();
+    await machine.getByRole("button", { name: "Bereitschaft melden" }).click();
+    await machine
+      .getByRole("button", {
+        name: "Hebel entsichern und Zusammenfassung prüfen",
+      })
+      .click();
+    await machine
+      .getByRole("button", { name: "Zustellung endgültig auslösen" })
+      .click();
+  }
   await expect(machine.getByRole("status")).toContainText("Ergebnis:");
   await expect(
     dispatcher.getByRole("region", { name: "Netzwerkstatus" }),
   ).toContainText("Schicht beendet");
+  const report = dispatcher.getByRole("region", { name: "Abschlussakte" });
+  await expect(report).toBeVisible();
+  await expect(report).toContainText("Seed:");
+  await expect(report).toContainText("Fallchronik");
+  await expect(report.locator("li")).toHaveCount(8);
+  await report.getByRole("button", { name: "Abschlussakte schließen" }).click();
+  await expect(report).toBeHidden();
+  await dispatcher
+    .getByRole("region", { name: "Netzwerkstatus" })
+    .getByRole("button", { name: "Abschlussakte öffnen" })
+    .click();
+  await expect(report).toBeVisible();
   await context.close();
 });

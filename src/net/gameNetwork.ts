@@ -8,12 +8,15 @@ import type { PlayerViewState, Role } from "../game/state/contracts";
 import { projectView } from "../game/state/projectView";
 import {
   advanceToTick,
+  createReplay,
   createSimulation,
   recordInput,
   TICK_MS,
   type LogEntry,
+  type Replay,
   type SimCommand,
   type SimulationState,
+  type StartConfig,
 } from "../game/state/simulation";
 import type { PrivateLobby } from "./privateLobby";
 import {
@@ -56,6 +59,7 @@ export class GameNetwork {
   onChange: () => void = () => undefined;
   private listeners = new Set<() => void>();
   private state: SimulationState | null = null;
+  private startConfig: StartConfig | null = null;
   private packages: CampaignPackage[] = [];
   private entries: LogEntry[] = [];
   private sendSeq = new Map<number, number>();
@@ -92,6 +96,7 @@ export class GameNetwork {
       scenarioId: "core.scenario.first",
       players,
     };
+    network.startConfig = config;
     network.state = createSimulation(
       config,
       crypto.randomUUID(),
@@ -533,6 +538,11 @@ export class GameNetwork {
           phase: this.state.phase,
           entries: this.entries.length,
         }
+      : null;
+  }
+  exportDebugReplay(): Replay | null {
+    return this.isHost && this.startConfig && this.state
+      ? createReplay(this.startConfig, this.state, this.entries)
       : null;
   }
   destroy(): void {

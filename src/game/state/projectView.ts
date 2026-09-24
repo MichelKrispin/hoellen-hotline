@@ -35,10 +35,32 @@ export function projectView(
   const agentId = Object.entries(state.players).find(
     ([, player]) => player.role === "agent",
   )?.[0];
+  const scenario = packages
+    .flatMap((pkg) => pkg.scenarios)
+    .find((item) => item.id === simState.scenarioId);
+  const modifiers = (scenario?.mutators ?? [])
+    .filter(
+      (mutator) =>
+        mutator.afterCase < scenario!.casePlan.count &&
+        (state.activeRules.includes(mutator.rule as never) ||
+          mutator.afterCase === simState.resolvedCount + 1),
+    )
+    .map((mutator) => ({
+      ruleId: mutator.rule as never,
+      text: translate(
+        packs
+          .flatMap((pack) => pack.rules)
+          .find((rule) => rule.id === mutator.rule)?.textKey ?? mutator.rule,
+      ),
+      state: state.activeRules.includes(mutator.rule as never)
+        ? ("active" as const)
+        : ("announced" as const),
+    }));
   const publicView = {
     phase: state.phase,
     revision: state.stateRevision,
     elapsedMs: state.shift.elapsedMs,
+    pauseReason: state.pause?.reason ?? null,
     queueLength: state.cases.filter((item) => item.status === "queued").length,
     queuePressure: state.shift.queuePressure,
     boilerPressure: state.shift.boilerPressure,
@@ -53,10 +75,59 @@ export function projectView(
       archivist: false,
       dispatcher: false,
     },
+    approvalLog: [...(simCase?.approvalLog ?? [])],
+    modifiers,
+    report:
+      state.phase === "results"
+        ? {
+            seed: state.seed,
+            contentHash: simState.contentHash,
+            endReason: simState.endReason ?? "unbekannt",
+            elapsedMs: state.shift.elapsedMs,
+            averageCaseMs: (() => {
+              const durations = state.cases
+                .map((item) => item as SimCase)
+                .filter(
+                  (item) =>
+                    item.acceptedElapsedMs !== null &&
+                    item.resolvedElapsedMs !== null,
+                )
+                .map(
+                  (item) => item.resolvedElapsedMs! - item.acceptedElapsedMs!,
+                );
+              return durations.length
+                ? Math.round(
+                    durations.reduce((sum, duration) => sum + duration, 0) /
+                      durations.length,
+                  )
+                : 0;
+            })(),
+            score: { ...state.score },
+            cases: state.cases.map((item) => ({
+              id: item.id,
+              outcome: (item as SimCase).outcome ?? null,
+              selectedDestination: item.selectedDestination,
+              trueDestination: item.trueDestination,
+            })),
+          }
+        : null,
     colleagues: Object.values(state.players).map((player) => ({
       role: player.role,
-      connected: player.connected,
-      ready: player.ready,
+      activity: !player.connected
+        ? ("getrennt" as const)
+        : player.role === "agent"
+          ? active
+            ? ("spricht" as const)
+            : ("bereit" as const)
+          : player.role === "archivist"
+            ? active
+              ? ("sucht" as const)
+              : ("bereit" as const)
+            : simCase?.prepared
+              ? ("bereit" as const)
+              : active
+                ? ("bereitet vor" as const)
+                : ("bereit" as const),
     })),
   };
 
@@ -107,9 +178,6 @@ export function projectView(
         presentation: [],
       };
     case "archivist": {
-      const scenario = packages
-        .flatMap((pkg) => pkg.scenarios)
-        .find((item) => item.id === simState.scenarioId);
       const tags = packs.flatMap((pack) => pack.tags);
       const complaints = packs.flatMap((pack) => pack.complaints);
       const archiveRecords = packs

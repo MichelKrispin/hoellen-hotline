@@ -312,6 +312,78 @@ canvas {
     15px Arial,
     sans-serif;
 }
+.shift-report {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: #170e18bb;
+  color: #34232a;
+  font:
+    18px Arial,
+    sans-serif;
+}
+.shift-report[hidden] {
+  display: none;
+}
+.shift-report-paper {
+  box-sizing: border-box;
+  width: min(900px, 92vw);
+  max-height: 82vh;
+  overflow: auto;
+  padding: 32px 44px;
+  background: #e9c99b;
+  border: 8px solid #483039;
+  box-shadow: 12px 16px 0 #140e19;
+  transform: rotate(-0.6deg);
+}
+.shift-report-paper::before {
+  content: "✓ ABGEHEFTET";
+  float: right;
+  margin: 62px 0 8px 12px;
+  padding: 8px 14px;
+  border: 5px double #3a6b57;
+  color: #3a6b57;
+  font-weight: 800;
+  transform: rotate(9deg);
+}
+.shift-report-paper.report-troubled {
+  background: linear-gradient(125deg, #e9c99b 70%, #d9916d);
+  border-color: #8f372e;
+}
+.shift-report-paper.report-troubled::before {
+  content: "⚠ NACHARBEIT";
+  border-color: #a1322a;
+  color: #a1322a;
+}
+.shift-report-paper > button {
+  float: right;
+  font-size: 26px;
+}
+.shift-report h1 {
+  margin: 0;
+  font-size: 46px;
+}
+.report-verdict {
+  font-size: 27px;
+}
+.report-score {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  font-weight: 700;
+}
+.shift-report li {
+  padding: 5px 0;
+}
+.shift-report li.report-error {
+  color: #9b3027;
+}
+.report-seed {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
 .network-panel {
   max-height: 40vh;
   overflow: auto;

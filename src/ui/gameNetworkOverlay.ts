@@ -10,6 +10,8 @@ const escapeHtml = (value: string): string =>
   );
 export class GameNetworkOverlay {
   private root = document.createElement("section");
+  private reportRoot = document.createElement("section");
+  private reportDismissed = false;
   private inputs: [string, string] = ["", ""];
   private guestOffer = "";
   private notice = "";
@@ -18,6 +20,17 @@ export class GameNetworkOverlay {
     this.root.className = "game-network-overlay";
     this.root.setAttribute("aria-label", "Netzwerkstatus");
     document.body.append(this.root);
+    this.reportRoot.className = "shift-report";
+    this.reportRoot.setAttribute("aria-label", "Abschlussakte");
+    document.body.append(this.reportRoot);
+    this.reportRoot.addEventListener("click", (event) => {
+      if (
+        (event.target as HTMLElement).closest('[data-action="close-report"]')
+      ) {
+        this.reportDismissed = true;
+        this.renderReport();
+      }
+    });
     if (import.meta.env.DEV)
       (
         window as typeof window & {
@@ -58,6 +71,14 @@ export class GameNetworkOverlay {
           this.guestOffer,
           this.network.lobby.members[this.network.lobby.localSlot].name,
         );
+      else if (action === "toggle-pause") {
+        const command =
+          this.network.view?.public.pauseReason === "host-menu"
+            ? "RESUME"
+            : "PAUSE";
+        const error = this.network.submit({ kind: command });
+        if (error) this.notice = error;
+      } else if (action === "open-report") this.reportDismissed = false;
       else if (action.startsWith("copy-")) {
         const value =
           action === "copy-answer"
@@ -78,8 +99,52 @@ export class GameNetworkOverlay {
     }
     this.render(true);
   }
+  private renderReport(): void {
+    const report = this.network.view?.public.report;
+    if (!report || this.reportDismissed) {
+      this.reportRoot.hidden = true;
+      return;
+    }
+    this.reportRoot.hidden = false;
+    const score = report.score;
+    const goodShift =
+      report.endReason === "completed" && score.resolvedIncorrectly === 0;
+    this.reportRoot.innerHTML = `<div class="shift-report-paper ${goodShift ? "report-good" : "report-troubled"}"><button data-action="close-report" aria-label="Abschlussakte schließen">×</button><h1>Abschlussakte</h1><p class="report-verdict">${goodShift ? "✓ Dienstbeurteilung: Tadellos absurd" : "⚠ Dienstbeurteilung: Kessel glüht"}</p><p>Schichtzeit: ${Math.floor(report.elapsedMs / 60_000)} min ${Math.floor((report.elapsedMs % 60_000) / 1000)} s · Mittlere Fallzeit: ${Math.round(report.averageCaseMs / 1000)} s</p><div class="report-score"><span>✓ Korrekt ${score.resolvedCorrectly}</span><span>◇ Vertretbar ${score.resolvedAcceptably}</span><span>× Falsch ${score.resolvedIncorrectly}</span><span>⚠ Katastrophal ${score.catastrophicErrors}</span></div><h2>Fallchronik</h2><ol>${report.cases.map((item) => `<li class="${item.outcome === "wrong" || item.outcome === "catastrophic" ? "report-error" : ""}">${escapeHtml(item.id)} · ${escapeHtml(item.outcome ?? "abgebrochen")} · ${escapeHtml(item.selectedDestination ?? "kein Ziel")} ${item.outcome === "wrong" || item.outcome === "catastrophic" ? `→ ${escapeHtml(item.trueDestination)}` : ""}</li>`).join("")}</ol><p class="report-seed">Seed: ${escapeHtml(report.seed)}<br>Content: ${escapeHtml(report.contentHash)}</p></div>`;
+  }
   private render(force = false): void {
+    this.renderReport();
+    const approvalLog =
+      this.network.view?.public.approvalLog
+        .slice(-3)
+        .map(
+          (entry) =>
+            `${entry.role === "agent" ? "Agent" : entry.role === "archivist" ? "Archiv" : "Disposition"} ${entry.approved ? "✓" : "↶"}`,
+        )
+        .join(" · ") ?? "";
+    const modifiers =
+      this.network.view?.public.modifiers
+        .map(
+          (modifier) =>
+            `${modifier.state === "announced" ? "Bald" : "Aktiv"}: ${modifier.text}`,
+        )
+        .join(" · ") ?? "";
     if (!force && this.lastStatus === this.network.status) {
+      const pauseReason = this.network.view?.public.pauseReason;
+      const status = this.root.querySelector<HTMLElement>(
+        ".network-panel strong",
+      );
+      if (status && this.network.status === "active")
+        status.textContent = pauseReason ? "◷ Schicht pausiert" : "● Verbunden";
+      const pauseButton = this.root.querySelector<HTMLButtonElement>(
+        '[data-action="toggle-pause"]',
+      );
+      if (pauseButton) {
+        pauseButton.textContent =
+          pauseReason === "host-menu"
+            ? "Schicht fortsetzen"
+            : "Schicht pausieren";
+        pauseButton.disabled = pauseReason === "disconnect";
+      }
       const detail = this.root.querySelector<HTMLElement>(".network-detail");
       const remaining =
         this.root.querySelector<HTMLElement>(".network-remaining");
@@ -94,6 +159,11 @@ export class GameNetworkOverlay {
       if (notice) notice.textContent = this.notice || this.network.error;
       const ping = this.root.querySelector<HTMLElement>(".network-ping");
       if (ping) ping.textContent = `Ping: ${this.network.pingMs ?? "–"} ms`;
+      const log = this.root.querySelector<HTMLElement>(".network-approval-log");
+      if (log) log.textContent = approvalLog;
+      const modifierLine =
+        this.root.querySelector<HTMLElement>(".network-modifiers");
+      if (modifierLine) modifierLine.textContent = modifiers;
       return;
     }
     this.lastStatus = this.network.status;
@@ -109,7 +179,15 @@ export class GameNetworkOverlay {
       "protocol-error": "× Protokollfehler",
       ended: "✓ Schicht beendet",
     } as const;
-    const status = labels[network.status];
+    const status =
+      network.status === "active" && view?.public.pauseReason
+        ? "◷ Schicht pausiert"
+        : labels[network.status];
+    const pauseButton =
+      network.isHost &&
+      (network.status === "active" || network.status === "guest-disconnected")
+        ? `<button data-action="toggle-pause" ${view?.public.pauseReason === "disconnect" ? "disabled" : ""}>${view?.public.pauseReason === "host-menu" ? "Schicht fortsetzen" : "Schicht pausieren"}</button>`
+        : "";
     const reconnect =
       network.isHost &&
       (network.status === "guest-disconnected" ||
@@ -130,7 +208,7 @@ export class GameNetworkOverlay {
               network.status !== "guest-aborted"
             ? `<label>Neuer Reconnect-Link vom Host<textarea id="reconnect-offer">${escapeHtml(this.guestOffer)}</textarea></label><button data-action="guest-rejoin">Neu verbinden</button>${network.lobby.answerLink ? `<label>Neue Antwort für den Host<textarea readonly>${escapeHtml(network.lobby.answerLink)}</textarea></label><button data-action="copy-answer">Antwort kopieren</button>` : ""}`
             : "";
-    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${reconnect}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
+    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span><span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
   }
   destroy(): void {
     this.network.onChange = () => undefined;
@@ -143,5 +221,6 @@ export class GameNetworkOverlay {
         }
       ).__closeGameChannel;
     this.root.remove();
+    this.reportRoot.remove();
   }
 }

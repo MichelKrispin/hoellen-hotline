@@ -51,7 +51,7 @@
         "incidents": ["core.incident.jam"]
       },
       "casePlan": {
-        "count": 1,
+        "count": 8,
         "samples": [
           {
             "archetype": "core.archetype.clerk",
@@ -66,10 +66,14 @@
       },
       "machineLayouts": ["core.machine.switchboard"],
       "startingRules": ["core.rule.ink-red"],
-      "mutators": [],
+      "mutators": [
+        { "afterCase": 2, "rule": "core.rule.audit-dust" },
+        { "afterCase": 4, "rule": "core.rule.form-reform" },
+        { "afterCase": 6, "rule": "core.rule.quarantine" }
+      ],
       "victory": {
         "kind": "resolveCases",
-        "count": 1
+        "count": 8
       }
     }
   ],
@@ -155,6 +159,33 @@
             "op": "hasTag",
             "id": "core.tag.ink"
           }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.rule.audit-dust",
+          "textKey": "text.core.rule.audit-dust",
+          "priority": 11,
+          "destination": "core.destination.audit",
+          "effect": "forbid",
+          "when": { "op": "caseCountAtLeast", "value": 2 }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.rule.form-reform",
+          "textKey": "text.core.rule.form-reform",
+          "priority": 12,
+          "destination": "core.destination.return",
+          "effect": "forbid",
+          "when": { "op": "caseCountAtLeast", "value": 4 }
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.rule.quarantine",
+          "textKey": "text.core.rule.quarantine",
+          "priority": 13,
+          "destination": "core.destination.quarantine",
+          "effect": "forbid",
+          "when": { "op": "caseCountAtLeast", "value": 6 }
         }
       ],
       "exceptions": [
@@ -744,6 +775,9 @@
     "text.core.ink": "Rote Tinte",
     "text.core.queue": "Warteschlange",
     "text.core.rule": "Rote Tinte sperrt Zorn.",
+    "text.core.rule.audit-dust": "Oberhöllen-Audit: Sonderprüfung bleibt bis Schichtende gesperrt.",
+    "text.core.rule.form-reform": "Formularreform: Rücklauf ist bis Schichtende gesperrt.",
+    "text.core.rule.quarantine": "Quarantäneprüfung: Quarantäne ist bis Schichtende gesperrt.",
     "text.core.exception": "Mit Stempel doch zugelassen.",
     "text.core.archive": "Archiv",
     "text.core.archive-desc": "Für hoffnungslose Ablagefälle.",

@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import core from "../../content/core/fixture.json";
+import { loadContent } from "../../content/registry";
+import type { CampaignPackage } from "../../content/schemas";
+import { createSimulation } from "./simulation";
 import { projectView } from "./projectView";
 import type { GameState } from "./contracts";
 import type {
@@ -58,6 +62,47 @@ const state: GameState = {
 };
 
 describe("role projection", () => {
+  it("announces an upcoming shift rule and then reports it as active", async () => {
+    const campaign = structuredClone(core) as CampaignPackage;
+    campaign.scenarios[0]!.casePlan.count = 8;
+    campaign.scenarios[0]!.victory.count = 8;
+    campaign.scenarios[0]!.startingRules = [];
+    campaign.scenarios[0]!.mutators = [
+      { afterCase: 2, rule: "core.rule.ink-red" },
+    ];
+    const hash = (await loadContent([campaign])).gameplayHash;
+    const sim = createSimulation(
+      {
+        sessionId: state.sessionId,
+        hostPlayerId: "agent" as PlayerId,
+        scenarioId: "core.scenario.first",
+        players: [
+          { id: "agent" as PlayerId, role: "agent" },
+          { id: "archivist" as PlayerId, role: "archivist" },
+          { id: "dispatcher" as PlayerId, role: "dispatcher" },
+        ],
+      },
+      "modifier",
+      hash,
+    );
+    sim.resolvedCount = 1;
+    expect(projectView(sim, "agent", [campaign]).public.modifiers).toEqual([
+      expect.objectContaining({
+        ruleId: "core.rule.ink-red",
+        state: "announced",
+      }),
+    ]);
+    sim.resolvedCount = 2;
+    sim.activeRules.push("core.rule.ink-red" as RuleId);
+    expect(projectView(sim, "dispatcher", [campaign]).public.modifiers).toEqual(
+      [
+        expect.objectContaining({
+          ruleId: "core.rule.ink-red",
+          state: "active",
+        }),
+      ],
+    );
+  });
   it.each(["agent", "archivist", "dispatcher"] as const)(
     "omits host secrets for %s",
     (role) => {

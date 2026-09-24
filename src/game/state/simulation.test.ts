@@ -37,6 +37,105 @@ const config: StartConfig = {
 };
 
 describe("deterministic simulation", () => {
+  it("freezes shift time and dialogue cooldowns during host and disconnect pauses", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    let state = createSimulation(config, "pause", hash);
+    let serial = 0;
+    const send = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `pause-${++serial}` as ActionId,
+          command,
+        },
+        packages,
+      );
+      expect(result.rejected).toBeUndefined();
+      state = result.state;
+    };
+    for (const playerId of [agent, archivist, dispatcher])
+      send(playerId, { kind: "READY", ready: true });
+    send(agent, { kind: "START" });
+    const caseId = state.cases[0]!.id;
+    send(agent, { kind: "ACCEPT_CASE", caseId });
+    send(agent, { kind: "DIALOGUE", caseId, choiceId: "ask" });
+    const elapsed = state.shift.elapsedMs;
+    const cooldown = projectView(state, "agent", packages).role;
+    expect(cooldown.role === "agent" && cooldown.cooldownMs).toBe(3000);
+    send(agent, { kind: "PAUSE" });
+    state = advanceToTick(state, state.hostTick + 100);
+    expect(state.shift.elapsedMs).toBe(elapsed);
+    const pausedCooldown = projectView(state, "agent", packages).role;
+    expect(pausedCooldown.role === "agent" && pausedCooldown.cooldownMs).toBe(
+      3000,
+    );
+    send(agent, { kind: "RESUME" });
+    state = advanceToTick(state, state.hostTick + 10);
+    const resumedCooldown = projectView(state, "agent", packages).role;
+    expect(resumedCooldown.role === "agent" && resumedCooldown.cooldownMs).toBe(
+      2000,
+    );
+    state = reduceInput(
+      state,
+      { type: "system", event: { kind: "DISCONNECTED", playerId: archivist } },
+      packages,
+    ).state;
+    const disconnectElapsed = state.shift.elapsedMs;
+    state = advanceToTick(state, state.hostTick + 100);
+    expect(state.shift.elapsedMs).toBe(disconnectElapsed);
+    const disconnectCooldown = projectView(state, "agent", packages).role;
+    expect(
+      disconnectCooldown.role === "agent" && disconnectCooldown.cooldownMs,
+    ).toBe(2000);
+  });
+  it("keeps three queued cases and accepts only the front case", async () => {
+    const expanded = structuredClone(core) as CampaignPackage;
+    expanded.scenarios[0]!.casePlan.count = 8;
+    expanded.scenarios[0]!.victory.count = 8;
+    const expandedPackages = [expanded];
+    const hash = (await loadContent(expandedPackages)).gameplayHash;
+    let state = createSimulation(config, "queue", hash);
+    let serial = 0;
+    const attempt = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `queue-${++serial}` as ActionId,
+          command,
+        },
+        expandedPackages,
+      );
+      if (!result.rejected) state = result.state;
+      return result.rejected;
+    };
+    for (const playerId of [agent, archivist, dispatcher])
+      expect(attempt(playerId, { kind: "READY", ready: true })).toBeUndefined();
+    expect(attempt(agent, { kind: "START" })).toBeUndefined();
+    expect(state.cases.map((item) => item.status)).toEqual([
+      "queued",
+      "queued",
+      "queued",
+    ]);
+    expect(
+      attempt(agent, { kind: "ACCEPT_CASE", caseId: state.cases[1]!.id }),
+    ).toBe("Case cannot be accepted");
+    expect(
+      attempt(agent, { kind: "ACCEPT_CASE", caseId: state.cases[0]!.id }),
+    ).toBeUndefined();
+    expect(
+      attempt(agent, { kind: "ACCEPT_CASE", caseId: state.cases[1]!.id }),
+    ).toBe("Case cannot be accepted");
+    expect(state.cases.filter((item) => item.status === "active")).toHaveLength(
+      1,
+    );
+    expect(state.cases.filter((item) => item.status === "queued")).toHaveLength(
+      2,
+    );
+  });
   it("requires incident recovery, machine preparation and all three approvals before routing", async () => {
     const hash = (await loadContent(packages)).gameplayHash;
     let state = createSimulation(config, "dispatcher safety", hash);
@@ -107,6 +206,11 @@ describe("deterministic simulation", () => {
         attempt(playerId, { kind: "APPROVE", caseId, approved: true }),
       ).toBeUndefined();
     expect(state.cases[0]!.status).toBe("approved");
+    expect(state.cases[0]!.approvalLog.map((entry) => entry.role)).toEqual([
+      "agent",
+      "archivist",
+      "dispatcher",
+    ]);
     expect(
       attempt(dispatcher, {
         kind: "MACHINE_CONTROL",
@@ -117,6 +221,10 @@ describe("deterministic simulation", () => {
     ).toBeUndefined();
     expect(state.cases[0]!.prepared).toBe(false);
     expect(state.cases[0]!.approvals.dispatcher).toBe(false);
+    expect(state.cases[0]!.approvalLog.at(-1)).toMatchObject({
+      role: "dispatcher",
+      approved: false,
+    });
     expect(attempt(dispatcher, { kind: "ROUTE_COMMIT", caseId })).toBe(
       "Routing not approved",
     );
@@ -414,6 +522,11 @@ describe("deterministic simulation", () => {
   });
 
   it("replays a complete shift, pause, cooldown and ordered system events", async () => {
+    const oneCase = structuredClone(core) as CampaignPackage;
+    oneCase.scenarios[0]!.casePlan.count = 1;
+    oneCase.scenarios[0]!.victory.count = 1;
+    oneCase.scenarios[0]!.mutators = [];
+    const packages = [oneCase];
     const registry = await loadContent(packages);
     let state = createSimulation(
       config,
@@ -642,6 +755,9 @@ describe("deterministic simulation", () => {
       const caseId = state.cases[i]!.id;
       state = advanceToTick(state, state.hostTick + 10);
       send(agent, { kind: "ACCEPT_CASE", caseId });
+      expect(state.cases[i]!.generated.validDestinations).toContain(
+        state.cases[i]!.trueDestination,
+      );
       send(dispatcher, {
         kind: "SELECT_DESTINATION",
         caseId,
@@ -674,6 +790,9 @@ describe("deterministic simulation", () => {
         send(player.id, { kind: "APPROVE", caseId, approved: true });
       send(dispatcher, { kind: "ROUTE_COMMIT", caseId });
       expect(state.cases[i]!.status).toBe("resolved");
+      expect(state.activeRules).toHaveLength(
+        1 + Math.min(3, Math.floor((i + 1) / 2)),
+      );
     }
     expect(state.phase).toBe("results");
     expect(state.endReason).toBe("completed");

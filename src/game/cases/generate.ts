@@ -56,7 +56,7 @@ export function caseContent(
   };
 }
 
-function validDestinations(
+export function validDestinations(
   content: CaseContent,
   context: RuleContext,
   exceptions: readonly Exception[],

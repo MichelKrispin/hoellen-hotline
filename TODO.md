@@ -260,14 +260,14 @@ Abnahme:
 
 Ziel: 8–12 Fälle bilden eine verständliche, eskalierende 12–18-Minuten-Schicht.
 
-- [ ] Queue mit 3–5 parallelen Fallzuständen und eindeutigem aktivem Fall umsetzen.
-- [ ] gemeinsamen HUD-Vertrag implementieren: Zeit, Queue, drei Druckwerte, Fall-ID, Verbindung, Freigaben.
-- [ ] Kollegenstatus nur als `sucht`, `spricht`, `bereitet vor`, `bereit`, `getrennt` anzeigen.
-- [ ] Freigabeprotokoll und Widerruf vor dem finalen Hebel bauen.
-- [ ] alle zwei Fälle einen angekündigten Schichtmodifikator aktivieren.
-- [ ] Pausenregeln so umsetzen, dass Timer und Cooldowns hostautoritativ stoppen.
-- [ ] Abschlussakte mit Seed, Statistiken, Fehlerchronik und visuellen Folgen bauen.
-- [ ] Debug-Replay aus Startkonfiguration, Seed, PRNG-/Simulationsversion, Content-Hash, terminalem Host-Tick und nach Host-Tick plus Ordnungsnummer geordnetem Eingabelog (Aktionen und Systemereignisse) für Tests ermöglichen.
+- [x] Queue mit 3–5 parallelen Fallzuständen und eindeutigem aktivem Fall umsetzen.
+- [x] gemeinsamen HUD-Vertrag implementieren: Zeit, Queue, drei Druckwerte, Fall-ID, Verbindung, Freigaben.
+- [x] Kollegenstatus nur als `sucht`, `spricht`, `bereitet vor`, `bereit`, `getrennt` anzeigen.
+- [x] Freigabeprotokoll und Widerruf vor dem finalen Hebel bauen.
+- [x] alle zwei Fälle einen angekündigten Schichtmodifikator aktivieren.
+- [x] Pausenregeln so umsetzen, dass Timer und Cooldowns hostautoritativ stoppen.
+- [x] Abschlussakte mit Seed, Statistiken, Fehlerchronik und visuellen Folgen bauen.
+- [x] Debug-Replay aus Startkonfiguration, Seed, PRNG-/Simulationsversion, Content-Hash, terminalem Host-Tick und nach Host-Tick plus Ordnungsnummer geordnetem Eingabelog (Aktionen und Systemereignisse) für Tests ermöglichen.
 
 Abnahme:
 

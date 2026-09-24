@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { DESIGN, TOKENS } from "../../ui/tokens";
-import type { Role } from "../state/contracts";
+import type { PublicShiftView, Role } from "../state/contracts";
 
 const C = TOKENS.color;
 
@@ -422,7 +422,10 @@ export function devil(
   }
 }
 
-export function statusBar(scene: Phaser.Scene, role: Role): void {
+export function statusBar(
+  scene: Phaser.Scene,
+  role: Role,
+): { update: (view: PublicShiftView) => void } {
   plate(scene, 82, 32, 1756, 126);
   const names: Record<Role, string> = {
     agent: "AGENT",
@@ -443,13 +446,13 @@ export function statusBar(scene: Phaser.Scene, role: Role): void {
     ["◇  FALL-ID", "—"],
     ["✓  FREIGABE", "WARTET"],
   ];
-  items.forEach(([title, value], i) => {
+  const values = items.map(([title, value], i) => {
     const x = 447 + i * 272;
     label(scene, x, 53, title ?? "", 21, C.muted);
-    label(scene, x, 87, value ?? "", 31);
+    return label(scene, x, 87, value ?? "", 31);
   });
   const others = (Object.keys(names) as Role[]).filter((item) => item !== role);
-  label(
+  const colleagues = label(
     scene,
     106,
     172,
@@ -457,6 +460,38 @@ export function statusBar(scene: Phaser.Scene, role: Role): void {
     22,
     C.muted,
   );
+  return {
+    update(view) {
+      values[0]!.setText(String(view.queueLength));
+      const seconds = Math.floor(view.elapsedMs / 1000);
+      values[1]!.setText(
+        `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`,
+      );
+      values[2]!.setText(
+        `W${view.queuePressure} K${view.boilerPressure} A${view.auditRisk}`,
+      );
+      values[2]!.setFontSize(25);
+      values[3]!.setText(view.activeCaseId?.split(".").at(-1) ?? "—");
+      const approved = Object.values(view.approvals).filter(Boolean).length;
+      values[4]!.setText(
+        view.phase === "results"
+          ? "ENDE"
+          : approved === 3
+            ? "3/3 BEREIT"
+            : `${approved}/3 FREIGABEN`,
+      );
+      colleagues.setText(
+        others
+          .map((other) => {
+            const player = view.colleagues.find(
+              (entry) => entry.role === other,
+            );
+            return `${names[other]}  ${player?.activity ?? "getrennt"}`;
+          })
+          .join("     "),
+      );
+    },
+  };
 }
 
 export function roomSign(

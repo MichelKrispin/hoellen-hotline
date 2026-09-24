@@ -6,6 +6,7 @@ import {
 import {
   caseContent,
   generateCase,
+  validDestinations,
   type GeneratedCase,
 } from "../cases/generate";
 import {
@@ -43,6 +44,9 @@ export interface SimCase extends Omit<
   trueDestination: GameState["cases"][number]["trueDestination"];
   stamps: ("verified" | "questionable" | "reject")[];
   approvals: { agent: boolean; archivist: boolean; dispatcher: boolean };
+  approvalLog: { role: Role; approved: boolean; tick: number }[];
+  acceptedElapsedMs: number | null;
+  resolvedElapsedMs: number | null;
   dialogueNode: string;
   discoveredTags: string[];
   suggestionUsed: boolean;
@@ -284,9 +288,6 @@ function spawnCase(
   const layout = content.layouts.find(
     (item) => item.id === generated.layoutId,
   )!;
-  state.machine.controls = Object.fromEntries(
-    layout.controls.map((control) => [control.id, control.values[0]!]),
-  );
   const incident = packages
     .flatMap((pkg) => pkg.packs)
     .flatMap((pack) => pack.incidents)
@@ -296,18 +297,6 @@ function spawnCase(
         entry.layout === layout.id,
     );
   const incidentActive = Boolean(incident) && state.cases.length % 2 === 0;
-  if (incidentActive && incident) {
-    const control = layout.controls.find(
-      (entry) => entry.id === incident.recovery.control,
-    );
-    const wrongValue = control?.values.find(
-      (value) => value !== incident.recovery.equals,
-    );
-    if (wrongValue !== undefined)
-      state.machine.controls[incident.recovery.control] = wrongValue;
-  }
-  state.machine.availableDestinations =
-    layout.availableDestinations as GameState["machine"]["availableDestinations"];
   state.cases.push({
     id: `${state.scenarioId}.case.${state.cases.length + 1}` as CaseId,
     status: "queued",
@@ -325,6 +314,9 @@ function spawnCase(
     generated,
     stamps: [],
     approvals: { agent: false, archivist: false, dispatcher: false },
+    approvalLog: [],
+    acceptedElapsedMs: null,
+    resolvedElapsedMs: null,
     dialogueNode: dialogue.start,
     discoveredTags: [],
     suggestionUsed: false,
@@ -333,6 +325,47 @@ function spawnCase(
     incidentRecovered: !incidentActive,
     outcome: null,
   });
+}
+
+function fillQueue(
+  state: SimulationState,
+  packages: readonly CampaignPackage[],
+): void {
+  const limit = caseContent(packages, state.scenarioId).scenario.casePlan.count;
+  while (
+    state.cases.length < limit &&
+    state.cases.filter((item) => item.status === "queued").length < 3
+  )
+    spawnCase(state, packages);
+}
+
+function prepareMachineForCase(
+  state: SimulationState,
+  item: SimCase,
+  packages: readonly CampaignPackage[],
+): void {
+  const layout = caseContent(packages, state.scenarioId).layouts.find(
+    (entry) => entry.id === item.generated.layoutId,
+  )!;
+  state.machine.controls = Object.fromEntries(
+    layout.controls.map((control) => [control.id, control.values[0]!]),
+  );
+  state.machine.availableDestinations =
+    layout.availableDestinations as GameState["machine"]["availableDestinations"];
+  if (item.incidentId) {
+    const incident = packages
+      .flatMap((pkg) => pkg.packs)
+      .flatMap((pack) => pack.incidents)
+      .find((entry) => entry.id === item.incidentId)!;
+    const control = layout.controls.find(
+      (entry) => entry.id === incident.recovery.control,
+    );
+    const wrongValue = control?.values.find(
+      (value) => value !== incident.recovery.equals,
+    );
+    if (wrongValue !== undefined)
+      state.machine.controls[incident.recovery.control] = wrongValue;
+  }
 }
 
 export function advanceToTick(
@@ -345,6 +378,9 @@ export function advanceToTick(
   while (state.hostTick < target) {
     state.hostTick++;
     state.stateRevision++;
+    if (state.phase === "shift" && state.pause)
+      for (const playerId of Object.keys(state.cooldownUntil))
+        state.cooldownUntil[playerId]!++;
     if (state.phase === "shift" && !state.pause) {
       state.shift.elapsedMs += TICK_MS;
       if (
@@ -372,6 +408,17 @@ function activeCase(
 
 function roleOf(state: SimulationState, playerId: PlayerId): Role | undefined {
   return state.players[playerId]?.role;
+}
+
+function setApproval(
+  item: SimCase,
+  role: Role,
+  approved: boolean,
+  tick: number,
+): void {
+  if (item.approvals[role] === approved) return;
+  item.approvals[role] = approved;
+  item.approvalLog.push({ role, approved, tick });
 }
 
 function resolve(
@@ -435,6 +482,7 @@ function resolve(
     });
   }
   item.status = "resolved";
+  item.resolvedElapsedMs = state.shift.elapsedMs;
   state.resolvedCount++;
   state.shift.currentWave = Math.floor(state.resolvedCount / 2);
   updateEscalation(state);
@@ -451,11 +499,7 @@ function resolve(
     state.resolvedCount >= scenario.victory.count
   ) {
     finishShift(state, "completed");
-  } else if (
-    state.phase === "shift" &&
-    state.cases.length < scenario.casePlan.count
-  )
-    spawnCase(state, packages);
+  } else if (state.phase === "shift") fillQueue(state, packages);
 }
 
 export function reduceInput(
@@ -515,7 +559,7 @@ export function reduceInput(
       state.activeRules = content.scenario
         .startingRules as SimulationState["activeRules"];
       state.phase = "shift";
-      spawnCase(state, packages);
+      fillQueue(state, packages);
     } else if (command.kind === "ABANDON") {
       if (playerId !== state.hostPlayerId || state.phase === "results")
         return reject("Cannot abandon");
@@ -541,10 +585,44 @@ export function reduceInput(
         if (
           role !== "agent" ||
           !queued ||
+          queued !== state.cases.find((entry) => entry.status === "queued") ||
           state.cases.some((entry) => activeCase(state, entry.id))
         )
           return reject("Case cannot be accepted");
+        const currentContent = caseContent(packages, state.scenarioId);
+        const currentLayout = currentContent.layouts.find(
+          (entry) => entry.id === queued.generated.layoutId,
+        )!;
+        const currentValidDestinations = validDestinations(
+          currentContent,
+          {
+            tags: queued.generated.tags,
+            stamps: queued.stamps,
+            pressure: state.shift.queuePressure,
+            caseCount: state.resolvedCount,
+          },
+          currentContent.exceptions.filter((entry) =>
+            queued.generated.exceptionIds.includes(entry.id),
+          ),
+          currentLayout,
+          state.activeRules,
+        );
+        if (currentValidDestinations.length === 0)
+          return reject("Queued case has no valid destination");
+        queued.generated.validDestinations = currentValidDestinations;
+        if (
+          !currentValidDestinations.includes(
+            queued.generated.preferredDestination,
+          )
+        ) {
+          queued.generated.preferredDestination = currentValidDestinations[0]!;
+          queued.trueDestination =
+            currentValidDestinations[0] as SimCase["trueDestination"];
+        }
+        queued.ruleText = state.activeRules.join(", ");
         queued.status = "active";
+        queued.acceptedElapsedMs = state.shift.elapsedMs;
+        prepareMachineForCase(state, queued, packages);
         const complaint = packages
           .flatMap((pkg) => pkg.packs)
           .flatMap((pack) => pack.complaints)
@@ -682,7 +760,7 @@ export function reduceInput(
                 item.archivePins[command.replaceIndex] = command.recordId;
               else return reject("Invalid pin slot");
             }
-            item.approvals.archivist = false;
+            setApproval(item, "archivist", false, state.hostTick);
             item.status = "investigating";
             break;
           case "ARCHIVE_UNPIN":
@@ -693,13 +771,13 @@ export function reduceInput(
             )
               return reject("Invalid pin slot");
             item.archivePins.splice(command.index, 1);
-            item.approvals.archivist = false;
+            setApproval(item, "archivist", false, state.hostTick);
             item.status = "investigating";
             break;
           case "STAMP":
             if (role !== "archivist") return reject("Wrong role");
             item.stamps = [command.stamp];
-            item.approvals.archivist = false;
+            setApproval(item, "archivist", false, state.hostTick);
             item.status = "investigating";
             events.push({
               kind: "STAMP_APPLIED",
@@ -717,11 +795,12 @@ export function reduceInput(
             )
               return reject("Unavailable destination");
             item.selectedDestination = command.destinationId as never;
-            item.approvals = {
-              agent: false,
-              archivist: false,
-              dispatcher: false,
-            };
+            for (const affected of [
+              "agent",
+              "archivist",
+              "dispatcher",
+            ] as const)
+              setApproval(item, affected, false, state.hostTick);
             item.prepared = false;
             item.status = "investigating";
             break;
@@ -733,7 +812,7 @@ export function reduceInput(
             if (!control || !control.values.includes(command.value))
               return reject("Invalid machine value");
             state.machine.controls[command.controlId] = command.value;
-            item.approvals.dispatcher = false;
+            setApproval(item, "dispatcher", false, state.hostTick);
             item.prepared = false;
             item.status = "investigating";
             break;
@@ -775,7 +854,7 @@ export function reduceInput(
               return reject("No destination selected");
             if (role === "dispatcher" && command.approved && !item.prepared)
               return reject("Machine not prepared");
-            item.approvals[role] = command.approved;
+            setApproval(item, role, command.approved, state.hostTick);
             item.status = Object.values(item.approvals).every(Boolean)
               ? "approved"
               : "investigating";

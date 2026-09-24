@@ -32,6 +32,7 @@ const publicView = z
     phase: z.enum(["lobby", "shift", "results"]),
     revision: revisionSchema,
     elapsedMs: z.number().int().nonnegative(),
+    pauseReason: z.enum(["host-menu", "disconnect"]).nullable(),
     queueLength: z.number().int().nonnegative(),
     queuePressure: z.number().int(),
     boilerPressure: z.number().int(),
@@ -48,9 +49,68 @@ const publicView = z
         dispatcher: z.boolean(),
       })
       .strict(),
+    approvalLog: z.array(
+      z
+        .object({
+          role,
+          approved: z.boolean(),
+          tick: z.number().int().nonnegative(),
+        })
+        .strict(),
+    ),
+    modifiers: z.array(
+      z
+        .object({
+          ruleId: z.string(),
+          text: z.string(),
+          state: z.enum(["announced", "active"]),
+        })
+        .strict(),
+    ),
+    report: z
+      .object({
+        seed: z.string(),
+        contentHash: z.string(),
+        endReason: z.string(),
+        elapsedMs: z.number().int().nonnegative(),
+        averageCaseMs: z.number().int().nonnegative(),
+        score: z
+          .object({
+            resolvedCorrectly: z.number().int().nonnegative(),
+            resolvedAcceptably: z.number().int().nonnegative(),
+            resolvedIncorrectly: z.number().int().nonnegative(),
+            catastrophicErrors: z.number().int().nonnegative(),
+          })
+          .strict(),
+        cases: z.array(
+          z
+            .object({
+              id: z.string(),
+              outcome: z
+                .enum(["correct", "acceptable", "wrong", "catastrophic"])
+                .nullable(),
+              selectedDestination: z.string().nullable(),
+              trueDestination: z.string(),
+            })
+            .strict(),
+        ),
+      })
+      .strict()
+      .nullable(),
     colleagues: z
       .array(
-        z.object({ role, connected: z.boolean(), ready: z.boolean() }).strict(),
+        z
+          .object({
+            role,
+            activity: z.enum([
+              "sucht",
+              "spricht",
+              "bereitet vor",
+              "bereit",
+              "getrennt",
+            ]),
+          })
+          .strict(),
       )
       .length(3),
   })

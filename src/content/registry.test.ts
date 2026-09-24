@@ -69,7 +69,7 @@ describe("content registry", () => {
       /unsolvable sample/,
     );
     const invalidGoal = copy(core);
-    invalidGoal.scenarios[0]!.victory.count = 2;
+    invalidGoal.scenarios[0]!.victory.count = 9;
     await expect(loadContent([invalidGoal])).rejects.toThrow(
       /victory count exceeds case plan/,
     );
@@ -79,7 +79,7 @@ describe("content registry", () => {
     const registered = await loadContent([core, audit]);
     const baseline = registered.gameplayHash;
     expect(baseline).toBe(
-      "8a6fccd17422012e85062b85a1ef6f5275c133a87766ce5c027df113c51d6262",
+      "0f3aa59b7cd5fba7b44040b5af170e81eddc394d4faec782bc2683b1d4aa7b9c",
     );
     const cosmetic = copy(core);
     cosmetic.translations["text.core.title"] = "Other title";

@@ -17,6 +17,7 @@ const view = (revision: number): PlayerViewState => ({
     phase: "shift",
     revision,
     elapsedMs: revision * 100,
+    pauseReason: null,
     queueLength: 1,
     queuePressure: 0,
     boilerPressure: 0,
@@ -27,10 +28,12 @@ const view = (revision: number): PlayerViewState => ({
     archivePins: [],
     selectedDestination: null,
     approvals: { agent: false, archivist: false, dispatcher: false },
+    approvalLog: [],
+    modifiers: [],
+    report: null,
     colleagues: ["agent", "archivist", "dispatcher"].map((role) => ({
       role: role as "agent" | "archivist" | "dispatcher",
-      connected: true,
-      ready: true,
+      activity: "bereit" as const,
     })),
   },
   role: {

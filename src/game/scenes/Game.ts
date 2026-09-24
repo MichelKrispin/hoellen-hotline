@@ -193,7 +193,10 @@ export class Game extends Phaser.Scene {
       this,
       this.role === "agent" ? 0 : this.role === "archivist" ? 120 : 240,
     );
-    statusBar(this, this.role);
+    const hud = statusBar(this, this.role);
+    const unsubscribeHud = this.network?.subscribe(() => {
+      if (this.network?.view) hud.update(this.network.view.public);
+    });
     if (this.role === "agent") agentDesk(this, Boolean(this.network));
     if (this.role === "archivist") archiveDesk(this, Boolean(this.network));
     if (this.role === "dispatcher") dispatcherDesk(this, Boolean(this.network));
@@ -222,6 +225,7 @@ export class Game extends Phaser.Scene {
     if (this.network && this.role === "dispatcher")
       this.dispatcherPanel = new DispatcherPanel(this, this.network);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      unsubscribeHud?.();
       this.dispatcherPanel?.destroy();
       this.dispatcherPanel = null;
       this.archivistPanel?.destroy();

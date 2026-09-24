@@ -1,6 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GameNetwork } from "./gameNetwork";
+import core from "../content/core/fixture.json";
+import audit from "../content/campaigns/audit/fixture.json";
+import { loadContent } from "../content/registry";
+import type { CampaignPackage } from "../content/schemas";
 import { createActionId, type CaseId } from "../game/core/ids";
+import {
+  canonicalState,
+  replaySimulation,
+  type SimulationState,
+} from "../game/state/simulation";
 import type { PrivateLobby, Member, Slot } from "./privateLobby";
 import type { Role } from "../game/state/contracts";
 
@@ -93,6 +102,7 @@ describe("host simulation over role-filtered channels", () => {
     expect(agentJson).not.toContain("trueDestination");
     expect(agentJson).not.toContain("rngState");
     expect(agentJson).not.toContain("seed");
+    expect(agent.view?.public.report).toBeNull();
     const caseId = "core.scenario.first.case.1" as CaseId;
     const repeatedActionId = createActionId();
     expect(
@@ -190,9 +200,27 @@ describe("host simulation over role-filtered channels", () => {
     await vi.waitFor(() =>
       expect(dispatcher.view?.public.revision).toBe(host.view?.public.revision),
     );
-    expect(host.status).toBe("ended");
-    expect(agent.status).toBe("ended");
-    expect(agent.view?.public.phase).toBe("results");
+    expect(host.status).toBe("active");
+    expect(agent.status).toBe("active");
+    expect(agent.view?.public.phase).toBe("shift");
+    expect(agent.view?.public.report).toBeNull();
+    const resolved = (host as unknown as { state: SimulationState }).state
+      .cases[0]!;
+    expect(resolved.status).toBe("resolved");
+    expect(
+      resolved.resolvedElapsedMs! - resolved.acceptedElapsedMs!,
+    ).toBeGreaterThanOrEqual(0);
+    expect(agent.exportDebugReplay()).toBeNull();
+    const replay = host.exportDebugReplay()!;
+    expect(replay.entries).toHaveLength(host.getDebugState()!.entries);
+    const packages = (
+      await loadContent([core as CampaignPackage, audit as CampaignPackage])
+    ).packages;
+    expect(
+      canonicalState(replaySimulation(replay, packages, replay.contentHash)),
+    ).toBe(
+      canonicalState((host as unknown as { state: SimulationState }).state),
+    );
   });
   it("ends a paused shift when the 60 second reconnect window expires", async () => {
     const clock = vi.spyOn(performance, "now").mockReturnValue(1000);
