@@ -8,4 +8,4 @@ Die Verbindung verwendet zwei getrennte WebRTC PeerConnections mit geordneten Da
 
 `VITE_STUN_URL` setzt den STUN-Server; Standard ist `stun:stun.l.google.com:19302`. Ein leerer Wert deaktiviert STUN, etwa für lokale Tests. Die Links verwenden `import.meta.env.BASE_URL` und damit den konfigurierten Pages-Unterpfad. Der Playwright-Test verwendet absichtlich lokale ICE-Kandidaten.
 
-Die Lobby zeigt Namen, Rolle, Verbindung, Ping und Ready. Jeder wählt selbst eine freie Rolle. Der Host kann erst mit drei verbundenen, eindeutigen Rollen und drei Ready-Zuständen starten. Beim Szenenwechsel schließt dieser Batch die Lobby-Verbindungen; das dauerhafte Spielprotokoll und Reconnect folgen in Batch 5. Öffentliche Raumsuche bleibt ein deaktivierter Adaptervertrag.
+Die Lobby zeigt Namen, Rolle, Verbindung, Ping und Ready. Jeder wählt selbst eine freie Rolle. Der Host kann erst mit drei verbundenen, eindeutigen Rollen und drei Ready-Zuständen starten. Beim Spielstart gehen die offenen Verbindungen an das autoritative Netzwerk aus Batch 5 über. Öffentliche Raumsuche bleibt ein deaktivierter Adaptervertrag.

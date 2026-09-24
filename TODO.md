@@ -183,18 +183,18 @@ Abnahme:
 
 Ziel: Host und zwei Gäste teilen einen konsistenten, rollengefilterten Zustand.
 
-- [ ] Envelope-Schemas, verbindungsspezifische Sequenznummern, Größenlimit, Dekompressionslimit und Rate-Limits umsetzen.
-- [ ] `ACTION`, `ACTION_REJECTED`, `STATE_PATCH`, `STATE_SNAPSHOT`, `SNAPSHOT_REQUEST`, `PING/PONG`, `PAUSE_STATE`, `GAME_OVER` implementieren.
-- [ ] hostseitige Rollenzuordnung bei jeder Aktion prüfen.
-- [ ] lokale Aktionen des Hostspielers durch denselben Command-Validator wie Gastaktionen führen.
-- [ ] rollenspezifische Projektionen aus kanonischem Hostzustand erzeugen.
-- [ ] Seed, PRNG-Zustand und Musterlösung bis zur Ergebnisphase aus allen Gastprojektionen und Startnachrichten ausschließen.
-- [ ] sicherstellen, dass geheime Felder nie in Snapshots oder Devtool-lesbaren Stores der Gäste landen; die unvermeidbare Einsichtsmöglichkeit des Hosts dokumentieren.
-- [ ] `connectionId`, sitzungsweit eindeutige `actionId`, `baseRevision` und `revision` umsetzen; Reconnects erhalten neue Connection-IDs, Lücken fordern einen Snapshot an und die Action-ID-Historie verhindert doppelte Anwendung über Verbindungswechsel hinweg.
-- [ ] Snapshot-Hash, geordnete Patch-Anwendung und `bufferedAmount`-Backpressure implementieren; rollengefilterte Snapshots bleiben unter dem 64-KiB-Envelopelimit.
-- [ ] Disconnect pausiert die Partie für höchstens 60 Sekunden.
-- [ ] manuellen Reconnect mit neuem Offer und vollständigem Snapshot bauen.
-- [ ] Host-Abbruch, Gast-Abbruch und Protokollfehler als unterschiedliche UX-Zustände behandeln.
+- [x] Envelope-Schemas, verbindungsspezifische Sequenznummern, Größenlimit, Dekompressionslimit und Rate-Limits umsetzen.
+- [x] `ACTION`, `ACTION_REJECTED`, `STATE_PATCH`, `STATE_SNAPSHOT`, `SNAPSHOT_REQUEST`, `PING/PONG`, `PAUSE_STATE`, `GAME_OVER` implementieren.
+- [x] hostseitige Rollenzuordnung bei jeder Aktion prüfen.
+- [x] lokale Aktionen des Hostspielers durch denselben Command-Validator wie Gastaktionen führen.
+- [x] rollenspezifische Projektionen aus kanonischem Hostzustand erzeugen.
+- [x] Seed, PRNG-Zustand und Musterlösung bis zur Ergebnisphase aus allen Gastprojektionen und Startnachrichten ausschließen.
+- [x] sicherstellen, dass geheime Felder nie in Snapshots oder Devtool-lesbaren Stores der Gäste landen; die unvermeidbare Einsichtsmöglichkeit des Hosts dokumentieren.
+- [x] `connectionId`, sitzungsweit eindeutige `actionId`, `baseRevision` und `revision` umsetzen; Reconnects erhalten neue Connection-IDs, Lücken fordern einen Snapshot an und die Action-ID-Historie verhindert doppelte Anwendung über Verbindungswechsel hinweg.
+- [x] Snapshot-Hash, geordnete Patch-Anwendung und `bufferedAmount`-Backpressure implementieren; rollengefilterte Snapshots bleiben unter dem 64-KiB-Envelopelimit.
+- [x] Disconnect pausiert die Partie für höchstens 60 Sekunden.
+- [x] manuellen Reconnect mit neuem Offer und vollständigem Snapshot bauen.
+- [x] Host-Abbruch, Gast-Abbruch und Protokollfehler als unterschiedliche UX-Zustände behandeln.
 
 Abnahme:
 

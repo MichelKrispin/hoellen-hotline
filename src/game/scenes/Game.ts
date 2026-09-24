@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import { button, installDebugNavigation } from "./navigation";
 import { TOKENS } from "../../ui/tokens";
 import type { Role } from "../state/contracts";
+import type { GameNetwork } from "../../net/gameNetwork";
+import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
 import {
   devil,
   gauge,
@@ -146,10 +148,13 @@ function dispatcherDesk(scene: Phaser.Scene): void {
 
 export class Game extends Phaser.Scene {
   private role: Role = "agent";
+  private network: GameNetwork | null = null;
+  private overlay: GameNetworkOverlay | null = null;
   constructor() {
     super("Game");
   }
-  init(data: { role?: Role }): void {
+  init(data: { role?: Role; network?: GameNetwork }): void {
+    this.network = data.network ?? null;
     this.role =
       data.role === "archivist" || data.role === "dispatcher"
         ? data.role
@@ -171,12 +176,24 @@ export class Game extends Phaser.Scene {
       this,
       1671,
       218,
-      "ERGEBNIS  →",
-      () => this.scene.start("Results"),
+      this.network?.isHost
+        ? "SCHICHT ABBRECHEN"
+        : this.network
+          ? "PARTIE VERLASSEN"
+          : "ERGEBNIS  →",
+      () => {
+        if (this.network?.isHost) this.network.submit({ kind: "ABANDON" });
+        else this.scene.start("Results");
+      },
       C.dispatcher,
       212,
       54,
     );
+    if (this.network) this.overlay = new GameNetworkOverlay(this.network);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.overlay?.destroy();
+      this.overlay = null;
+    });
     installDebugNavigation(this);
   }
 }

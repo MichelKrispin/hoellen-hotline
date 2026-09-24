@@ -10,7 +10,8 @@ export class Lobby extends Phaser.Scene {
   create(): void {
     sceneHeader(this, "Warteraum", "Private Verbindung für drei Arbeitsplätze");
     this.overlay = new LobbyOverlay();
-    this.overlay.onStart = (role) => this.scene.start("Game", { role });
+    this.overlay.onStart = (role, network) =>
+      this.scene.start("Game", { role, network });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.overlay?.destroy();
       this.overlay = null;

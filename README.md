@@ -15,7 +15,7 @@ Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](d
 
 Die Headless-Simulation aus Batch 3 ist in [docs/simulation.md](docs/simulation.md) beschrieben.
 
-Die private Link-Lobby aus Batch 4 ist in [docs/private-lobby.md](docs/private-lobby.md) beschrieben.
+Die private Link-Lobby aus Batch 4 ist in [docs/private-lobby.md](docs/private-lobby.md) beschrieben. Das autoritative Netzwerk und der manuelle Reconnect aus Batch 5 stehen in [docs/network.md](docs/network.md).
 
 ## Prüfen
 

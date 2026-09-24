@@ -1,5 +1,6 @@
 import type { Role } from "../game/state/contracts";
 import { PrivateLobby } from "../net/privateLobby";
+import type { GameNetwork } from "../net/gameNetwork";
 import { clearFragment, fragmentFrom } from "../net/signalingLink";
 
 const roles: { id: Role; label: string }[] = [
@@ -25,7 +26,7 @@ export class LobbyOverlay {
   private answerInputs: [string, string] = ["", ""];
   private notice = "";
   private openedAnswer = "";
-  onStart: (role: Role) => void = () => undefined;
+  onStart: (role: Role, network: GameNetwork) => void = () => undefined;
   constructor() {
     this.root.className = "lobby-overlay";
     this.root.setAttribute("aria-label", "Private Lobby");
@@ -69,7 +70,7 @@ export class LobbyOverlay {
     this.lobby?.close();
     this.lobby = lobby;
     lobby.onChange = () => this.render();
-    lobby.onStart = (role) => this.onStart(role);
+    lobby.onStart = (role, network) => this.onStart(role, network);
   }
   private async copy(value: string): Promise<void> {
     try {
@@ -97,7 +98,7 @@ export class LobbyOverlay {
       else if (action === "copy-generated-answer")
         await this.copy(this.lobby!.answerLink);
       else if (action === "ping") this.lobby!.ping();
-      else if (action === "start") this.lobby!.start();
+      else if (action === "start") await this.lobby!.start();
       else if (action.startsWith("offer-"))
         await this.lobby!.createOffer(Number(action.slice(-1)) as 1 | 2);
       else if (action.startsWith("import-"))

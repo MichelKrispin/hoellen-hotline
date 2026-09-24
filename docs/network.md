@@ -1,0 +1,13 @@
+# Autoritatives Netzwerk (Batch 5)
+
+Nach dem Ready-Check erzeugt der Host eine Simulation aus dem registrierten Fixture-Content. Er ist der einzige Besitzer des kanonischen Zustands, Seeds, PRNG-Zustands und der konkreten Falllösung. Gäste speichern nur ihre `PlayerViewState`-Projektion. `START_GAME` enthält Protokollversion, Session, Rolle, Start-Tick, Szenario-ID und Content-Hash; der Gast vergleicht den Hash mit seinem lokalen Content.
+
+Spielnachrichten nutzen ein versioniertes Zod-Envelope mit Session-ID, verbindungsspezifischer Connection-ID und streng steigender Sequenznummer. Eine serialisierte Nachricht darf höchstens 65.536 UTF-8-Bytes belegen. Empfangene Nachrichten werden schema-validiert; mehr als 100 Nachrichten in fünf Sekunden schließen den betroffenen Kanal. Der Sender blockiert oberhalb von 256 KiB `bufferedAmount` und holt bei freiem Puffer per Snapshot auf.
+
+Der Host führt lokale und entfernte Commands durch denselben Simulations-Reducer. Er leitet die Spieler-ID aus dem verbundenen Slot ab. Angenommene Aktionen und Systemereignisse gehen in das geordnete Host-Log; die Action-ID-Historie überlebt Verbindungswechsel. Für jede Rolle erzeugt der Host eigene Projektionen. Snapshots sind mit Deflate komprimiert, auf 256 KiB dekomprimierte Daten begrenzt und mit SHA-256 geprüft. Patches enthalten Basis- und Zielrevision sowie einen Hash der resultierenden Ansicht. Bei einer Lücke fordert der Gast einen Snapshot an. Alte Pakete einer ersetzten Connection-ID und bereits angewandte Revisionen werden ignoriert.
+
+Ein getrenntes Gastslot pausiert die Schicht. Die 60-Sekunden-Frist verwendet `performance.now()` außerhalb des kanonischen Zustands; der Ablauf wird als `DISCONNECT_EXPIRED` in die Simulation eingespeist. Der Host erstellt im Spiel einen neuen Slot-Link, der Gast fügt ihn in seinem bestehenden Spieltab ein und sendet einen neuen Answer zurück. Die neue Verbindung erhält eine neue Connection-ID und einen vollständigen Rollen-Snapshot. Die ursprüngliche Client-ID reserviert Rolle und Spieler-Slot. `HOST_LEFT`, abgelaufener Gast-Reconnect und Protokollfehler haben getrennte Zustände.
+
+Die Spielpulte sind noch Platzhalter. Der Integrations-Test sendet Commands direkt an die Netzwerksitzung und schließt damit einen Fall über drei simulierte Kanäle ab. Die Rollenbedienung folgt in den Batches 6–8. Ein echter Browsertest prüft Start und Reconnect mit drei Chromium-Tabs und lokalen ICE-Kandidaten; Tests mit getrennten Geräten und Netzwerken bleiben für den Release-Batch.
+
+Der Host kann seinen vollständigen Zustand technisch über DevTools lesen und verändern. Dieses Vertrauensmodell schützt Gäste vor versehentlichem Datenabfluss, nicht vor einem böswilligen Host.

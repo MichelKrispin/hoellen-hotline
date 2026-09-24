@@ -146,3 +146,56 @@ canvas {
     grid-template-columns: 1fr;
   }
 }
+.game-network-overlay {
+  position: fixed;
+  left: 2%;
+  bottom: 2%;
+  z-index: 11;
+  width: min(520px, 96vw);
+  color: #f4e1bd;
+  font:
+    15px Arial,
+    sans-serif;
+}
+.network-panel {
+  max-height: 40vh;
+  overflow: auto;
+  padding: 12px 16px;
+  background: #261a25ee;
+  border: 2px solid #91604a;
+  box-shadow: 0 8px 30px #0009;
+}
+.network-panel strong,
+.network-panel span {
+  display: block;
+  margin: 3px 0;
+}
+.network-panel strong {
+  color: #68d8dc;
+}
+.network-panel p {
+  margin: 5px 0;
+  color: #ffcc7d;
+}
+.network-panel textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 54px;
+  padding: 6px;
+  margin: 5px 0;
+  background: #e9c99a;
+  color: #30232a;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+.network-panel button {
+  margin: 4px 5px 4px 0;
+  padding: 6px 8px;
+  background: #e9a84c;
+  border: 1px solid #ffcc7d;
+  cursor: pointer;
+}
+.network-panel :focus-visible {
+  outline: 3px solid #68d8dc;
+}

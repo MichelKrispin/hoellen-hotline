@@ -3,13 +3,14 @@ import { expect, test } from "@playwright/test";
 test("three browsers join the private lobby and choose distinct roles", async ({
   browser,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
   const guests = [];
+  const initialAnswers: string[] = [];
   for (const slot of [1, 2]) {
     await host
       .getByRole("button", { name: "Einladung erzeugen" })
@@ -30,6 +31,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     const answer = await guest
       .getByRole("textbox", { name: "Antwortlink", exact: true })
       .inputValue();
+    initialAnswers.push(answer);
     await host
       .getByRole("textbox", { name: `Antwortlink Gast ${slot}` })
       .fill(answer);
@@ -58,7 +60,48 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     host.getByRole("button", { name: "Schicht starten" }),
   ).toBeEnabled();
   await host.getByRole("button", { name: "Schicht starten" }).click();
-  for (const page of pages)
+  for (const [index, page] of pages.entries()) {
     await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Game");
+    await expect(
+      page.getByRole("region", { name: "Netzwerkstatus" }),
+    ).toContainText(`Rolle: ${["agent", "archivist", "dispatcher"][index]}`);
+    await expect(
+      page.getByRole("region", { name: "Netzwerkstatus" }),
+    ).toContainText(/Revision: [0-9]+/);
+  }
+  await host.evaluate(() =>
+    (
+      window as typeof window & { __closeGameChannel: (slot: 1 | 2) => void }
+    ).__closeGameChannel(1),
+  );
+  await expect(
+    host.getByRole("region", { name: "Netzwerkstatus" }),
+  ).toContainText("Gast getrennt");
+  await host
+    .getByRole("button", { name: "Neuen Link für Gast 1 erzeugen" })
+    .click();
+  const reconnectOffer = await host
+    .getByRole("textbox", { name: "Einladung Gast 1" })
+    .inputValue();
+  const reconnectGuest = guests[0]!;
+  await reconnectGuest
+    .getByRole("textbox", { name: "Neuer Reconnect-Link vom Host" })
+    .fill(reconnectOffer);
+  await reconnectGuest.getByRole("button", { name: "Neu verbinden" }).click();
+  const reconnectAnswerField = reconnectGuest.getByRole("textbox", {
+    name: "Neue Antwort für den Host",
+  });
+  await expect(reconnectAnswerField).not.toHaveValue(initialAnswers[0]!);
+  const reconnectAnswer = await reconnectAnswerField.inputValue();
+  await host
+    .getByRole("textbox", { name: "Antwort Gast 1" })
+    .fill(reconnectAnswer);
+  await host.getByRole("button", { name: "Antwort importieren" }).click();
+  await expect(
+    host.getByRole("region", { name: "Netzwerkstatus" }),
+  ).toContainText("● Verbunden");
+  await expect(
+    reconnectGuest.getByRole("region", { name: "Netzwerkstatus" }),
+  ).toContainText("● Verbunden");
   await context.close();
 });

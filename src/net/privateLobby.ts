@@ -1,11 +1,14 @@
 import { z } from "zod";
 import {
+  createClientId,
   createConnectionId,
   createNonce,
   createSessionId,
   sessionCode,
 } from "../game/core/ids";
 import type { Role } from "../game/state/contracts";
+import { GameNetwork } from "./gameNetwork";
+import { MAX_ENVELOPE_BYTES } from "./protocol";
 import {
   clearFragment,
   decodeSignal,
@@ -39,6 +42,7 @@ const messageSchema = z.discriminatedUnion("type", [
     slot: z.union([z.literal(1), z.literal(2)]),
     nonce: z.string(),
     connectionId: z.string(),
+    clientId: z.string().regex(/^[0-9a-f]{32}$/),
     name: z.string().min(1).max(24),
   }),
   z.object({
@@ -60,7 +64,15 @@ const messageSchema = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("PING"), at: z.number() }),
   z.object({ type: z.literal("PONG"), at: z.number() }),
-  z.object({ type: z.literal("START_GAME"), role: roleSchema }),
+  z.object({
+    type: z.literal("START_GAME"),
+    v: z.literal(1),
+    sessionId: z.string().regex(/^[0-9a-f]{32}$/),
+    role: roleSchema,
+    startTick: z.number().int().nonnegative(),
+    scenarioId: z.string(),
+    contentHash: z.string().regex(/^[0-9a-f]{64}$/),
+  }),
 ]);
 type Message = z.infer<typeof messageSchema>;
 type PeerSlot = {
@@ -114,6 +126,23 @@ export async function waitForIce(
     throw new Error("Keine vollständige Verbindungsbeschreibung verfügbar.");
 }
 
+function isTopLevelType(raw: string, type: string): boolean {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "type" in parsed &&
+      parsed.type === type
+    );
+  } catch {
+    return false;
+  }
+}
+function lobbyMessageTooLarge(raw: string): boolean {
+  return new TextEncoder().encode(raw).length > MAX_ENVELOPE_BYTES;
+}
+
 export class PrivateLobby {
   readonly sessionId: string;
   readonly code: string;
@@ -121,7 +150,15 @@ export class PrivateLobby {
   readonly members: [Member, Member, Member];
   readonly localSlot: Slot;
   onChange: () => void = () => undefined;
-  onStart: (role: Role) => void = () => undefined;
+  onStart: (role: Role, network: GameNetwork) => void = () => undefined;
+  game: GameNetwork | null = null;
+  private transferred = false;
+  private readonly clientId = createClientId();
+  private playerIds: [string, string | null, string | null] = [
+    this.clientId,
+    null,
+    null,
+  ];
   error = "";
   pendingOffer: (Signal & { kind: "offer" }) | null = null;
   answerLink = "";
@@ -178,6 +215,10 @@ export class PrivateLobby {
   }
   private broadcast(): void {
     if (!this.isHost) return;
+    if (this.game) {
+      this.emit();
+      return;
+    }
     const members = this.members.map((m) => ({ ...m }));
     for (const entry of this.slots.values())
       this.send(entry.channel, { type: "LOBBY_STATE", members });
@@ -187,7 +228,8 @@ export class PrivateLobby {
     if (!this.isHost) throw new Error("Nur der Host erzeugt Einladungen.");
     this.slots.get(slot)?.peer.close();
     this.slots.delete(slot);
-    this.members[slot] = emptyMember(`Gast ${slot}`);
+    if (!this.game) this.members[slot] = emptyMember(`Gast ${slot}`);
+    else this.members[slot].connected = false;
     this.broadcast();
     const peer = new RTCPeerConnection(iceConfig);
     const channel = peer.createDataChannel("lobby", { ordered: true });
@@ -230,8 +272,18 @@ export class PrivateLobby {
   private bindHost(slot: 1 | 2, entry: PeerSlot): void {
     const { channel, peer } = entry;
     channel.onmessage = (event) => {
+      const raw = String(event.data);
+      if (lobbyMessageTooLarge(raw)) {
+        this.fail(new Error("Netzwerknachricht zu groß."));
+        channel.close();
+        return;
+      }
+      if (this.game && !isTopLevelType(raw, "HELLO")) {
+        this.game.receive(slot, raw);
+        return;
+      }
       try {
-        const msg = messageSchema.parse(JSON.parse(String(event.data)));
+        const msg = messageSchema.parse(JSON.parse(raw));
         if (msg.type === "HELLO") {
           if (
             msg.v !== 1 ||
@@ -241,7 +293,12 @@ export class PrivateLobby {
             msg.connectionId !== entry.connectionId
           )
             throw new Error("Fremde oder veraltete Verbindungsdaten.");
-          this.members[slot] = { ...emptyMember(msg.name), connected: true };
+          if (this.playerIds[slot] && this.playerIds[slot] !== msg.clientId)
+            throw new Error("Fremde Client-ID für reservierten Slot.");
+          this.playerIds[slot] = msg.clientId;
+          this.members[slot] = this.game
+            ? { ...this.members[slot], name: msg.name, connected: true }
+            : { ...emptyMember(msg.name), connected: true };
           entry.status = "Verbunden";
           this.send(channel, {
             type: "WELCOME",
@@ -251,6 +308,7 @@ export class PrivateLobby {
             connectionId: msg.connectionId,
           });
           this.broadcast();
+          if (this.game) this.game.connectionOpened(slot);
         } else if (entry.status !== "Verbunden")
           throw new Error("Handshake fehlt.");
         else if (msg.type === "CHOICE") {
@@ -280,7 +338,10 @@ export class PrivateLobby {
     };
     channel.onclose = () => {
       if (this.slots.get(slot) === entry) {
-        this.members[slot] = emptyMember(`Gast ${slot}`);
+        this.game?.connectionClosed(slot);
+        this.members[slot] = this.game
+          ? { ...this.members[slot], connected: false }
+          : emptyMember(`Gast ${slot}`);
         entry.status = "Getrennt";
         this.broadcast();
       }
@@ -353,11 +414,14 @@ export class PrivateLobby {
           slot: offer.slot,
           nonce: offer.nonce,
           connectionId: this.guestConnectionId!,
+          clientId: this.clientId,
           name,
         });
       channel.onmessage = (message) => this.handleGuestMessage(message);
       channel.onclose = () => {
+        if (this.guestChannel !== channel) return;
         this.members[this.localSlot].connected = false;
+        this.game?.connectionClosed(0);
         this.fail(new Error("Verbindung zum Host getrennt."));
       };
     };
@@ -396,8 +460,18 @@ export class PrivateLobby {
     }
   }
   private handleGuestMessage(event: MessageEvent): void {
+    const raw = String(event.data);
+    if (lobbyMessageTooLarge(raw)) {
+      this.fail(new Error("Netzwerknachricht zu groß."));
+      this.guestChannel?.close();
+      return;
+    }
+    if (this.game && !isTopLevelType(raw, "WELCOME")) {
+      this.game.receive(0, raw);
+      return;
+    }
     try {
-      const msg = messageSchema.parse(JSON.parse(String(event.data)));
+      const msg = messageSchema.parse(JSON.parse(raw));
       if (msg.type === "WELCOME") {
         if (
           msg.v !== 1 ||
@@ -407,6 +481,7 @@ export class PrivateLobby {
         )
           throw new Error("Ungültige Host-Bestätigung.");
         this.members[this.localSlot].connected = true;
+        if (this.game) this.game.connectionOpened(0);
         this.emit();
       } else if (msg.type === "LOBBY_STATE") {
         for (let i = 0; i < 3; i++) this.members[i] = msg.members[i]!;
@@ -419,7 +494,18 @@ export class PrivateLobby {
           Math.round(performance.now() - msg.at),
         );
         this.emit();
-      } else if (msg.type === "START_GAME") this.onStart(msg.role);
+      } else if (msg.type === "START_GAME") {
+        if (
+          msg.v !== 1 ||
+          msg.sessionId !== this.sessionId ||
+          msg.role !== this.members[this.localSlot].role
+        )
+          throw new Error("Fremde oder widersprüchliche Startnachricht.");
+        this.game = GameNetwork.guest(this, msg.role, msg.contentHash);
+        this.transferred = true;
+        this.close();
+        this.onStart(msg.role, this.game);
+      }
     } catch (error) {
       this.fail(error);
       this.guestChannel?.close();
@@ -458,15 +544,22 @@ export class PrivateLobby {
       new Set(this.members.map((m) => m.role)).size === 3
     );
   }
-  start(): void {
+  async start(): Promise<void> {
     if (!this.canStart())
       throw new Error("Drei verbundene, eindeutige Rollen müssen bereit sein.");
+    this.game = await GameNetwork.host(this, this.members[0].role!);
+    this.transferred = true;
+    this.close();
     for (const [slot, entry] of this.slots)
       this.send(entry.channel, {
         type: "START_GAME",
+        v: 1,
+        sessionId: this.sessionId,
         role: this.members[slot].role!,
+        ...this.game.publicStart(),
       });
-    this.onStart(this.members[0].role!);
+    this.game.startHost();
+    this.onStart(this.members[0].role!, this.game);
   }
   ping(): void {
     const now = performance.now();
@@ -476,7 +569,57 @@ export class PrivateLobby {
     else if (this.guestChannel)
       this.send(this.guestChannel, { type: "PING", at: now });
   }
+  playerIdFor(slot: Slot): string {
+    const id = this.playerIds[slot];
+    if (!id) throw new Error("Spieler-ID fehlt.");
+    return id;
+  }
+  connectionIdFor(slot: Slot): string | null {
+    return slot === 0
+      ? this.guestConnectionId
+      : (this.slots.get(slot)?.connectionId ?? null);
+  }
+  channelFor(slot: Slot): RTCDataChannel | null {
+    return slot === 0
+      ? this.guestChannel
+      : (this.slots.get(slot)?.channel ?? null);
+  }
+  async createReconnectOffer(slot: 1 | 2): Promise<void> {
+    if (
+      !this.game ||
+      !this.isHost ||
+      !["guest-disconnected", "protocol-error"].includes(this.game.status)
+    )
+      throw new Error("Reconnect ist derzeit nicht möglich.");
+    await this.createOffer(slot);
+  }
+  async rejoin(input: string, name: string): Promise<void> {
+    if (!this.game || this.isHost)
+      throw new Error("Kein Gast-Reconnect möglich.");
+    const fragment = fragmentFrom(input);
+    if (fragment.kind !== "offer")
+      throw new Error("Ein Offer-Link wird benötigt.");
+    this.answerLink = "";
+    this.emit();
+    const signal = await decodeSignal(fragment.payload);
+    if (
+      signal.kind !== "offer" ||
+      signal.sessionId !== this.sessionId ||
+      signal.slot !== this.localSlot
+    )
+      throw new Error("Fremder Reconnect-Link.");
+    this.guestPeer?.close();
+    this.guestPeer = null;
+    this.guestChannel = null;
+    this.pendingOffer = signal;
+    await this.join(name);
+  }
   close(): void {
+    if (this.pulseTimer !== null) clearInterval(this.pulseTimer);
+    this.pulseTimer = null;
+    if (!this.transferred) this.dispose();
+  }
+  dispose(): void {
     if (this.pulseTimer !== null) clearInterval(this.pulseTimer);
     for (const entry of this.slots.values()) entry.peer.close();
     this.guestPeer?.close();
