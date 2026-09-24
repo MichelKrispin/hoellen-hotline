@@ -5,6 +5,7 @@ import type { Role } from "../state/contracts";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
 import { AgentPanel } from "../roles/agent/AgentPanel";
+import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import {
   devil,
   gauge,
@@ -58,7 +59,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   }
 }
 
-function archiveDesk(scene: Phaser.Scene): void {
+function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "AKTEN  /  REGELWERK", C.archivist);
   plate(scene, 105, 314, 431, 542, C.wood, C.woodEdge);
   for (let i = 0; i < 4; i++) {
@@ -82,14 +83,18 @@ function archiveDesk(scene: Phaser.Scene): void {
   }
   paper(scene, 577, 310, 684, 546);
   label(scene, 615, 352, "REGELBUCH", 34, C.ink);
-  label(scene, 619, 430, "AKTIVE REGELN", 25, C.ink);
-  label(scene, 619, 502, "Noch keine Schicht begonnen.", 25, C.ink, 550);
-  label(scene, 619, 646, "◇   Fall prüfen", 27, C.ink);
-  label(scene, 619, 715, "◇   Ausnahme prüfen", 27, C.ink);
+  if (!live) {
+    label(scene, 619, 430, "AKTIVE REGELN", 25, C.ink);
+    label(scene, 619, 502, "Noch keine Schicht begonnen.", 25, C.ink, 550);
+    label(scene, 619, 646, "◇   Fall prüfen", 27, C.ink);
+    label(scene, 619, 715, "◇   Ausnahme prüfen", 27, C.ink);
+  }
   paper(scene, 1293, 336, 497, 377);
   label(scene, 1332, 378, "SEELEN-DOSSIER", 30, C.ink);
-  label(scene, 1332, 450, "Keine Akte geöffnet", 27, C.ink);
-  label(scene, 1332, 568, "GETEILTE TAGS  ◇", 23, C.ink);
+  if (!live) {
+    label(scene, 1332, 450, "Keine Akte geöffnet", 27, C.ink);
+    label(scene, 1332, 568, "GETEILTE TAGS  ◇", 23, C.ink);
+  }
   devil(scene, 1540, 868, 0.42, 0x70517b);
   for (let i = 0; i < 3; i++) {
     const x = 603 + i * 290;
@@ -101,13 +106,14 @@ function archiveDesk(scene: Phaser.Scene): void {
       82,
       [C.success, C.warning, C.error][i] ?? C.warning,
     );
-    label(
-      scene,
-      x + 22,
-      919,
-      ["✓  PASST", "?  UNKLAR", "×  NEIN"][i] ?? "",
-      27,
-    );
+    if (!live)
+      label(
+        scene,
+        x + 22,
+        919,
+        ["✓  PASST", "?  UNKLAR", "×  NEIN"][i] ?? "",
+        27,
+      );
   }
 }
 
@@ -156,6 +162,7 @@ export class Game extends Phaser.Scene {
   private network: GameNetwork | null = null;
   private overlay: GameNetworkOverlay | null = null;
   private agentPanel: AgentPanel | null = null;
+  private archivistPanel: ArchivistPanel | null = null;
   constructor() {
     super("Game");
   }
@@ -176,7 +183,7 @@ export class Game extends Phaser.Scene {
     );
     statusBar(this, this.role);
     if (this.role === "agent") agentDesk(this, Boolean(this.network));
-    if (this.role === "archivist") archiveDesk(this);
+    if (this.role === "archivist") archiveDesk(this, Boolean(this.network));
     if (this.role === "dispatcher") dispatcherDesk(this);
     button(
       this,
@@ -198,7 +205,11 @@ export class Game extends Phaser.Scene {
     if (this.network) this.overlay = new GameNetworkOverlay(this.network);
     if (this.network && this.role === "agent")
       this.agentPanel = new AgentPanel(this, this.network);
+    if (this.network && this.role === "archivist")
+      this.archivistPanel = new ArchivistPanel(this, this.network);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.archivistPanel?.destroy();
+      this.archivistPanel = null;
       this.agentPanel?.destroy();
       this.agentPanel = null;
       this.overlay?.destroy();

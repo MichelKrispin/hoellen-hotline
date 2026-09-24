@@ -1,0 +1,7 @@
+# Archivpult (Batch 7)
+
+Das Archivregister zeigt die für das Szenario zugelassenen Archetypen. Name, Alias, Beruf, Ereignis, Dossier, Beschwerde und Tag sind durchsuchbar; ein Tagfilter und Seitenwechsel halten auch ein Register mit mindestens 30 Akten bedienbar. Der Probefall enthält drei gleich benannte Formularbeamte. Der aktuelle Gesprächsfall wird nicht als exakte Akten-ID an den Archivar übertragen. Veröffentlichten Agentenhinweisen und den rekonstruierbaren Unstimmigkeiten entnimmt er, welche Karte passt.
+
+Das Regelbuch trennt Tagesklauseln, Ausnahmen und gemeinsame Notizen. Aktive Regeln, Priorität, Ziel und Querverweis sind lesbar. Zwei öffentliche Pin-Slots erlauben Pinnen, bewusstes Ersetzen und Lösen. Ein neuer Pin oder Stempel widerruft eine bereits erteilte Archivarfreigabe; der Archivar kann sie nach einer Prüfung neu erteilen. Alle Änderungen werden hostseitig nach Rolle, Fall und gültigen IDs geprüft. Andere Rollen erhalten weder das Register noch die Regeltexte.
+
+Die Suche und der Tagfilter sind DOM-Textfelder auf dem gezeichneten Phaser-Pult. Ergebnis- und Aktentexte, Regelbuch, Pins, Stempel und Freigabe liegen zusätzlich in einer per Tab erreichbaren Textspiegelung für Tastatur und Screenreader. Trefferkarten blenden nacheinander ein; eine erfolglose Suche wirft einen Papierfetzen aus und bewegt eine Schublade. Die Stempel reagieren mit einer kurzen Squash-Bewegung.

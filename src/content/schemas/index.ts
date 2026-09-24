@@ -127,6 +127,10 @@ export const CaseArchetypeSchema = base
   .extend({
     nameKey: textKey,
     dossierKey: textKey,
+    aliasKeys: z.array(textKey).optional(),
+    occupationKey: textKey.optional(),
+    eventKeys: z.array(textKey).optional(),
+    warningKeys: z.array(textKey).optional(),
     possibleTags: referenceList,
     possibleComplaints: referenceList,
     dialogue: id,

@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis. Die Agent-Rolle ist in einer verbundenen Partie spielbar; Archivar und Disponent erhalten ihre Bedienung in den folgenden Batches. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md), die Agentenbedienung in [docs/agent.md](docs/agent.md).
+Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis. Agent und Archivar sind in einer verbundenen Partie bedienbar; das Disponentenpult folgt in Batch 8. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md), die Rollenbedienung in [docs/agent.md](docs/agent.md) und [docs/archivist.md](docs/archivist.md).
 
 Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](docs/content.md) beschrieben.
 

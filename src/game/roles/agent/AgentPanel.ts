@@ -62,8 +62,14 @@ export class AgentPanel {
     event.preventDefault();
   };
   private readonly outsidePointer = (event: PointerEvent): void => {
-    if (event.target instanceof Node && !this.mirror.contains(event.target))
+    if (event.target instanceof Node && !this.mirror.contains(event.target)) {
       delete this.mirror.dataset.open;
+      if (
+        document.activeElement instanceof HTMLElement &&
+        this.mirror.contains(document.activeElement)
+      )
+        document.activeElement.blur();
+    }
   };
 
   constructor(
@@ -396,7 +402,9 @@ export class AgentPanel {
       : "Ausgewähltes Ziel freigeben";
     this.approvalButton.disabled = !active || !view.public.selectedDestination;
     this.feedback.setText(this.network.error || this.localFeedback);
-    this.mirrorStatus.textContent = `${role.callerName ?? role.incomingCallerName ?? "Kein Anruf"}. ${role.dialogueText ?? ""} Queue ${pressureLabel(view.public.queuePressure)}. Freigabe ${view.public.approvals.agent ? "erteilt" : "offen"}. ${this.network.error || this.localFeedback}`;
+    const accessibleStatus = `${role.callerName ?? role.incomingCallerName ?? "Kein Anruf"}. ${role.dialogueText ?? ""} Queue ${pressureLabel(view.public.queuePressure)}. Freigabe ${view.public.approvals.agent ? "erteilt" : "offen"}. ${this.network.error || this.localFeedback}`;
+    if (this.mirrorStatus.textContent !== accessibleStatus)
+      this.mirrorStatus.textContent = accessibleStatus;
     const worm = role.callerMood !== null && role.callerMood < 45;
     this.face.clear();
     if (role.callerMood !== null) {

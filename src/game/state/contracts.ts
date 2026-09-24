@@ -118,6 +118,28 @@ export interface PublicShiftView {
   approvals: { agent: boolean; archivist: boolean; dispatcher: boolean };
 }
 
+export interface ArchiveRecordView {
+  id: string;
+  name: string;
+  aliases: string[];
+  occupation: string;
+  events: string[];
+  warnings: string[];
+  dossier: string;
+  tags: string[];
+  complaints: string[];
+}
+
+export interface RuleEntryView {
+  id: string;
+  kind: "rule" | "exception";
+  text: string;
+  destination: string;
+  priority: number;
+  active: boolean;
+  overrides: string | null;
+}
+
 export type RoleView =
   | {
       role: "agent";
@@ -138,6 +160,10 @@ export type RoleView =
       dossier: string | null;
       ruleText: string | null;
       activeRules: RuleId[];
+      archiveRecords: ArchiveRecordView[];
+      ruleEntries: RuleEntryView[];
+      tagLabels: Record<string, string>;
+      stamp: "verified" | "questionable" | "reject" | null;
     }
   | { role: "dispatcher"; machine: MachineState };
 

@@ -37,6 +37,83 @@ const config: StartConfig = {
 };
 
 describe("deterministic simulation", () => {
+  it("validates archivist pin slots, replacement, removal and stamps on the host", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    let state = createSimulation(config, "archive", hash);
+    let serial = 0;
+    const attempt = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `archive-${++serial}` as ActionId,
+          command,
+        },
+        packages,
+      );
+      if (!result.rejected) state = result.state;
+      return result.rejected;
+    };
+    for (const playerId of [agent, archivist, dispatcher])
+      expect(attempt(playerId, { kind: "READY", ready: true })).toBeUndefined();
+    expect(attempt(agent, { kind: "START" })).toBeUndefined();
+    const caseId = state.cases[0]!.id;
+    expect(attempt(agent, { kind: "ACCEPT_CASE", caseId })).toBeUndefined();
+    expect(
+      attempt(agent, {
+        kind: "ARCHIVE_PIN",
+        caseId,
+        recordId: "core.archetype.clerk-copy",
+      }),
+    ).toBe("Invalid archive record");
+    expect(
+      attempt(archivist, {
+        kind: "ARCHIVE_PIN",
+        caseId,
+        recordId: "core.archetype.clerk-copy",
+      }),
+    ).toBeUndefined();
+    expect(
+      attempt(archivist, {
+        kind: "ARCHIVE_PIN",
+        caseId,
+        recordId: "core.archetype.clerk-retired",
+      }),
+    ).toBeUndefined();
+    expect(
+      attempt(archivist, {
+        kind: "ARCHIVE_PIN",
+        caseId,
+        recordId: "core.archetype.clerk",
+      }),
+    ).toBe("Pin slots full");
+    expect(
+      attempt(archivist, {
+        kind: "ARCHIVE_PIN",
+        caseId,
+        recordId: "core.archetype.clerk",
+        replaceIndex: 0,
+      }),
+    ).toBeUndefined();
+    expect(state.cases[0]!.archivePins).toEqual([
+      "core.archetype.clerk",
+      "core.archetype.clerk-retired",
+    ]);
+    expect(
+      attempt(archivist, { kind: "ARCHIVE_UNPIN", caseId, index: 1 }),
+    ).toBeUndefined();
+    expect(state.cases[0]!.archivePins).toEqual(["core.archetype.clerk"]);
+    expect(
+      attempt(archivist, { kind: "STAMP", caseId, stamp: "questionable" }),
+    ).toBeUndefined();
+    expect(projectView(state, "archivist", packages).role).toMatchObject({
+      stamp: "questionable",
+    });
+    const agentView = JSON.stringify(projectView(state, "agent", packages));
+    expect(agentView).not.toContain("archiveRecords");
+    expect(agentView).not.toContain("ruleEntries");
+  });
   it("lets interruption finish a conversation quickly while losing unrevealed hints", async () => {
     const hash = (await loadContent(packages)).gameplayHash;
     let state = createSimulation(config, "interrupt", hash);

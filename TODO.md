@@ -226,13 +226,13 @@ Abnahme:
 
 Ziel: Recherche ist eine aktive, visuelle Mechanik statt einer Textdatenbank.
 
-- [ ] Aktenschrank, Suchfeld, Filter und animierte Karteikarten bauen.
-- [ ] absichtlich mehrdeutige Treffer mit fairen Unterscheidungsmerkmalen implementieren.
-- [ ] Regelbuch mit Inhaltsreitern, Tagesklauseln und Querverweisen bauen.
-- [ ] Stempel `VERIFIZIERT`, `FRAGWÜRDIG`, `AUF KEINEN FALL FREIGEBEN` implementieren.
-- [ ] maximal zwei öffentliche Pins mit Ersetzen-/Lösen-Fluss bauen.
-- [ ] Stempel-Squash, Papierauswurf bei Fehlersuche und Aktenschrankreaktion integrieren.
-- [ ] Screenreader-lesbare Textspiegelung für relevante Akteninformation ergänzen.
+- [x] Aktenschrank, Suchfeld, Filter und animierte Karteikarten bauen.
+- [x] absichtlich mehrdeutige Treffer mit fairen Unterscheidungsmerkmalen implementieren.
+- [x] Regelbuch mit Inhaltsreitern, Tagesklauseln und Querverweisen bauen.
+- [x] Stempel `VERIFIZIERT`, `FRAGWÜRDIG`, `AUF KEINEN FALL FREIGEBEN` implementieren.
+- [x] maximal zwei öffentliche Pins mit Ersetzen-/Lösen-Fluss bauen.
+- [x] Stempel-Squash, Papierauswurf bei Fehlersuche und Aktenschrankreaktion integrieren.
+- [x] Screenreader-lesbare Textspiegelung für relevante Akteninformation ergänzen.
 
 Abnahme:
 

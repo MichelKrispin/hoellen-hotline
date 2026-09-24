@@ -106,17 +106,78 @@ export function projectView(
         },
         presentation: [],
       };
-    case "archivist":
+    case "archivist": {
+      const scenario = packages
+        .flatMap((pkg) => pkg.scenarios)
+        .find((item) => item.id === simState.scenarioId);
+      const tags = packs.flatMap((pack) => pack.tags);
+      const complaints = packs.flatMap((pack) => pack.complaints);
+      const archiveRecords = packs
+        .flatMap((pack) => pack.archetypes)
+        .filter((item) => scenario?.allowedContent.archetypes.includes(item.id))
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .map((item) => ({
+          id: item.id,
+          name: translate(item.nameKey),
+          aliases: (item.aliasKeys ?? []).map(translate),
+          occupation: item.occupationKey ? translate(item.occupationKey) : "",
+          events: (item.eventKeys ?? []).map(translate),
+          warnings: (item.warningKeys ?? []).map(translate),
+          dossier: translate(item.dossierKey),
+          tags: [...item.possibleTags],
+          complaints: item.possibleComplaints.map((id) =>
+            translate(
+              complaints.find((entry) => entry.id === id)?.textKey ?? id,
+            ),
+          ),
+        }));
+      const ruleEntries = [
+        ...packs
+          .flatMap((pack) => pack.rules)
+          .map((item) => ({
+            id: item.id,
+            kind: "rule" as const,
+            text: translate(item.textKey),
+            destination: translate(
+              destinations.find((entry) => entry.id === item.destination)
+                ?.nameKey ?? item.destination,
+            ),
+            priority: item.priority,
+            active: state.activeRules.includes(item.id as never),
+            overrides: null,
+          })),
+        ...packs
+          .flatMap((pack) => pack.exceptions)
+          .map((item) => ({
+            id: item.id,
+            kind: "exception" as const,
+            text: translate(item.textKey),
+            destination: translate(
+              destinations.find((entry) => entry.id === item.destination)
+                ?.nameKey ?? item.destination,
+            ),
+            priority: item.priority,
+            active: state.activeRules.includes(item.overrides as never),
+            overrides: item.overrides,
+          })),
+      ].sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id));
       return {
         public: publicView,
         role: {
           role,
-          dossier: active?.dossier ?? null,
-          ruleText: active?.ruleText ?? null,
+          dossier: null,
+          ruleText: null,
           activeRules: [...state.activeRules],
+          archiveRecords,
+          ruleEntries,
+          tagLabels: Object.fromEntries(
+            tags.map((tag) => [tag.id, translate(tag.textKey)]),
+          ),
+          stamp: simCase?.stamps?.at(-1) ?? null,
         },
         presentation: [],
       };
+    }
     case "dispatcher":
       return {
         public: publicView,

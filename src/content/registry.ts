@@ -78,6 +78,10 @@ const gameplayOmitted = new Set([
   "descriptionKey",
   "nameKey",
   "dossierKey",
+  "aliasKeys",
+  "occupationKey",
+  "eventKeys",
+  "warningKeys",
   "textKey",
   "labelKey",
   "diagnosisKey",
@@ -455,6 +459,12 @@ export async function loadContent(
       for (const archetype of pack.archetypes) {
         textRef(archetype.nameKey, archetype.id);
         textRef(archetype.dossierKey, archetype.id);
+        for (const key of archetype.aliasKeys ?? []) textRef(key, archetype.id);
+        if (archetype.occupationKey)
+          textRef(archetype.occupationKey, archetype.id);
+        for (const key of archetype.eventKeys ?? []) textRef(key, archetype.id);
+        for (const key of archetype.warningKeys ?? [])
+          textRef(key, archetype.id);
         assetRef(archetype.portrait, archetype.id);
         refs(archetype.possibleTags, "tag", archetype.id);
         refs(archetype.possibleComplaints, "complaint", archetype.id);

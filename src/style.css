@@ -64,6 +64,69 @@ canvas {
 .agent-accessible-controls button:disabled {
   opacity: 0.55;
 }
+.archive-search,
+.archive-filter {
+  position: fixed;
+  z-index: 12;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  background: #f4dfb9;
+  color: #30232a;
+  border: 2px solid #8f5b4b;
+  font:
+    15px Arial,
+    sans-serif;
+}
+.archive-search:focus-visible,
+.archive-filter:focus-visible {
+  outline: 3px solid #68d8dc;
+  outline-offset: 2px;
+}
+.archivist-mirror {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 13;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.archivist-mirror:focus-within,
+.archivist-mirror[data-open="true"] {
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 16px));
+  height: auto;
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  clip-path: none;
+  padding: 12px;
+  color: #f4e1bd;
+  background: #261a25;
+  border: 3px solid #e9a84c;
+  box-shadow: 0 12px 40px #000b;
+  font:
+    15px Arial,
+    sans-serif;
+}
+.archivist-mirror button {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0;
+  padding: 7px;
+  background: #e9c99a;
+  color: #241620;
+  border: 2px solid #91604a;
+  font: inherit;
+}
+.archivist-mirror button:focus-visible {
+  outline: 3px solid #68d8dc;
+  outline-offset: 2px;
+}
+.archivist-mirror button:disabled {
+  opacity: 0.55;
+}
 .lobby-overlay {
   position: fixed;
   inset: 4% 5%;
@@ -198,7 +261,7 @@ canvas {
   left: 2%;
   bottom: 2%;
   z-index: 11;
-  width: min(520px, 96vw);
+  width: min(360px, 96vw);
   color: #f4e1bd;
   font:
     15px Arial,

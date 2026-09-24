@@ -111,6 +111,34 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     await host.locator("canvas").click({ position: { x: 700, y: 100 } });
     await host.screenshot({ path: testInfo.outputPath("agent-desk.png") });
   }
+  const archivist = guests[0]!;
+  const archive = archivist.getByRole("region", { name: "Archivarbeitsplatz" });
+  await archive
+    .getByRole("textbox", { name: "Akten durchsuchen" })
+    .fill("Formularbeamte");
+  await archive
+    .getByRole("combobox", { name: "Akten nach Tag filtern" })
+    .selectOption("core.tag.ink");
+  const correctRecord = archive.getByRole("button", {
+    name: /F. Beamter, Schalter 13/,
+  });
+  await correctRecord.focus();
+  await correctRecord.click();
+  await expect(archive.getByRole("status")).toContainText(
+    "Aktiver Sachbearbeiter",
+  );
+  await archive.getByRole("button", { name: /Pin 1: frei/ }).click();
+  await expect(
+    archive.getByRole("button", { name: /Pin 1: F. Beamter, Schalter 13/ }),
+  ).toBeVisible();
+  await archive.getByRole("button", { name: /FRAGWÜRDIG/ }).click();
+  await expect(archive.getByText("Stempel: ? FRAGWÜRDIG")).toBeVisible();
+  if (process.env.CAPTURE_AGENT === "1") {
+    await archivist.locator("canvas").click({ position: { x: 700, y: 100 } });
+    await archivist.screenshot({
+      path: testInfo.outputPath("archive-desk.png"),
+    });
+  }
   await host.evaluate(() =>
     (
       window as typeof window & { __closeGameChannel: (slot: 1 | 2) => void }

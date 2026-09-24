@@ -54,6 +54,30 @@ const publicView = z
       .length(3),
   })
   .strict();
+const archiveRecord = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    aliases: z.array(z.string()),
+    occupation: z.string(),
+    events: z.array(z.string()),
+    warnings: z.array(z.string()),
+    dossier: z.string(),
+    tags: z.array(z.string()),
+    complaints: z.array(z.string()),
+  })
+  .strict();
+const ruleEntry = z
+  .object({
+    id: z.string(),
+    kind: z.enum(["rule", "exception"]),
+    text: z.string(),
+    destination: z.string(),
+    priority: z.number().int(),
+    active: z.boolean(),
+    overrides: z.string().nullable(),
+  })
+  .strict();
 const roleView = z.discriminatedUnion("role", [
   z
     .object({
@@ -79,6 +103,10 @@ const roleView = z.discriminatedUnion("role", [
       dossier: z.string().nullable(),
       ruleText: z.string().nullable(),
       activeRules: z.array(z.string()),
+      archiveRecords: z.array(archiveRecord),
+      ruleEntries: z.array(ruleEntry),
+      tagLabels: z.record(z.string(), z.string()),
+      stamp: z.enum(["verified", "questionable", "reject"]).nullable(),
     })
     .strict(),
   z
@@ -124,6 +152,12 @@ export const commandSchema = z.discriminatedUnion("kind", [
     kind: z.literal("ARCHIVE_PIN"),
     caseId: z.string(),
     recordId: z.string(),
+    replaceIndex: z.number().int().min(0).max(1).optional(),
+  }),
+  z.object({
+    kind: z.literal("ARCHIVE_UNPIN"),
+    caseId: z.string(),
+    index: z.number().int().min(0).max(1),
   }),
   z.object({
     kind: z.literal("STAMP"),

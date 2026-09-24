@@ -80,7 +80,13 @@ export type SimCommand =
       replaceIndex?: number;
     }
   | { kind: "SUGGEST_DESTINATION"; caseId: CaseId; destinationId: string }
-  | { kind: "ARCHIVE_PIN"; caseId: CaseId; recordId: string }
+  | {
+      kind: "ARCHIVE_PIN";
+      caseId: CaseId;
+      recordId: string;
+      replaceIndex?: number;
+    }
+  | { kind: "ARCHIVE_UNPIN"; caseId: CaseId; index: number }
   | {
       kind: "STAMP";
       caseId: CaseId;
@@ -632,18 +638,41 @@ export function reduceInput(
           case "ARCHIVE_PIN":
             if (
               role !== "archivist" ||
-              command.recordId !== item.generated.archetypeId
+              !content.scenario.allowedContent.archetypes.includes(
+                command.recordId,
+              )
             )
               return reject("Invalid archive record");
             if (!item.archivePins.includes(command.recordId)) {
-              if (item.archivePins.length >= 2) return reject("Pin slots full");
-              item.archivePins.push(command.recordId);
+              if (command.replaceIndex === undefined) {
+                if (item.archivePins.length >= 2)
+                  return reject("Pin slots full");
+                item.archivePins.push(command.recordId);
+              } else if (
+                command.replaceIndex >= 0 &&
+                command.replaceIndex < item.archivePins.length
+              )
+                item.archivePins[command.replaceIndex] = command.recordId;
+              else return reject("Invalid pin slot");
             }
+            item.approvals.archivist = false;
+            item.status = "investigating";
+            break;
+          case "ARCHIVE_UNPIN":
+            if (
+              role !== "archivist" ||
+              command.index < 0 ||
+              command.index >= item.archivePins.length
+            )
+              return reject("Invalid pin slot");
+            item.archivePins.splice(command.index, 1);
+            item.approvals.archivist = false;
             item.status = "investigating";
             break;
           case "STAMP":
             if (role !== "archivist") return reject("Wrong role");
             item.stamps = [command.stamp];
+            item.approvals.archivist = false;
             item.status = "investigating";
             events.push({
               kind: "STAMP_APPLIED",
