@@ -44,6 +44,8 @@ export interface SimCase extends Omit<
   stamps: ("verified" | "questionable" | "reject")[];
   approvals: { agent: boolean; archivist: boolean; dispatcher: boolean };
   dialogueNode: string;
+  discoveredTags: string[];
+  suggestionUsed: boolean;
   outcome: "correct" | "acceptable" | "wrong" | "catastrophic" | null;
 }
 
@@ -70,7 +72,14 @@ export type SimCommand =
   | { kind: "START" }
   | { kind: "ACCEPT_CASE"; caseId: CaseId }
   | { kind: "DIALOGUE"; caseId: CaseId; choiceId: string }
-  | { kind: "PUBLISH_TAG"; caseId: CaseId; tagId: string }
+  | { kind: "INTERRUPT"; caseId: CaseId }
+  | {
+      kind: "PUBLISH_TAG";
+      caseId: CaseId;
+      tagId: string;
+      replaceIndex?: number;
+    }
+  | { kind: "SUGGEST_DESTINATION"; caseId: CaseId; destinationId: string }
   | { kind: "ARCHIVE_PIN"; caseId: CaseId; recordId: string }
   | {
       kind: "STAMP";
@@ -280,12 +289,15 @@ function spawnCase(
     trueDestination:
       generated.preferredDestination as SimCase["trueDestination"],
     publishedTags: [],
+    suggestedDestination: null,
     archivePins: [],
     selectedDestination: null,
     generated,
     stamps: [],
     approvals: { agent: false, archivist: false, dispatcher: false },
     dialogueNode: dialogue.start,
+    discoveredTags: [],
+    suggestionUsed: false,
     outcome: null,
   });
 }
@@ -500,6 +512,15 @@ export function reduceInput(
         )
           return reject("Case cannot be accepted");
         queued.status = "active";
+        const complaint = packages
+          .flatMap((pkg) => pkg.packs)
+          .flatMap((pack) => pack.complaints)
+          .find((entry) => entry.id === queued.generated.complaintId);
+        if (
+          complaint?.hintTag &&
+          queued.generated.tags.includes(complaint.hintTag)
+        )
+          queued.discoveredTags.push(complaint.hintTag);
       } else {
         if (!item) return reject("Stale or inactive case ID");
         const content = caseContent(packages, state.scenarioId);
@@ -531,24 +552,81 @@ export function reduceInput(
               events.push({ kind: "CALLER_ANGERED", caseId: item.id });
             if (
               choice.revealTag &&
-              !item.publishedTags.includes(choice.revealTag)
+              item.generated.tags.includes(choice.revealTag) &&
+              !item.discoveredTags.includes(choice.revealTag)
             )
-              item.publishedTags.push(choice.revealTag);
+              item.discoveredTags.push(choice.revealTag);
             item.status = "investigating";
             state.cooldownUntil[playerId] = state.hostTick + COOLDOWN_TICKS;
+            break;
+          }
+          case "INTERRUPT": {
+            if (role !== "agent") return reject("Wrong role");
+            if (state.hostTick < (state.cooldownUntil[playerId] ?? 0))
+              return reject("Cooldown active");
+            const dialogue = packages
+              .flatMap((pkg) => pkg.packs)
+              .flatMap((pack) => pack.dialogues)
+              .find((entry) => entry.id === item.generated.dialogueId)!;
+            const node = dialogue.nodes.find(
+              (entry) => entry.id === item.dialogueNode,
+            )!;
+            if (node.choices.length === 0)
+              return reject("Dialogue already ended");
+            const queue = [node];
+            const visited = new Set<string>();
+            let exitNode: typeof node | undefined;
+            while (queue.length) {
+              const current = queue.shift()!;
+              if (visited.has(current.id)) continue;
+              visited.add(current.id);
+              if (current.choices.length === 0) {
+                exitNode = current;
+                break;
+              }
+              for (const choice of current.choices) {
+                const following = dialogue.nodes.find(
+                  (entry) => entry.id === choice.next,
+                );
+                if (following) queue.push(following);
+              }
+            }
+            if (!exitNode) return reject("No dialogue exit");
+            item.dialogueNode = exitNode.id;
+            item.dialogueOptions = [];
+            item.callerMood = clamp(item.callerMood - 12);
+            item.status = "investigating";
+            state.cooldownUntil[playerId] = state.hostTick + 100;
+            events.push({ kind: "CALLER_ANGERED", caseId: item.id });
             break;
           }
           case "PUBLISH_TAG":
             if (
               role !== "agent" ||
-              !item.generated.tags.includes(command.tagId)
+              !item.discoveredTags.includes(command.tagId)
             )
               return reject("Invalid agent tag");
             if (!item.publishedTags.includes(command.tagId)) {
-              if (item.publishedTags.length >= 3)
-                return reject("Tag slots full");
-              item.publishedTags.push(command.tagId);
+              if (command.replaceIndex === undefined) {
+                if (item.publishedTags.length >= 3)
+                  return reject("Tag slots full");
+                item.publishedTags.push(command.tagId);
+              } else if (
+                command.replaceIndex >= 0 &&
+                command.replaceIndex < item.publishedTags.length
+              )
+                item.publishedTags[command.replaceIndex] = command.tagId;
+              else return reject("Invalid tag slot");
             }
+            item.status = "investigating";
+            break;
+          case "SUGGEST_DESTINATION":
+            if (role !== "agent" || item.suggestionUsed)
+              return reject("Destination suggestion unavailable");
+            if (!layout.availableDestinations.includes(command.destinationId))
+              return reject("Unavailable destination");
+            item.suggestedDestination = command.destinationId as never;
+            item.suggestionUsed = true;
             item.status = "investigating";
             break;
           case "ARCHIVE_PIN":

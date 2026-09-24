@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis. Die Rollenpulte sind visuelle Stilproben; Spielmechanik folgt in späteren Batches. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md).
+Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis. Die Agent-Rolle ist in einer verbundenen Partie spielbar; Archivar und Disponent erhalten ihre Bedienung in den folgenden Batches. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md), die Agentenbedienung in [docs/agent.md](docs/agent.md).
 
 Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](docs/content.md) beschrieben.
 

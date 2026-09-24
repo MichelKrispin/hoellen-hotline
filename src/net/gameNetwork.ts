@@ -54,6 +54,7 @@ export class GameNetwork {
   remainingMs: number | null = null;
   pingMs: number | null = null;
   onChange: () => void = () => undefined;
+  private listeners = new Set<() => void>();
   private state: SimulationState | null = null;
   private packages: CampaignPackage[] = [];
   private entries: LogEntry[] = [];
@@ -109,7 +110,7 @@ export class GameNetwork {
       actionId: createActionId(),
       command: { kind: "START" },
     });
-    network.view = projectView(network.state!, role);
+    network.view = projectView(network.state!, role, network.packages);
     network.tickEpoch = performance.now();
     return network;
   }
@@ -152,6 +153,12 @@ export class GameNetwork {
   }
   private emit(): void {
     this.onChange();
+    for (const listener of this.listeners) listener();
+  }
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    listener();
+    return () => this.listeners.delete(listener);
   }
   private player(slot: 0 | 1 | 2): PlayerId {
     return this.lobby.playerIdFor(slot) as PlayerId;
@@ -304,7 +311,7 @@ export class GameNetwork {
     if (result.transition.rejected) return result.transition.rejected;
     this.state = result.transition.state;
     this.entries = result.entries;
-    this.view = projectView(this.state, this.role);
+    this.view = projectView(this.state, this.role, this.packages);
     this.dirty = true;
     this.emit();
     if (this.state.phase === "results") this.finish();
@@ -352,8 +359,9 @@ export class GameNetwork {
     }
     if (target > this.state.hostTick) {
       this.state = advanceToTick(this.state, target);
-      this.view = projectView(this.state, this.role);
+      this.view = projectView(this.state, this.role, this.packages);
       this.dirty = true;
+      this.emit();
       if (this.state.phase === "results") this.finish();
       else void this.publish();
     }
@@ -381,7 +389,11 @@ export class GameNetwork {
         const state = this.state;
         for (const slot of [1, 2] as const) {
           if (!this.lobby.members[slot].connected) continue;
-          const next = projectView(state, this.lobby.members[slot].role!);
+          const next = projectView(
+            state,
+            this.lobby.members[slot].role!,
+            this.packages,
+          );
           const before = this.lastSent.get(slot);
           if (!before || this.pendingSnapshot.has(slot)) {
             await this.sendSnapshot(slot);
@@ -406,7 +418,11 @@ export class GameNetwork {
   }
   private async sendSnapshot(slot: 1 | 2): Promise<void> {
     if (!this.state || !this.lobby.members[slot].connected) return;
-    const view = projectView(this.state, this.lobby.members[slot].role!);
+    const view = projectView(
+      this.state,
+      this.lobby.members[slot].role!,
+      this.packages,
+    );
     const packed = await packView(view);
     if (
       this.send(slot, {

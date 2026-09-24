@@ -207,14 +207,14 @@ Abnahme:
 
 Ziel: Die Agent-Rolle ist für einen vollständigen Fall spielbar und charaktervoll.
 
-- [ ] Telefonpult mit Anrufannahme, Portrait, Stimmung und Gesprächsindikator bauen.
-- [ ] verzweigten Dialog mit 3–5 Antworten, Konsequenzen und kurzen Reaktionen umsetzen.
-- [ ] Unterbrechen mit Cooldown und sichtbarer Telefonhörer-Reaktion implementieren.
-- [ ] exakt drei strukturierte Hinweis-Slots und Pin/Ersetzen-Fluss bauen.
-- [ ] Bitte an Dispatcher als begrenztes, öffentliches Signal umsetzen.
-- [ ] Queue-Druck verständlich visualisieren, ohne exakte versteckte Wartewerte zu verraten.
-- [ ] Tastatursteuerung und Fokusreihenfolge ergänzen.
-- [ ] Wurm-Telefonhörer-Animation für besonders schwierige Anrufer integrieren.
+- [x] Telefonpult mit Anrufannahme, Portrait, Stimmung und Gesprächsindikator bauen.
+- [x] verzweigten Dialog mit 3–5 Antworten, Konsequenzen und kurzen Reaktionen umsetzen.
+- [x] Unterbrechen mit Cooldown und sichtbarer Telefonhörer-Reaktion implementieren.
+- [x] exakt drei strukturierte Hinweis-Slots und Pin/Ersetzen-Fluss bauen.
+- [x] Bitte an Dispatcher als begrenztes, öffentliches Signal umsetzen.
+- [x] Queue-Druck verständlich visualisieren, ohne exakte versteckte Wartewerte zu verraten.
+- [x] Tastatursteuerung und Fokusreihenfolge ergänzen.
+- [x] Wurm-Telefonhörer-Animation für besonders schwierige Anrufer integrieren.
 
 Abnahme:
 

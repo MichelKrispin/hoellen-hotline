@@ -206,10 +206,102 @@
                   "textKey": "text.core.ask",
                   "next": "answer",
                   "revealTag": "core.tag.queue"
+                },
+                {
+                  "id": "form",
+                  "textKey": "text.core.ask-form",
+                  "next": "form-answer",
+                  "revealTag": "core.tag.ink",
+                  "moodDelta": -4
+                },
+                {
+                  "id": "calm",
+                  "textKey": "text.core.calm",
+                  "next": "calmed",
+                  "moodDelta": 8
                 }
               ]
             },
-            { "id": "answer", "textKey": "text.core.answer", "choices": [] }
+            {
+              "id": "answer",
+              "textKey": "text.core.answer",
+              "choices": [
+                {
+                  "id": "detail",
+                  "textKey": "text.core.detail",
+                  "next": "end-queue",
+                  "revealTag": "core.tag.queue"
+                },
+                {
+                  "id": "stamp",
+                  "textKey": "text.core.stamp",
+                  "next": "end-ink",
+                  "revealTag": "core.tag.ink"
+                },
+                {
+                  "id": "finish",
+                  "textKey": "text.core.finish",
+                  "next": "end-neutral"
+                }
+              ]
+            },
+            {
+              "id": "form-answer",
+              "textKey": "text.core.form-answer",
+              "choices": [
+                {
+                  "id": "ink",
+                  "textKey": "text.core.ink-question",
+                  "next": "end-ink",
+                  "revealTag": "core.tag.ink"
+                },
+                {
+                  "id": "queue",
+                  "textKey": "text.core.queue-question",
+                  "next": "end-queue",
+                  "revealTag": "core.tag.queue"
+                },
+                {
+                  "id": "finish",
+                  "textKey": "text.core.finish",
+                  "next": "end-neutral"
+                }
+              ]
+            },
+            {
+              "id": "calmed",
+              "textKey": "text.core.calmed",
+              "choices": [
+                {
+                  "id": "queue",
+                  "textKey": "text.core.queue-question",
+                  "next": "end-queue",
+                  "revealTag": "core.tag.queue"
+                },
+                {
+                  "id": "ink",
+                  "textKey": "text.core.ink-question",
+                  "next": "end-ink",
+                  "revealTag": "core.tag.ink"
+                },
+                {
+                  "id": "finish",
+                  "textKey": "text.core.finish",
+                  "next": "end-neutral"
+                }
+              ]
+            },
+            {
+              "id": "end-queue",
+              "textKey": "text.core.end-queue",
+              "choices": []
+            },
+            { "id": "end-ink", "textKey": "text.core.end-ink", "choices": [] },
+            {
+              "id": "end-neutral",
+              "textKey": "text.core.end-neutral",
+              "choices": []
+            }
           ]
         }
       ],
@@ -263,6 +355,18 @@
     "text.core.hello": "Wo ist mein Antrag?",
     "text.core.ask": "Warteten Sie lange?",
     "text.core.answer": "Eine Ewigkeit.",
+    "text.core.ask-form": "Was stand auf dem Formular?",
+    "text.core.calm": "Erzählen Sie in Ruhe.",
+    "text.core.detail": "Welche Schlange war es?",
+    "text.core.stamp": "War der Antrag gestempelt?",
+    "text.core.finish": "Danke, das reicht fürs Erste.",
+    "text.core.form-answer": "Rot. Natürlich war alles rot. Sogar der Hefter.",
+    "text.core.ink-question": "Auch die Unterschrift?",
+    "text.core.queue-question": "Wer stand vor Ihnen?",
+    "text.core.calmed": "Endlich jemand, der nicht gleich stempelt.",
+    "text.core.end-queue": "Die Schlange ging zweimal um den Kessel.",
+    "text.core.end-ink": "Der rote Fleck war Tinte, kein Blut.",
+    "text.core.end-neutral": "Ich warte dann am Apparat.",
     "text.core.ok": "Treffer",
     "text.core.maybe": "Vertretbar",
     "text.core.wrong": "Fehlleitung"

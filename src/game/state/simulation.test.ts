@@ -14,6 +14,7 @@ import {
   createSimulation,
   recordInput,
   replaySimulation,
+  reduceInput,
   type SimCommand,
   type SimulationState,
   type StartConfig,
@@ -36,6 +37,132 @@ const config: StartConfig = {
 };
 
 describe("deterministic simulation", () => {
+  it("lets interruption finish a conversation quickly while losing unrevealed hints", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    let state = createSimulation(config, "interrupt", hash);
+    let serial = 0;
+    const send = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `interrupt-${++serial}` as ActionId,
+          command,
+        },
+        packages,
+      );
+      expect(result.rejected).toBeUndefined();
+      state = result.state;
+    };
+    for (const playerId of [agent, archivist, dispatcher])
+      send(playerId, { kind: "READY", ready: true });
+    send(agent, { kind: "START" });
+    const caseId = state.cases[0]!.id;
+    send(agent, { kind: "ACCEPT_CASE", caseId });
+    send(agent, { kind: "INTERRUPT", caseId });
+    expect(state.cases[0]!.dialogueOptions).toEqual([]);
+    expect(state.cases[0]!.discoveredTags).toEqual(["core.tag.ink"]);
+    expect(state.cases[0]!.callerMood).toBe(38);
+  });
+  it("keeps discovered hints private and makes publication, replacement, interruption and suggestion authoritative", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    let state = createSimulation(config, "agent controls", hash);
+    let serial = 0;
+    const send = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `agent-action-${++serial}` as ActionId,
+          command,
+        },
+        packages,
+      );
+      expect(result.rejected).toBeUndefined();
+      state = result.state;
+    };
+    for (const playerId of [agent, archivist, dispatcher])
+      send(playerId, { kind: "READY", ready: true });
+    send(agent, { kind: "START" });
+    const caseId = state.cases[0]!.id;
+    send(agent, { kind: "ACCEPT_CASE", caseId });
+    expect(projectView(state, "agent", packages).role).toMatchObject({
+      discoveredTags: ["core.tag.ink"],
+      dialogueOptions: ["ask", "form", "calm"],
+    });
+    expect(
+      projectView(state, "archivist", packages).public.publishedTags,
+    ).toEqual([]);
+    send(agent, { kind: "PUBLISH_TAG", caseId, tagId: "core.tag.ink" });
+    send(agent, { kind: "DIALOGUE", caseId, choiceId: "ask" });
+    expect(state.cases[0]!.discoveredTags).toContain("core.tag.queue");
+    expect(
+      projectView(state, "archivist", packages).public.publishedTags,
+    ).toEqual(["core.tag.ink"]);
+    send(agent, {
+      kind: "PUBLISH_TAG",
+      caseId,
+      tagId: "core.tag.queue",
+      replaceIndex: 0,
+    });
+    expect(state.cases[0]!.publishedTags).toEqual(["core.tag.queue"]);
+    send(agent, {
+      kind: "SUGGEST_DESTINATION",
+      caseId,
+      destinationId: "core.destination.archive",
+    });
+    expect(
+      projectView(state, "dispatcher", packages).public.suggestedDestination,
+    ).toBe("core.destination.archive");
+    expect(
+      reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: agent,
+          actionId: "again" as ActionId,
+          command: {
+            kind: "SUGGEST_DESTINATION",
+            caseId,
+            destinationId: "core.destination.wrath",
+          },
+        },
+        packages,
+      ).rejected,
+    ).toBe("Destination suggestion unavailable");
+    send(dispatcher, {
+      kind: "SELECT_DESTINATION",
+      caseId,
+      destinationId: "core.destination.archive",
+    });
+    send(agent, { kind: "APPROVE", caseId, approved: true });
+    expect(projectView(state, "agent", packages).public.approvals.agent).toBe(
+      true,
+    );
+    send(agent, { kind: "APPROVE", caseId, approved: false });
+    expect(
+      projectView(state, "dispatcher", packages).public.approvals.agent,
+    ).toBe(false);
+    state = advanceToTick(state, 31);
+    const beforeMood = state.cases[0]!.callerMood;
+    send(agent, { kind: "INTERRUPT", caseId });
+    expect(state.cases[0]!.callerMood).toBe(beforeMood - 12);
+    expect(state.cases[0]!.dialogueOptions).toEqual([]);
+    expect(
+      reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: agent,
+          actionId: "again-2" as ActionId,
+          command: { kind: "INTERRUPT", caseId },
+        },
+        packages,
+      ).rejected,
+    ).toBe("Cooldown active");
+  });
   it("normalizes displayed and Unicode seeds and serializes PRNG state", () => {
     expect(normalizeSeed("ä")).toBe(normalizeSeed("a\u0308"));
     const seed = normalizeSeed("a test seed");

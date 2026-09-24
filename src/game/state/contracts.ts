@@ -28,6 +28,7 @@ export interface CaseState {
   ruleText: string;
   trueDestination: DestinationId;
   publishedTags: string[];
+  suggestedDestination: DestinationId | null;
   archivePins: string[];
   selectedDestination: DestinationId | null;
 }
@@ -110,9 +111,11 @@ export interface PublicShiftView {
   auditRisk: number;
   activeCaseId: CaseId | null;
   publishedTags: string[];
+  suggestedDestination: DestinationId | null;
   archivePins: string[];
   selectedDestination: DestinationId | null;
   colleagues: { role: Role; connected: boolean; ready: boolean }[];
+  approvals: { agent: boolean; archivist: boolean; dispatcher: boolean };
 }
 
 export type RoleView =
@@ -121,6 +124,14 @@ export type RoleView =
       callerName: string | null;
       callerMood: number | null;
       dialogueOptions: string[];
+      dialogueText: string | null;
+      dialogueLabels: Record<string, string>;
+      incomingCaseId: CaseId | null;
+      incomingCallerName: string | null;
+      discoveredTags: string[];
+      tagLabels: Record<string, string>;
+      cooldownMs: number;
+      suggestableDestinations: { id: DestinationId; name: string }[];
     }
   | {
       role: "archivist";

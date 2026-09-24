@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("three browsers join the private lobby and choose distinct roles", async ({
   browser,
-}) => {
+}, testInfo) => {
   test.setTimeout(120_000);
   const context = await browser.newContext();
   const host = await context.newPage();
@@ -68,6 +68,48 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     await expect(
       page.getByRole("region", { name: "Netzwerkstatus" }),
     ).toContainText(/Revision: [0-9]+/);
+  }
+  const agentControls = host.getByRole("region", {
+    name: "Agentenpult und Tastatursteuerung",
+  });
+  await agentControls.getByRole("button", { name: "Anruf annehmen" }).focus();
+  await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
+  await expect(agentControls.getByRole("status")).toContainText(
+    "Wo ist mein Antrag?",
+  );
+  const dialogueChoice = agentControls.getByRole("button", {
+    name: /Warteten Sie lange/,
+  });
+  await dialogueChoice.click();
+  await expect(agentControls.getByRole("status")).toContainText(
+    "Eine Ewigkeit.",
+  );
+  await expect(
+    agentControls.getByRole("button", { name: /Welche Schlange war es/ }),
+  ).toBeDisabled();
+  await agentControls
+    .getByLabel("Entdeckten Hinweis wählen")
+    .selectOption("core.tag.ink");
+  await agentControls
+    .getByRole("button", { name: /Hinweis veröffentlichen, Slot 1/ })
+    .click();
+  await expect(
+    agentControls.getByRole("button", { name: /Hinweis ersetzen, Slot 1/ }),
+  ).toBeVisible();
+  await agentControls
+    .getByLabel("Zielbereich für Bitte wählen")
+    .selectOption("core.destination.archive");
+  await agentControls
+    .getByRole("button", { name: "Zielbitte an Disponent senden" })
+    .click();
+  await expect(
+    agentControls.getByRole("button", {
+      name: "Zielbitte an Disponent senden",
+    }),
+  ).toBeDisabled();
+  if (process.env.CAPTURE_AGENT === "1") {
+    await host.locator("canvas").click({ position: { x: 700, y: 100 } });
+    await host.screenshot({ path: testInfo.outputPath("agent-desk.png") });
   }
   await host.evaluate(() =>
     (

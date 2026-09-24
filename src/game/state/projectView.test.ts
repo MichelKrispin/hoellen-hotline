@@ -38,6 +38,7 @@ const state: GameState = {
       ruleText: "PRIVATE_RULE",
       trueDestination: secret as DestinationId,
       publishedTags: ["public-tag"],
+      suggestedDestination: null,
       archivePins: [],
       selectedDestination: null,
     },

@@ -37,8 +37,16 @@ const publicView = z
     auditRisk: z.number().int(),
     activeCaseId: z.string().nullable(),
     publishedTags: z.array(z.string()),
+    suggestedDestination: z.string().nullable(),
     archivePins: z.array(z.string()),
     selectedDestination: z.string().nullable(),
+    approvals: z
+      .object({
+        agent: z.boolean(),
+        archivist: z.boolean(),
+        dispatcher: z.boolean(),
+      })
+      .strict(),
     colleagues: z
       .array(
         z.object({ role, connected: z.boolean(), ready: z.boolean() }).strict(),
@@ -53,6 +61,16 @@ const roleView = z.discriminatedUnion("role", [
       callerName: z.string().nullable(),
       callerMood: z.number().nullable(),
       dialogueOptions: z.array(z.string()),
+      dialogueText: z.string().nullable(),
+      dialogueLabels: z.record(z.string(), z.string()),
+      incomingCaseId: z.string().nullable(),
+      incomingCallerName: z.string().nullable(),
+      discoveredTags: z.array(z.string()),
+      tagLabels: z.record(z.string(), z.string()),
+      cooldownMs: z.number().int().nonnegative(),
+      suggestableDestinations: z.array(
+        z.object({ id: z.string(), name: z.string() }).strict(),
+      ),
     })
     .strict(),
   z
@@ -90,10 +108,17 @@ export const commandSchema = z.discriminatedUnion("kind", [
     caseId: z.string(),
     choiceId: z.string(),
   }),
+  z.object({ kind: z.literal("INTERRUPT"), caseId: z.string() }),
   z.object({
     kind: z.literal("PUBLISH_TAG"),
     caseId: z.string(),
     tagId: z.string(),
+    replaceIndex: z.number().int().min(0).max(2).optional(),
+  }),
+  z.object({
+    kind: z.literal("SUGGEST_DESTINATION"),
+    caseId: z.string(),
+    destinationId: z.string(),
   }),
   z.object({
     kind: z.literal("ARCHIVE_PIN"),

@@ -17,6 +17,53 @@ body {
 canvas {
   display: block;
 }
+.agent-accessible-controls {
+  position: fixed;
+  z-index: 12;
+  top: 8px;
+  right: 8px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.agent-accessible-controls:focus-within,
+.agent-accessible-controls[data-open="true"] {
+  box-sizing: border-box;
+  width: min(380px, calc(100vw - 16px));
+  height: auto;
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  clip-path: none;
+  padding: 12px;
+  color: #f4e1bd;
+  background: #261a25;
+  border: 3px solid #e9a84c;
+  box-shadow: 0 12px 40px #000b;
+  font:
+    15px Arial,
+    sans-serif;
+}
+.agent-accessible-controls button,
+.agent-accessible-controls select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0;
+  padding: 7px;
+  background: #e9c99a;
+  color: #241620;
+  border: 2px solid #91604a;
+  font: inherit;
+}
+.agent-accessible-controls button:focus-visible,
+.agent-accessible-controls select:focus-visible {
+  outline: 3px solid #68d8dc;
+  outline-offset: 2px;
+}
+.agent-accessible-controls button:disabled {
+  opacity: 0.55;
+}
 .lobby-overlay {
   position: fixed;
   inset: 4% 5%;

@@ -1,0 +1,7 @@
+# Agentenpult (Batch 6)
+
+Nach dem Ready-Check nimmt der Agent den wartenden Fall am Telefon an. Das Pult zeigt Anrufer, Gespräch, Stimmung und eine grobe Queue-Stufe. Die drei bis fünf Antworten eines Dialogknotens führen zu unterschiedlichen Folgezeilen, Stimmungsänderungen oder entdeckten Hinweisen. Im Probedialog sind jeweils drei Antworten verfügbar. Ein Antwort-Cooldown verhindert Doppelklicks. Unterbrechen springt ohne neue Hinweise zum nächsten erreichbaren Gesprächsende, senkt die Stimmung und sperrt das Unterbrechen für zehn Sekunden. Ein gereizter Anrufer lässt den Telefonhörer winden; reduzierte Bewegung stoppt das Winden.
+
+Entdeckte Hinweise bleiben zunächst privat. Der Agent wählt einen Hinweis und veröffentlicht ihn bewusst in einem von genau drei gemeinsamen Slots. Ein belegter Slot lässt sich gezielt ersetzen. Die Zielbitte ist ein einmaliges, unverbindliches öffentliches Signal pro Fall. Die finale Zielwahl bleibt beim Disponenten; der Agent kann seine Freigabe danach erteilen oder widerrufen. Alle Aktionen laufen durch denselben Host-Reducer wie die anderen Rollen.
+
+Das sichtbare Pult reagiert auf Maus. Die DOM-Bedienleiste öffnet sich beim Fokus mit Tab und bietet dieselben Aktionen für Tastatur und Screenreader in Ablaufreihenfolge. Ohne fokussierte Leiste funktionieren `A` für Annehmen, `1` bis `5` für Antworten und `I` für Unterbrechen. Text, Statussymbole und Beschriftungen ergänzen die Farben. Der Queue-Text zeigt Stufen statt konkreter Wartewerte.

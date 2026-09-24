@@ -4,6 +4,7 @@ import { TOKENS } from "../../ui/tokens";
 import type { Role } from "../state/contracts";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
+import { AgentPanel } from "../roles/agent/AgentPanel";
 import {
   devil,
   gauge,
@@ -18,7 +19,7 @@ import {
 
 const C = TOKENS.color;
 
-function agentDesk(scene: Phaser.Scene): void {
+function agentDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "LEITUNG  /  ANRUFER", C.agent);
   devil(scene, 263, 639, 1.05, 0xc23b36);
   const phone = scene.add.graphics();
@@ -30,7 +31,7 @@ function agentDesk(scene: Phaser.Scene): void {
   phone.fillStyle(C.fire).fillCircle(316, 731, 9);
   plate(scene, 95, 735, 395, 137, C.bakelite);
   neon(scene, 124, 765, 330, 67, C.agent);
-  label(scene, 155, 780, "☎   TELEFON", 30);
+  if (!live) label(scene, 155, 780, "☎   TELEFON", 30);
   plate(scene, 501, 308, 889, 541, C.metal);
   neon(scene, 528, 337, 834, 209, C.cyan);
   const g = scene.add.graphics();
@@ -39,18 +40,22 @@ function agentDesk(scene: Phaser.Scene): void {
   g.fillTriangle(664, 443, 730, 444, 697, 509);
   g.fillStyle(0x122b37).fillCircle(682, 418, 5).fillCircle(711, 418, 5);
   label(scene, 818, 374, "SEELENKANAL", 24, "#91eafa");
-  label(scene, 817, 427, "Noch kein Anruf", 41);
-  label(scene, 548, 573, "GESPRÄCHSOPTIONEN", 25, C.muted);
-  for (let i = 0; i < 3; i++) {
-    paper(scene, 541, 621 + i * 69, 790, 56);
-    label(scene, 570, 633 + i * 69, `${i + 1}   —`, 25, C.ink);
-  }
+  if (!live) label(scene, 817, 427, "Noch kein Anruf", 41);
+  if (!live) label(scene, 548, 573, "GESPRÄCHSOPTIONEN", 25, C.muted);
+  if (!live)
+    for (let i = 0; i < 3; i++) {
+      paper(scene, 541, 621 + i * 69, 790, 56);
+      label(scene, 570, 633 + i * 69, `${i + 1}   —`, 25, C.ink);
+    }
   paper(scene, 1416, 330, 367, 471);
   label(scene, 1453, 366, "GETEILTE HINWEISE", 27, C.ink);
-  for (let i = 0; i < 3; i++)
-    label(scene, 1450, 446 + i * 83, `◇  HINWEIS ${i + 1}`, 24, C.ink);
-  gauge(scene, 1638, 853, 69, 0.25);
-  label(scene, 1500, 941, "LEITUNGSDRUCK", 24);
+  if (!live)
+    for (let i = 0; i < 3; i++)
+      label(scene, 1450, 446 + i * 83, `◇  HINWEIS ${i + 1}`, 24, C.ink);
+  if (!live) {
+    gauge(scene, 1638, 853, 69, 0.25);
+    label(scene, 1500, 941, "LEITUNGSDRUCK", 24);
+  }
 }
 
 function archiveDesk(scene: Phaser.Scene): void {
@@ -150,6 +155,7 @@ export class Game extends Phaser.Scene {
   private role: Role = "agent";
   private network: GameNetwork | null = null;
   private overlay: GameNetworkOverlay | null = null;
+  private agentPanel: AgentPanel | null = null;
   constructor() {
     super("Game");
   }
@@ -169,7 +175,7 @@ export class Game extends Phaser.Scene {
       this.role === "agent" ? 0 : this.role === "archivist" ? 120 : 240,
     );
     statusBar(this, this.role);
-    if (this.role === "agent") agentDesk(this);
+    if (this.role === "agent") agentDesk(this, Boolean(this.network));
     if (this.role === "archivist") archiveDesk(this);
     if (this.role === "dispatcher") dispatcherDesk(this);
     button(
@@ -190,7 +196,11 @@ export class Game extends Phaser.Scene {
       54,
     );
     if (this.network) this.overlay = new GameNetworkOverlay(this.network);
+    if (this.network && this.role === "agent")
+      this.agentPanel = new AgentPanel(this, this.network);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.agentPanel?.destroy();
+      this.agentPanel = null;
       this.overlay?.destroy();
       this.overlay = null;
     });
