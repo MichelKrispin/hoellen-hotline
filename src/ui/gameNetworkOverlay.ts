@@ -5,6 +5,8 @@ import { FREE_PLAY_PRESETS } from "../game/modes/config";
 import { SIMULATION_VERSION } from "../game/state/simulation";
 import { reactionUrl } from "../assets/reactions";
 import { AudioSystem, type AudioBus } from "../audio/AudioSystem";
+import { GAMEPLAY_HASH_VERSION } from "../content/schemas";
+import { PROTOCOL_VERSION } from "../net/protocol";
 
 const escapeHtml = (value: string): string =>
   value.replace(
@@ -143,7 +145,7 @@ export class GameNetworkOverlay {
     const score = report.score;
     const goodShift =
       report.endReason === "completed" && score.resolvedIncorrectly === 0;
-    this.reportRoot.innerHTML = `<div class="shift-report-paper ${goodShift ? "report-good" : "report-troubled"}"><button data-action="close-report" aria-label="Abschlussakte schließen">×</button><h1>Abschlussakte</h1><p class="report-verdict">${goodShift ? "✓ Dienstbeurteilung: Tadellos absurd" : "⚠ Dienstbeurteilung: Kessel glüht"}</p><p>Schichtzeit: ${Math.floor(report.elapsedMs / 60_000)} min ${Math.floor((report.elapsedMs % 60_000) / 1000)} s · Mittlere Fallzeit: ${Math.round(report.averageCaseMs / 1000)} s</p><div class="report-score"><span>✓ Korrekt ${score.resolvedCorrectly}</span><span>◇ Vertretbar ${score.resolvedAcceptably}</span><span>× Falsch ${score.resolvedIncorrectly}</span><span>⚠ Katastrophal ${score.catastrophicErrors}</span></div><h2>Fallchronik</h2><ol>${report.cases.map((item) => `<li class="${item.outcome === "wrong" || item.outcome === "catastrophic" ? "report-error" : ""}">${escapeHtml(item.id)} · ${escapeHtml(item.outcome ?? "abgebrochen")} · ${escapeHtml(item.selectedDestination ?? "kein Ziel")} ${item.outcome === "wrong" || item.outcome === "catastrophic" ? `→ ${escapeHtml(item.trueDestination)}` : ""}</li>`).join("")}</ol><p class="report-seed">Seed: ${escapeHtml(report.seed)}<br>Content: ${escapeHtml(report.contentHash)}</p></div>`;
+    this.reportRoot.innerHTML = `<div class="shift-report-paper ${goodShift ? "report-good" : "report-troubled"}"><button data-action="close-report" aria-label="Abschlussakte schließen">×</button><h1>Abschlussakte</h1><p class="report-verdict">${goodShift ? "✓ Dienstbeurteilung: Tadellos absurd" : "⚠ Dienstbeurteilung: Kessel glüht"}</p><p>Schichtzeit: ${Math.floor(report.elapsedMs / 60_000)} min ${Math.floor((report.elapsedMs % 60_000) / 1000)} s · Mittlere Fallzeit: ${Math.round(report.averageCaseMs / 1000)} s</p><div class="report-score"><span>✓ Korrekt ${score.resolvedCorrectly}</span><span>◇ Vertretbar ${score.resolvedAcceptably}</span><span>× Falsch ${score.resolvedIncorrectly}</span><span>⚠ Katastrophal ${score.catastrophicErrors}</span></div><h2>Fallchronik</h2><ol>${report.cases.map((item) => `<li class="${item.outcome === "wrong" || item.outcome === "catastrophic" ? "report-error" : ""}">${escapeHtml(item.id)} · ${escapeHtml(item.outcome ?? "abgebrochen")} · ${escapeHtml(item.selectedDestination ?? "kein Ziel")} ${item.outcome === "wrong" || item.outcome === "catastrophic" ? `→ ${escapeHtml(item.trueDestination)}` : ""}</li>`).join("")}</ol><p class="report-seed">Seed: ${escapeHtml(report.seed)}<br>Content-Hash v${GAMEPLAY_HASH_VERSION}: ${escapeHtml(report.contentHash)}<br>Simulation v${SIMULATION_VERSION} · Protokoll v${PROTOCOL_VERSION}</p></div>`;
     if (this.network.lobby.mode.kind === "freePlay") {
       const mode = this.network.lobby.mode;
       const preset = FREE_PLAY_PRESETS[mode.preset];
@@ -198,6 +200,8 @@ export class GameNetworkOverlay {
   private render(force = false): void {
     this.renderReport();
     const view = this.network.view;
+    document.documentElement.dataset.contentHash =
+      view?.public.report?.contentHash ?? this.network.lobby.modeHash ?? "";
     const tutorial = view?.public.tutorial;
     const tutorialKey = tutorial
       ? `${tutorial.stage}:${tutorial.stations[this.network.role]}`
@@ -380,9 +384,15 @@ export class GameNetworkOverlay {
             ? `<label>Neuer Reconnect-Link vom Host<textarea id="reconnect-offer">${escapeHtml(this.guestOffer)}</textarea></label><button data-action="guest-rejoin">Neu verbinden</button>${network.lobby.answerLink ? `<label>Neue Antwort für den Host<textarea readonly>${escapeHtml(network.lobby.answerLink)}</textarea></label><button data-action="copy-answer">Antwort kopieren</button>` : ""}`
             : "";
     const audioControls = `<details class="audio-options"><summary>Ton · ${this.audio.unlocked ? "aktiv" : "aus"}</summary><button data-action="audio-unlock">${this.audio.unlocked ? "Jingle spielen" : "Ton aktivieren"}</button>${(["master", "music", "sfx", "ui"] as const).map((bus) => `<label>${{ master: "Gesamt", music: "Musik", sfx: "Effekte", ui: "Bedienung" }[bus]}<input type="range" min="0" max="100" value="${Math.round(this.audio.settings[bus] * 100)}" data-audio-bus="${bus}"></label>`).join("")}</details>`;
-    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
+    const diagnostic =
+      network.status === "protocol-error" ||
+      network.status === "connection-lost"
+        ? `<small class="network-diagnostic">Content-Hash v${GAMEPLAY_HASH_VERSION}: ${escapeHtml(network.lobby.modeHash ?? "unbekannt")} · Simulation v${SIMULATION_VERSION} · Protokoll v${PROTOCOL_VERSION}</small>`
+        : "";
+    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
   }
   destroy(): void {
+    delete document.documentElement.dataset.contentHash;
     this.audio.destroy();
     this.network.onChange = () => undefined;
     this.network.lobby.onChange = () => undefined;

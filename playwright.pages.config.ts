@@ -2,18 +2,18 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testIgnore: ["**/pages-base.spec.ts", "**/mixed-browsers.spec.ts"],
+  testMatch: "**/pages-base.spec.ts",
   workers: 1,
   use: {
-    baseURL: "http://127.0.0.1:5173",
+    baseURL: "http://127.0.0.1:4173",
     launchOptions: {
       executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
     },
   },
   webServer: {
-    command: "npm run dev",
-    env: { VITE_STUN_URL: process.env.TEST_STUN_URL ?? "" },
-    url: "http://127.0.0.1:5173",
+    command: "npx vite preview --host 127.0.0.1 --port 4173",
+    env: { VITE_BASE: "/hoellen_hotline/", VITE_STUN_URL: "" },
+    url: "http://127.0.0.1:4173/hoellen_hotline/",
     reuseExistingServer: !process.env.CI,
   },
 });

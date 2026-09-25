@@ -1,5 +1,6 @@
 import type Phaser from "phaser";
 import { SIMULATION_VERSION } from "../game/state/simulation";
+import { GAMEPLAY_HASH_VERSION } from "../content/schemas";
 
 export class FatalErrorOverlay {
   private readonly root = document.createElement("section");
@@ -66,7 +67,7 @@ export class FatalErrorOverlay {
         ? `${error.name}: ${error.message}\n${error.stack ?? ""}`
         : String(error);
     const canvas = document.querySelector("canvas");
-    this.detail.value = `Höllen-Hotline Diagnose\nSimulation: ${SIMULATION_VERSION}\nURL: ${location.href.split("#")[0]}\nSzene: ${canvas?.dataset.scene ?? "unbekannt"}\nBrowser: ${navigator.userAgent}\nFehler: ${message}`;
+    this.detail.value = `Höllen-Hotline Diagnose\nSimulation: ${SIMULATION_VERSION}\nContent-Hash v${GAMEPLAY_HASH_VERSION}: ${document.documentElement.dataset.contentHash || "unbekannt"}\nURL: ${location.href.split("#")[0]}\nSzene: ${canvas?.dataset.scene ?? "unbekannt"}\nBrowser: ${navigator.userAgent}\nFehler: ${message}`;
     this.root.hidden = false;
     this.root.querySelector("button")?.focus();
   }

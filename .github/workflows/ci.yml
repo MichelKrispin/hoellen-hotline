@@ -21,6 +21,39 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE: /hoellen_hotline/
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test -c playwright.pages.config.ts e2e/pages-base.spec.ts
+      - run: npm run test:e2e
+        env:
+          VITE_STUN_URL: ""
+      - run: npx playwright test e2e/network-failures.spec.ts
+        env:
+          TEST_STUN_URL: stun:127.0.0.1:9
+      - run: npx playwright install --with-deps firefox
+      - run: npx playwright test -c playwright.firefox.config.ts e2e/navigation.spec.ts e2e/accessibility.spec.ts e2e/asset-budget.spec.ts e2e/webrtc-spike.spec.ts e2e/mixed-browsers.spec.ts
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Smoke published Pages URL
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          for path in "" privacy.html credits.html; do
+            curl --fail --location --silent --show-error --retry 12 --retry-delay 5 --retry-all-errors "${PAGES_URL}${path}" > /dev/null
+          done

@@ -63,6 +63,7 @@ const escapeHtml = (value: string): string =>
         c
       ]!,
   );
+const legalLinks = `<a href="${import.meta.env.BASE_URL}privacy.html" target="_blank" rel="noopener">Datenschutz und Verbindungsdaten</a> · <a href="${import.meta.env.BASE_URL}credits.html" target="_blank" rel="noopener">Credits und Lizenzen</a>`;
 const readable = (error: unknown): string =>
   error instanceof Error ? error.message : "Vorgang fehlgeschlagen.";
 
@@ -259,7 +260,7 @@ export class LobbyOverlay {
       return;
     }
     if (!lobby) {
-      this.root.innerHTML = `<div class="lobby-card"><h1>Private Lobby</h1><p>Drei bekannte Personen verbinden sich über Einladungs- und Antwortlinks. Links nur vertraulich teilen.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p></div>`;
+      this.root.innerHTML = `<div class="lobby-card"><h1>Private Lobby</h1><p>Drei bekannte Personen verbinden sich über Einladungs- und Antwortlinks. Links nur vertraulich teilen.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p><p>${legalLinks}</p></div>`;
       return;
     }
     const local = lobby.members[lobby.localSlot];
@@ -300,7 +301,7 @@ export class LobbyOverlay {
       ${lobby.isHost ? `<h2>Einladungen</h2>${slotHtml}` : `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>Sitzungskürzel mit dem Host abgleichen.</p><button data-action="join" ${lobby.answerLink ? "disabled" : ""}>Beitreten und Antwort erzeugen</button>${lobby.answerLink ? `<label>Antwortlink · an Host senden<textarea readonly aria-label="Antwortlink">${escapeHtml(lobby.answerLink)}</textarea></label><button data-action="copy-generated-answer">Antwort kopieren</button><p>Der Host fügt diesen Link in seine bestehende Lobby ein.</p>` : ""}`}</div>
       <div><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.contentHash === null || lobby.modeHash === null ? "Inhalte offen" : m.contentHash === lobby.modeHash ? "✓ Inhalte gleich" : "× Inhalte verschieden"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
       <h2>Deine Rolle</h2><div class="lobby-actions">${roles.map((r) => `<button data-action="role-${r.id}" ${!local.connected || lobby.members.some((m, i) => i !== lobby.localSlot && m.role === r.id) ? "disabled" : ""} aria-pressed="${local.role === r.id}">${r.label}</button>`).join("")}</div><div class="lobby-actions"><button data-action="ready" ${!local.role || !local.connected ? "disabled" : ""}>${local.ready ? "Bereits bereit ✓" : "Bereit melden"}</button><button data-action="ping">Verbindung testen</button></div>${lobby.isHost ? `<button data-action="start" ${lobby.canStart() ? "" : "disabled"}>Schicht starten</button>` : ""}</div></div>
-      <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht.</p></div>`;
+      <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht. ${legalLinks}</p></div>`;
   }
   destroy(): void {
     this.lobby?.close();

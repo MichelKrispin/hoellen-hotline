@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Höllen-Hotline – Datenschutz</title>
+    <style>
+      body {
+        max-width: 52rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        background: #211423;
+        color: #f4e1bd;
+        font:
+          1.1rem/1.5 Arial,
+          sans-serif;
+      }
+      a {
+        color: #68d8dc;
+      }
+      h1,
+      h2 {
+        font-family: Georgia, serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Datenschutz und Verbindungsdaten</h1>
+    <p>
+      Höllen-Hotline läuft statisch im Browser. Das Spiel hat keinen Account,
+      keine Telemetrie und keinen eigenen Spielserver. Die drei Browser tauschen
+      Spielzustand direkt über WebRTC aus. Der Host hält die vollständige
+      Simulation; Gäste erhalten jeweils nur ihre Rollenansicht.
+    </p>
+    <h2>Einladungslinks und IP-Adressen</h2>
+    <p>
+      Einladungs- und Antwortlinks enthalten WebRTC-Verbindungsdaten (SDP und
+      ICE-Kandidaten). Je nach Netzwerk können darin öffentliche oder lokale
+      IP-Adressen stehen. Teile Links nur mit vertrauten Mitspielern und
+      verwende dafür einen Kommunikationsweg deiner Wahl. Die Links werden im
+      URL-Fragment verarbeitet und nach Übernahme aus der Adresszeile entfernt.
+      Wer den Link über einen externen Messenger versendet, unterliegt
+      zusätzlich dessen Datenschutzregeln.
+    </p>
+    <p>
+      Standardmäßig fragt der Browser den STUN-Dienst
+      <code>stun:stun.l.google.com:19302</code> ab, um eine direkte Verbindung
+      zu finden. Dieser Dienst kann deine öffentliche IP-Adresse und die Zeit
+      der Anfrage sehen, aber keine Spielinhalte. Bei selbst gehosteten Builds
+      lässt sich STUN mit <code>VITE_STUN_URL</code> ändern oder deaktivieren.
+      Ohne TURN-Relay können manche Netzwerke nicht verbunden werden.
+    </p>
+    <h2>Lokale Daten</h2>
+    <p>
+      Kampagnenfortschritt sowie Audio- und Darstellungsoptionen liegen im
+      lokalen Browserspeicher. Sie werden nicht an den Spielhost übertragen; der
+      Host kann einen Fortschrittscode exportieren. Du kannst diese Daten über
+      die Website-Datenverwaltung deines Browsers löschen. Beim Schließen einer
+      Partie werden die direkten Datenkanäle beendet.
+    </p>
+    <p>
+      Die Hosting-Plattform kann beim Abruf der statischen Dateien übliche
+      Zugriffsprotokolle führen. Dafür gelten die Hinweise des jeweiligen
+      Website-Betreibers. Dieser Spielcode sendet keine zusätzlichen
+      Nutzungsdaten.
+    </p>
+  </body>
+</html>

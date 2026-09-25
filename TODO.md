@@ -1,6 +1,6 @@
 # Höllen-Hotline – Umsetzungsplan
 
-Stand: 2026-09-23
+Stand: 2026-09-25
 
 Dieses Dokument zerlegt die Entwicklung in einzeln abnehmbare Batches. Jeder Batch soll einen testbaren, spielbaren oder sichtbar überprüfbaren Zwischenstand erzeugen. `gameplay.md` ist die fachliche Quelle für Regeln und Modi; `hoellen-hotline-spezifikation.md` bleibt die technische Produktgrundlage.
 
@@ -377,15 +377,15 @@ Abnahme:
 
 Ziel: reproduzierbarer MVP-Release auf GitHub Pages.
 
-- [ ] Unit-, Integrations- und E2E-Suite aus Produktspezifikation vervollständigen.
+- [x] Unit-, Integrations- und E2E-Suite aus Produktspezifikation vervollständigen.
 - [ ] je einen aktuellen stabilen Chrome-, Edge- und Firefox-Browser als echtes gemischtes Trio auf mindestens zwei Netzwerken testen und die Kompatibilitätsmatrix für die letzten zwei stabilen Hauptversionen dokumentieren.
 - [ ] 12–18 Minuten Zielzeit sowie Druck- und Fehlerkurven mit Playtests messen.
 - [ ] Rollen auf Redeanteil, Leerlauf, Informationsmacht und Bedienlast vergleichen.
 - [ ] Assets auf Ladezeit, Speicher und schwächeren integrierten GPUs profilieren.
 - [ ] Offline-/STUN-Fehler, manipulierte Links, Hintergrundtabs und Reconnect testen.
-- [ ] Content-Hash und Version in Ergebnis-/Fehlerdiagnose anzeigen.
+- [x] Content-Hash und Version in Ergebnis-/Fehlerdiagnose anzeigen.
 - [ ] GitHub-Pages-Workflow deployen und Smoke-Test gegen veröffentlichte URL ausführen.
-- [ ] Datenschutzhinweis zu SDP/STUN sowie Credits und Lizenzen finalisieren.
+- [x] Datenschutzhinweis zu SDP/STUN sowie Credits und Lizenzen finalisieren.
 
 Abnahme / MVP Definition of Done:
 

@@ -257,42 +257,55 @@ export class PrivateLobby {
     if (!this.game) this.members[slot] = emptyMember(`Gast ${slot}`);
     else this.members[slot].connected = false;
     this.broadcast();
-    const peer = new RTCPeerConnection(iceConfig);
-    const channel = peer.createDataChannel("lobby", { ordered: true });
-    const nonce = createNonce();
-    const entry: PeerSlot = {
-      peer,
-      channel,
-      nonce,
-      connectionId: null,
-      offerLink: "",
-      status: "Offer wird vorbereitet",
-    };
-    this.slots.set(slot, entry);
-    this.emit();
-    try {
-      this.bindHost(slot, entry);
-      await peer.setLocalDescription(await peer.createOffer());
-      await waitForIce(peer);
-      if (this.slots.get(slot) !== entry) return;
-      entry.offerLink = linkFor(
-        "offer",
-        await encodeSignal({
-          v: 1,
-          kind: "offer",
-          sessionId: this.sessionId,
-          slot,
-          nonce,
-          description: { type: "offer", sdp: peer.localDescription!.sdp },
-        }),
-      );
-      entry.status = "Antwort fehlt";
+    const attempts = stunUrl ? [iceConfig, { iceServers: [] }] : [iceConfig];
+    for (const [index, config] of attempts.entries()) {
+      const peer = new RTCPeerConnection(config);
+      const channel = peer.createDataChannel("lobby", { ordered: true });
+      const nonce = createNonce();
+      const entry: PeerSlot = {
+        peer,
+        channel,
+        nonce,
+        connectionId: null,
+        offerLink: "",
+        status: index
+          ? "STUN nicht erreichbar · lokale Kandidaten"
+          : "Offer wird vorbereitet",
+      };
+      this.slots.set(slot, entry);
       this.emit();
-    } catch (error) {
-      peer.close();
-      entry.status = "Direkte Verbindung fehlgeschlagen";
-      entry.offerLink = "";
-      this.fail(error);
+      try {
+        this.bindHost(slot, entry);
+        await peer.setLocalDescription(await peer.createOffer());
+        await waitForIce(peer);
+        if (this.slots.get(slot) !== entry) return;
+        entry.offerLink = linkFor(
+          "offer",
+          await encodeSignal({
+            v: 1,
+            kind: "offer",
+            sessionId: this.sessionId,
+            slot,
+            nonce,
+            description: { type: "offer", sdp: peer.localDescription!.sdp },
+          }),
+        );
+        entry.status = "Antwort fehlt";
+        this.emit();
+        return;
+      } catch (error) {
+        peer.close();
+        entry.offerLink = "";
+        if (
+          index + 1 < attempts.length &&
+          error instanceof Error &&
+          error.message.startsWith("ICE-Zeitüberschreitung")
+        )
+          continue;
+        entry.status = "Direkte Verbindung fehlgeschlagen";
+        this.fail(error);
+        return;
+      }
     }
   }
   private bindHost(slot: 1 | 2, entry: PeerSlot): void {
@@ -428,63 +441,73 @@ export class PrivateLobby {
     const offer = this.pendingOffer;
     if (!offer) throw new Error("Einladung fehlt.");
     if (this.guestPeer) throw new Error("Einladung wurde bereits übernommen.");
-    const peer = new RTCPeerConnection(iceConfig);
-    this.guestPeer = peer;
-    this.guestConnectionId = createConnectionId();
-    peer.ondatachannel = (event) => {
-      const channel = event.channel;
-      this.guestChannel = channel;
-      channel.onopen = () =>
-        this.send(channel, {
-          type: "HELLO",
-          v: 1,
-          sessionId: this.sessionId,
-          slot: offer.slot,
-          nonce: offer.nonce,
-          connectionId: this.guestConnectionId!,
-          clientId: this.clientId,
-          name,
-        });
-      channel.onmessage = (message) => this.handleGuestMessage(message);
-      channel.onclose = () => {
-        if (this.guestChannel !== channel) return;
-        this.members[this.localSlot].connected = false;
-        this.game?.connectionClosed(0);
-        this.fail(new Error("Verbindung zum Host getrennt."));
+    const attempts = stunUrl ? [iceConfig, { iceServers: [] }] : [iceConfig];
+    for (const [index, config] of attempts.entries()) {
+      const peer = new RTCPeerConnection(config);
+      this.guestPeer = peer;
+      this.guestConnectionId = createConnectionId();
+      peer.ondatachannel = (event) => {
+        const channel = event.channel;
+        this.guestChannel = channel;
+        channel.onopen = () =>
+          this.send(channel, {
+            type: "HELLO",
+            v: 1,
+            sessionId: this.sessionId,
+            slot: offer.slot,
+            nonce: offer.nonce,
+            connectionId: this.guestConnectionId!,
+            clientId: this.clientId,
+            name,
+          });
+        channel.onmessage = (message) => this.handleGuestMessage(message);
+        channel.onclose = () => {
+          if (this.guestChannel !== channel) return;
+          this.members[this.localSlot].connected = false;
+          this.game?.connectionClosed(0);
+          this.fail(new Error("Verbindung zum Host getrennt."));
+        };
       };
-    };
-    peer.onconnectionstatechange = () => {
-      if (peer.connectionState === "failed")
-        this.fail(
-          new Error(
-            "Direkte Verbindung fehlgeschlagen. Ohne TURN-Relay kann diese Netzwerkkombination scheitern. Neue Einladung anfordern.",
-          ),
+      peer.onconnectionstatechange = () => {
+        if (peer.connectionState === "failed")
+          this.fail(
+            new Error(
+              "Direkte Verbindung fehlgeschlagen. Ohne TURN-Relay kann diese Netzwerkkombination scheitern. Neue Einladung anfordern.",
+            ),
+          );
+      };
+      try {
+        await peer.setRemoteDescription(offer.description);
+        clearFragment();
+        await peer.setLocalDescription(await peer.createAnswer());
+        await waitForIce(peer);
+        this.answerLink = linkFor(
+          "answer",
+          await encodeSignal({
+            v: 1,
+            kind: "answer",
+            sessionId: this.sessionId,
+            slot: offer.slot,
+            nonce: offer.nonce,
+            connectionId: this.guestConnectionId,
+            description: { type: "answer", sdp: peer.localDescription!.sdp },
+          }),
         );
-    };
-    try {
-      await peer.setRemoteDescription(offer.description);
-      clearFragment();
-      await peer.setLocalDescription(await peer.createAnswer());
-      await waitForIce(peer);
-      this.answerLink = linkFor(
-        "answer",
-        await encodeSignal({
-          v: 1,
-          kind: "answer",
-          sessionId: this.sessionId,
-          slot: offer.slot,
-          nonce: offer.nonce,
-          connectionId: this.guestConnectionId,
-          description: { type: "answer", sdp: peer.localDescription!.sdp },
-        }),
-      );
-      this.emit();
-    } catch (error) {
-      peer.close();
-      this.guestPeer = null;
-      this.guestChannel = null;
-      this.fail(error);
-      throw error;
+        this.emit();
+        return;
+      } catch (error) {
+        peer.close();
+        this.guestPeer = null;
+        this.guestChannel = null;
+        if (
+          index + 1 < attempts.length &&
+          error instanceof Error &&
+          error.message.startsWith("ICE-Zeitüberschreitung")
+        )
+          continue;
+        this.fail(error);
+        throw error;
+      }
     }
   }
   private handleGuestMessage(event: MessageEvent): void {
