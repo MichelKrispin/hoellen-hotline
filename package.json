@@ -12,6 +12,7 @@
     "content:validate": "node --import tsx tools/content-validate.ts",
     "content:analyze": "node --import tsx tools/analyze-content.ts",
     "assets:build": "node --import tsx tools/build-assets.ts",
+    "audio:build": "node --import tsx tools/build-audio.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

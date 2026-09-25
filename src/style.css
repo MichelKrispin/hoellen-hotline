@@ -497,3 +497,22 @@ canvas {
 .network-panel :focus-visible {
   outline: 3px solid #68d8dc;
 }
+.audio-options {
+  margin-top: 8px;
+  border-top: 1px solid #91604a;
+  padding-top: 6px;
+}
+.audio-options summary {
+  cursor: pointer;
+}
+.audio-options label {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 0;
+}
+.audio-options input {
+  width: 100%;
+  accent-color: #e9a84c;
+}

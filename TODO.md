@@ -343,13 +343,13 @@ Abnahme:
 
 Ziel: Eskalation ist hör- und sichtbar, ohne Kerninformationen zu verdecken.
 
-- [ ] Audio-Busse für Master, Musik, SFX und UI mit Persistenz der Einstellungen bauen.
-- [ ] 3–5 lokal gebündelte Warteschleifen-Jingles integrieren.
-- [ ] dynamische Musik-/Ambience-Layer an Eskalationsstufe koppeln.
-- [ ] Ereignis-zu-Reaktion-Mapping für Figur, Pflanze, Rohre, Druckanzeigen und Hintergrunddämonen bauen.
-- [ ] Priorität und Cooldowns für Gags definieren, damit sie UI und Hinweise nie dauerhaft blockieren.
-- [ ] Untertitel bzw. visuelle Entsprechung für spielrelevante Sounds anbieten.
-- [ ] Browser-Audio-Unlock und Tab-Hintergrundverhalten behandeln.
+- [x] Audio-Busse für Master, Musik, SFX und UI mit Persistenz der Einstellungen bauen.
+- [x] 3–5 lokal gebündelte Warteschleifen-Jingles integrieren.
+- [x] dynamische Musik-/Ambience-Layer an Eskalationsstufe koppeln.
+- [x] Ereignis-zu-Reaktion-Mapping für Figur, Pflanze, Rohre, Druckanzeigen und Hintergrunddämonen bauen.
+- [x] Priorität und Cooldowns für Gags definieren, damit sie UI und Hinweise nie dauerhaft blockieren.
+- [x] Untertitel bzw. visuelle Entsprechung für spielrelevante Sounds anbieten.
+- [x] Browser-Audio-Unlock und Tab-Hintergrundverhalten behandeln.
 
 Abnahme:
 

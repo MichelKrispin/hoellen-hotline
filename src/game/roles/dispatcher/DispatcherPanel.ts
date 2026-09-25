@@ -4,6 +4,7 @@ import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
 import { label, neon, plate } from "../../presentation/art";
 import { TOKENS } from "../../../ui/tokens";
+import type { AudioSystem } from "../../../audio/AudioSystem";
 
 type DispatcherView = Extract<RoleView, { role: "dispatcher" }>;
 const C = TOKENS.color;
@@ -72,6 +73,7 @@ export class DispatcherPanel {
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
+    private readonly audio: AudioSystem,
   ) {
     this.mirror.className = "dispatcher-accessible-controls";
     this.mirror.setAttribute(
@@ -266,13 +268,15 @@ export class DispatcherPanel {
     if (this.submit({ kind: "ROUTE_COMMIT", caseId: id })) this.playLever();
   }
   private playLever(): void {
-    this.scene.tweens.add({
-      targets: this.leverArm,
-      angle: 64,
-      duration: 130,
-      yoyo: true,
-      ease: "Back.easeIn",
-    });
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!calm)
+      this.scene.tweens.add({
+        targets: this.leverArm,
+        angle: 64,
+        duration: 130,
+        yoyo: true,
+        ease: "Back.easeIn",
+      });
     const sparks = this.scene.add.graphics();
     for (let i = 0; i < 7; i++) {
       sparks
@@ -280,32 +284,16 @@ export class DispatcherPanel {
         .lineBetween(1680 + i * 9, 926, 1660 + i * 14, 890 - (i % 3) * 17);
     }
     sparks.fillStyle(0xa0a4a7, 0.8).fillEllipse(1670, 875, 125, 60);
-    this.scene.tweens.add({
-      targets: sparks,
-      alpha: 0,
-      y: -72,
-      duration: 650,
-      onComplete: () => sparks.destroy(),
-    });
-    try {
-      const audio = new AudioContext();
-      const oscillator = audio.createOscillator();
-      const gain = audio.createGain();
-      oscillator.type = "triangle";
-      oscillator.frequency.setValueAtTime(150, audio.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(
-        45,
-        audio.currentTime + 0.22,
-      );
-      gain.gain.setValueAtTime(0.09, audio.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.24);
-      oscillator.connect(gain).connect(audio.destination);
-      oscillator.start();
-      oscillator.stop(audio.currentTime + 0.25);
-      oscillator.onended = () => void audio.close();
-    } catch {
-      // Visual feedback remains available when browser audio is unavailable.
-    }
+    if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
+    else
+      this.scene.tweens.add({
+        targets: sparks,
+        alpha: 0,
+        y: -72,
+        duration: 650,
+        onComplete: () => sparks.destroy(),
+      });
+    this.audio.tone("sfx", 150);
   }
   private closeVignette(): void {
     this.vignetteTimer?.remove();

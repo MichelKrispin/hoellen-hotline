@@ -4,6 +4,7 @@ import { nextScenario, readLocalProgress } from "../game/campaign/progress";
 import { FREE_PLAY_PRESETS } from "../game/modes/config";
 import { SIMULATION_VERSION } from "../game/state/simulation";
 import { reactionUrl } from "../assets/reactions";
+import { AudioSystem, type AudioBus } from "../audio/AudioSystem";
 
 const escapeHtml = (value: string): string =>
   value.replace(
@@ -23,6 +24,7 @@ export class GameNetworkOverlay {
   private lastStatus = "";
   private lastTutorialKey = "";
   private lastReactionKey = "";
+  readonly audio = new AudioSystem();
   constructor(private readonly network: GameNetwork) {
     this.root.className = "game-network-overlay";
     this.root.setAttribute("aria-label", "Netzwerkstatus");
@@ -48,6 +50,13 @@ export class GameNetworkOverlay {
     network.lobby.onChange = () => this.render(true);
     this.root.addEventListener("input", (event) => {
       const target = event.target;
+      if (target instanceof HTMLInputElement && target.dataset.audioBus) {
+        this.audio.setVolume(
+          target.dataset.audioBus as AudioBus,
+          Number(target.value) / 100,
+        );
+        return;
+      }
       if (!(target instanceof HTMLTextAreaElement)) return;
       if (target.id === "reconnect-offer") this.guestOffer = target.value;
       if (target.id === "reconnect-answer-1") this.inputs[0] = target.value;
@@ -57,7 +66,10 @@ export class GameNetworkOverlay {
       const target = event.target as HTMLElement;
       const action =
         target.closest<HTMLElement>("[data-action]")?.dataset.action;
-      if (action) void this.act(action);
+      if (action) {
+        this.audio.tone("ui", 480);
+        void this.act(action);
+      }
     });
     this.render();
   }
@@ -96,7 +108,12 @@ export class GameNetworkOverlay {
           if (error) this.notice = error;
         }
       } else if (action === "open-report") this.reportDismissed = false;
-      else if (action.startsWith("copy-")) {
+      else if (action === "audio-unlock") {
+        this.notice = (await this.audio.unlock())
+          ? "Audio aktiviert."
+          : "Audio ist im Browser nicht verfügbar.";
+        this.audio.playJingle();
+      } else if (action.startsWith("copy-")) {
         const value =
           action === "copy-answer"
             ? this.network.lobby.answerLink
@@ -199,8 +216,19 @@ export class GameNetworkOverlay {
     const reactionKey = reaction
       ? `${reaction.caseId}:${reaction.assetId}`
       : "none";
-    if (reactionKey !== this.lastReactionKey) force = true;
+    if (reactionKey !== this.lastReactionKey) {
+      force = true;
+      if (reaction) this.audio.tone("sfx", activeIncident ? 165 : 330);
+    }
     this.lastReactionKey = reactionKey;
+    if (view)
+      this.audio.setEscalation(
+        Math.max(
+          view.public.queuePressure,
+          view.public.boilerPressure,
+          view.public.auditRisk,
+        ) / 100,
+      );
     const reactionImage = reaction ? reactionUrl(reaction.assetId) : null;
     const reactionHtml =
       reaction && reactionImage
@@ -351,9 +379,11 @@ export class GameNetworkOverlay {
               network.status !== "guest-aborted"
             ? `<label>Neuer Reconnect-Link vom Host<textarea id="reconnect-offer">${escapeHtml(this.guestOffer)}</textarea></label><button data-action="guest-rejoin">Neu verbinden</button>${network.lobby.answerLink ? `<label>Neue Antwort für den Host<textarea readonly>${escapeHtml(network.lobby.answerLink)}</textarea></label><button data-action="copy-answer">Antwort kopieren</button>` : ""}`
             : "";
-    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
+    const audioControls = `<details class="audio-options"><summary>Ton · ${this.audio.unlocked ? "aktiv" : "aus"}</summary><button data-action="audio-unlock">${this.audio.unlocked ? "Jingle spielen" : "Ton aktivieren"}</button>${(["master", "music", "sfx", "ui"] as const).map((bus) => `<label>${{ master: "Gesamt", music: "Musik", sfx: "Effekte", ui: "Bedienung" }[bus]}<input type="range" min="0" max="100" value="${Math.round(this.audio.settings[bus] * 100)}" data-audio-bus="${bus}"></label>`).join("")}</details>`;
+    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
   }
   destroy(): void {
+    this.audio.destroy();
     this.network.onChange = () => undefined;
     this.network.lobby.onChange = () => undefined;
     this.network.destroy();

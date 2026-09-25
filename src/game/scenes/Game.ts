@@ -8,6 +8,7 @@ import { preloadAssetGroups } from "../../assets/registry";
 import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
+import { PresentationSystem } from "../presentation/PresentationSystem";
 import {
   devil,
   gauge,
@@ -176,6 +177,7 @@ export class Game extends Phaser.Scene {
   private agentPanel: AgentPanel | null = null;
   private archivistPanel: ArchivistPanel | null = null;
   private dispatcherPanel: DispatcherPanel | null = null;
+  private presentation: PresentationSystem | null = null;
   constructor() {
     super("Game");
   }
@@ -236,8 +238,16 @@ export class Game extends Phaser.Scene {
     if (this.network && this.role === "archivist")
       this.archivistPanel = new ArchivistPanel(this, this.network);
     if (this.network && this.role === "dispatcher")
-      this.dispatcherPanel = new DispatcherPanel(this, this.network);
+      this.dispatcherPanel = new DispatcherPanel(
+        this,
+        this.network,
+        this.overlay!.audio,
+      );
+    if (this.network)
+      this.presentation = new PresentationSystem(this, this.network);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.presentation?.destroy();
+      this.presentation = null;
       unsubscribeHud?.();
       this.dispatcherPanel?.destroy();
       this.dispatcherPanel = null;
