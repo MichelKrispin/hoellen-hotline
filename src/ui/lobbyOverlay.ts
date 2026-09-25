@@ -67,6 +67,57 @@ const legalLinks = `<a href="${import.meta.env.BASE_URL}privacy.html" target="_b
 const readable = (error: unknown): string =>
   error instanceof Error ? error.message : "Vorgang fehlgeschlagen.";
 
+function reconcileChildren(current: Node, next: Node): void {
+  const oldChildren = Array.from(current.childNodes);
+  const newChildren = Array.from(next.childNodes);
+  for (let index = 0; index < newChildren.length; index++) {
+    const oldNode = oldChildren[index];
+    const newNode = newChildren[index]!;
+    if (!oldNode) {
+      current.appendChild(newNode.cloneNode(true));
+      continue;
+    }
+    if (
+      oldNode.nodeType !== newNode.nodeType ||
+      oldNode.nodeName !== newNode.nodeName
+    ) {
+      oldNode.replaceWith(newNode.cloneNode(true));
+      continue;
+    }
+    if (oldNode.nodeType === Node.TEXT_NODE) {
+      if (oldNode.nodeValue !== newNode.nodeValue)
+        oldNode.nodeValue = newNode.nodeValue;
+      continue;
+    }
+    if (!(oldNode instanceof Element) || !(newNode instanceof Element))
+      continue;
+    for (const attribute of Array.from(oldNode.attributes))
+      if (!newNode.hasAttribute(attribute.name))
+        oldNode.removeAttribute(attribute.name);
+    for (const attribute of Array.from(newNode.attributes))
+      if (oldNode.getAttribute(attribute.name) !== attribute.value)
+        oldNode.setAttribute(attribute.name, attribute.value);
+    reconcileChildren(oldNode, newNode);
+    if (
+      (oldNode instanceof HTMLInputElement &&
+        newNode instanceof HTMLInputElement) ||
+      (oldNode instanceof HTMLTextAreaElement &&
+        newNode instanceof HTMLTextAreaElement) ||
+      (oldNode instanceof HTMLSelectElement &&
+        newNode instanceof HTMLSelectElement)
+    ) {
+      if (oldNode.value !== newNode.value) oldNode.value = newNode.value;
+      if (
+        oldNode instanceof HTMLInputElement &&
+        newNode instanceof HTMLInputElement &&
+        oldNode.checked !== newNode.checked
+      )
+        oldNode.checked = newNode.checked;
+    }
+  }
+  for (const oldNode of oldChildren.slice(newChildren.length)) oldNode.remove();
+}
+
 export class LobbyOverlay {
   private root = document.createElement("section");
   private lobby: PrivateLobby | null = null;
@@ -256,11 +307,15 @@ export class LobbyOverlay {
   private render(): void {
     const lobby = this.lobby;
     if (this.openedAnswer) {
-      this.root.innerHTML = `<div class="lobby-card"><h1>Antwortlink</h1><p>${escapeHtml(this.notice)}</p><textarea readonly aria-label="Answer-Link">${escapeHtml(this.openedAnswer)}</textarea><div class="lobby-actions"><button data-action="copy-answer-opened">Link kopieren</button><button data-action="dismiss-answer">Zur Startseite</button></div></div>`;
+      this.updateMarkup(
+        `<div class="lobby-card"><h1>Antwortlink</h1><p>${escapeHtml(this.notice)}</p><textarea readonly aria-label="Answer-Link">${escapeHtml(this.openedAnswer)}</textarea><div class="lobby-actions"><button data-action="copy-answer-opened">Link kopieren</button><button data-action="dismiss-answer">Zur Startseite</button></div></div>`,
+      );
       return;
     }
     if (!lobby) {
-      this.root.innerHTML = `<div class="lobby-card"><h1>Private Lobby</h1><p>Drei bekannte Personen verbinden sich über Einladungs- und Antwortlinks. Links nur vertraulich teilen.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p><p>${legalLinks}</p></div>`;
+      this.updateMarkup(
+        `<div class="lobby-card"><h1>Private Lobby</h1><p>Drei bekannte Personen verbinden sich über Einladungs- und Antwortlinks. Links nur vertraulich teilen.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p><p>${legalLinks}</p></div>`,
+      );
       return;
     }
     const local = lobby.members[lobby.localSlot];
@@ -295,13 +350,19 @@ export class LobbyOverlay {
         return `<div class="slot-box"><h3>Gast ${slot} · ${escapeHtml(info.status)}</h3><button data-action="offer-${slot}">${info.offerLink ? "Neuen Link erzeugen" : "Einladung erzeugen"}</button>${info.offerLink ? `<label>Einladungslink<textarea readonly aria-label="Einladungslink Gast ${slot}">${escapeHtml(info.offerLink)}</textarea></label><button data-action="copy-offer-${slot}">Einladung kopieren</button><label>Antwortlink hier einfügen<textarea id="answer-${slot}" aria-label="Antwortlink Gast ${slot}">${escapeHtml(this.answerInputs[slot - 1] ?? "")}</textarea></label><button data-action="import-${slot}">Antwort importieren</button>` : ""}</div>`;
       })
       .join("");
-    this.root.innerHTML = `<div class="lobby-card"><header><h1>Warteraum <span>${lobby.code}</span></h1><p>Nur mit vertrauten Mitspielern teilen · Direktverbindung per WebRTC</p></header>
+    this
+      .updateMarkup(`<div class="lobby-card"><header><h1>Warteraum <span>${lobby.code}</span></h1><p>Nur mit vertrauten Mitspielern teilen · Direktverbindung per WebRTC</p></header>
       <div class="lobby-grid"><div><label>Dein Name<input id="player-name" maxlength="24" value="${escapeHtml(this.name)}" /></label>
       ${lobby.isHost ? `<label>Spielmodus<select id="game-mode">${modeOptions}</select></label>${lobby.mode.kind === "tutorial" ? "" : `<label>Seed (leer = zufällig)<input id="game-seed" maxlength="128" value="${escapeHtml(this.seedInput)}"></label>${lobby.mode.kind === "campaign" ? '<button data-action="apply-seed">Seed übernehmen</button>' : renderFreePlayControls(this.freeDraft)}`}<label>Fortschritt von anderem Gerät importieren<textarea id="progress-import" aria-label="Kampagnenfortschritt importieren">${escapeHtml(this.progressImport)}</textarea></label><button data-action="import-progress">Fortschritt importieren</button>` : `<p>Spielmodus: ${escapeHtml(modeChoices.find((item) => item.key === modeKey(lobby.mode))?.label ?? lobby.mode.kind)} · Hostauswahl; nur der Host schaltet Szenarien frei.</p>`}<p class="scenario-intro">${escapeHtml(intro)}</p>
       ${lobby.isHost ? `<h2>Einladungen</h2>${slotHtml}` : `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>Sitzungskürzel mit dem Host abgleichen.</p><button data-action="join" ${lobby.answerLink ? "disabled" : ""}>Beitreten und Antwort erzeugen</button>${lobby.answerLink ? `<label>Antwortlink · an Host senden<textarea readonly aria-label="Antwortlink">${escapeHtml(lobby.answerLink)}</textarea></label><button data-action="copy-generated-answer">Antwort kopieren</button><p>Der Host fügt diesen Link in seine bestehende Lobby ein.</p>` : ""}`}</div>
       <div><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.contentHash === null || lobby.modeHash === null ? "Inhalte offen" : m.contentHash === lobby.modeHash ? "✓ Inhalte gleich" : "× Inhalte verschieden"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
       <h2>Deine Rolle</h2><div class="lobby-actions">${roles.map((r) => `<button data-action="role-${r.id}" ${!local.connected || lobby.members.some((m, i) => i !== lobby.localSlot && m.role === r.id) ? "disabled" : ""} aria-pressed="${local.role === r.id}">${r.label}</button>`).join("")}</div><div class="lobby-actions"><button data-action="ready" ${!local.role || !local.connected ? "disabled" : ""}>${local.ready ? "Bereits bereit ✓" : "Bereit melden"}</button><button data-action="ping">Verbindung testen</button></div>${lobby.isHost ? `<button data-action="start" ${lobby.canStart() ? "" : "disabled"}>Schicht starten</button>` : ""}</div></div>
-      <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht. ${legalLinks}</p></div>`;
+      <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht. ${legalLinks}</p></div>`);
+  }
+  private updateMarkup(html: string): void {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    reconcileChildren(this.root, template.content);
   }
   destroy(): void {
     this.lobby?.close();

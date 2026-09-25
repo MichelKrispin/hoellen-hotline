@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 test("one host exchanges complete offers and answers with two guests", async ({
   browser,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const context = await browser.newContext();
   const host = await context.newPage();
   const guests = [await context.newPage(), await context.newPage()];

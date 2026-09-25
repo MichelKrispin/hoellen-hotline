@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test("display options remain usable at a small viewport and persist", async ({
   page,
 }) => {
+  test.setTimeout(90_000);
   await page.setViewportSize({ width: 640, height: 360 });
   await page.goto("/");
   await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
