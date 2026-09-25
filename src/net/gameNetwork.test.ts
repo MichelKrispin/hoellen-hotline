@@ -61,9 +61,34 @@ function channel(send: (raw: string) => void): FakeChannel {
 }
 afterEach(() => {
   for (const game of live.splice(0)) game.destroy();
+  vi.unstubAllGlobals();
 });
 
 describe("host simulation over role-filtered channels", () => {
+  it("pauses a hidden host and resumes its own pause on return", async () => {
+    let visible = true;
+    const callbacks: Array<() => void> = [];
+    vi.stubGlobal("document", {
+      get hidden() {
+        return !visible;
+      },
+      addEventListener: (_name: string, callback: () => void) => {
+        callbacks.push(callback);
+      },
+      removeEventListener: () => undefined,
+    });
+    const host = await GameNetwork.host(fakeLobby(true, 0, {}), "archivist");
+    live.push(host);
+    host.startHost();
+    visible = false;
+    expect(callbacks).toHaveLength(1);
+    callbacks[0]!();
+    expect(host.view?.public.pauseReason).toBe("host-menu");
+    visible = true;
+    callbacks[0]!();
+    expect(host.view?.public.pauseReason).toBeNull();
+  });
+
   it("resolves a case with three peers and keeps guest secrets out", async () => {
     const sentToAgent: string[] = [];
     const hostChannels: Partial<Record<Slot, FakeChannel>> = {

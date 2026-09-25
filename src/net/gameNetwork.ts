@@ -83,6 +83,19 @@ export class GameNetwork {
   private tickTimer: ReturnType<typeof setInterval> | null = null;
   private deadline: number | null = null;
   private tickEpoch = performance.now();
+  private autoPaused = false;
+  private readonly visibility = (): void => {
+    if (!this.isHost || !this.state || terminal(this.status)) return;
+    if (document.hidden) {
+      if (this.state.phase === "shift" && !this.state.pause)
+        this.autoPaused = this.submit({ kind: "PAUSE" }) === null;
+    } else {
+      this.tick(); // Account for hidden time while the simulation is still paused.
+      if (this.autoPaused && this.state.pause?.reason === "host-menu")
+        this.submit({ kind: "RESUME" });
+      this.autoPaused = false;
+    }
+  };
 
   private constructor(lobby: PrivateLobby, role: Role) {
     this.lobby = lobby;
@@ -178,6 +191,8 @@ export class GameNetwork {
     this.started = true;
     for (const slot of [1, 2] as const) void this.sendSnapshot(slot);
     this.tickTimer = globalThis.setInterval(() => this.tick(), TICK_MS);
+    if (typeof document !== "undefined")
+      document.addEventListener("visibilitychange", this.visibility);
     this.emit();
   }
   private emit(): void {
@@ -609,6 +624,8 @@ export class GameNetwork {
       : null;
   }
   destroy(): void {
+    if (typeof document !== "undefined")
+      document.removeEventListener("visibilitychange", this.visibility);
     if (this.tickTimer !== null) clearInterval(this.tickTimer);
     this.lobby.dispose();
   }

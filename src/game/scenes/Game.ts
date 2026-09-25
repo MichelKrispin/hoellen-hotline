@@ -9,6 +9,7 @@ import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
 import { PresentationSystem } from "../presentation/PresentationSystem";
+import { ShiftMirror } from "../../ui/shiftMirror";
 import {
   devil,
   gauge,
@@ -178,6 +179,7 @@ export class Game extends Phaser.Scene {
   private archivistPanel: ArchivistPanel | null = null;
   private dispatcherPanel: DispatcherPanel | null = null;
   private presentation: PresentationSystem | null = null;
+  private shiftMirror: ShiftMirror | null = null;
   constructor() {
     super("Game");
   }
@@ -245,7 +247,10 @@ export class Game extends Phaser.Scene {
       );
     if (this.network)
       this.presentation = new PresentationSystem(this, this.network);
+    if (this.network) this.shiftMirror = new ShiftMirror(this.network);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.shiftMirror?.destroy();
+      this.shiftMirror = null;
       this.presentation?.destroy();
       this.presentation = null;
       unsubscribeHud?.();

@@ -7,8 +7,13 @@ import { Game } from "./game/scenes/Game";
 import { Results } from "./game/scenes/Results";
 import { AtlasReview } from "./game/scenes/AtlasReview";
 import "./style.css";
+import { OptionsOverlay } from "./app/options";
+import { FatalErrorOverlay } from "./app/FatalErrorOverlay";
 
-new Phaser.Game({
+new OptionsOverlay();
+const fatal = new FatalErrorOverlay();
+
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: "app",
   width: DESIGN.width,
@@ -18,3 +23,4 @@ new Phaser.Game({
   scene: [Boot, Title, Lobby, Game, Results, AtlasReview],
   render: { pixelArt: false, antialias: true },
 });
+game.events.once(Phaser.Core.Events.READY, () => fatal.attach(game));

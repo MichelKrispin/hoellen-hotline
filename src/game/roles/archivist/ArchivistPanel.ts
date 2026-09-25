@@ -9,6 +9,7 @@ import type {
 import { label, plate } from "../../presentation/art";
 import { TOKENS } from "../../../ui/tokens";
 import { searchArchive } from "./archiveSearch";
+import { prefersReducedMotion } from "../../../app/options";
 
 type ArchivistView = Extract<RoleView, { role: "archivist" }>;
 type Tab = "dossier" | "rules" | "exceptions" | "notes";
@@ -422,11 +423,7 @@ export class ArchivistPanel {
             ? "Keine passende Akte"
             : "",
       );
-      if (
-        resultsChanged &&
-        record &&
-        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
+      if (resultsChanged && record && !prefersReducedMotion()) {
         const card = this.resultCards[i]!;
         const text = this.resultLabels[i]!;
         this.scene.tweens.killTweensOf(card);

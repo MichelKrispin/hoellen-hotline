@@ -16,6 +16,77 @@ body {
 }
 canvas {
   display: block;
+  transform: scale(var(--ui-scale, 1));
+}
+html[data-palette="contrast"] canvas {
+  filter: grayscale(1) contrast(1.25);
+}
+.display-options {
+  position: fixed;
+  z-index: 40;
+  top: 8px;
+  right: 8px;
+  font:
+    15px Arial,
+    sans-serif;
+}
+.display-options > button,
+.display-options dialog button {
+  padding: 8px 12px;
+  border: 2px solid #e9a84c;
+  background: #30242f;
+  color: #f4e1bd;
+  font: inherit;
+  cursor: pointer;
+}
+.display-options dialog {
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  padding: 18px;
+  border: 4px solid #e9a84c;
+  background: #261a25;
+  color: #f4e1bd;
+  font-size: calc(16px * var(--text-scale, 1));
+}
+.display-options dialog::backdrop {
+  background: #160e18bb;
+}
+.display-options dialog h2 {
+  margin-top: 0;
+}
+.display-options dialog label {
+  display: block;
+  margin: 10px 0;
+}
+.display-options dialog select {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  font: inherit;
+}
+.display-options dialog input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+.display-options :focus-visible {
+  outline: 3px solid #68d8dc;
+  outline-offset: 2px;
+}
+.lobby-card,
+.network-panel,
+.agent-accessible-controls,
+.archivist-mirror,
+.dispatcher-accessible-controls {
+  font-size: calc(15px * var(--text-scale, 1));
+}
+html[data-reduced-motion="true"] *,
+html[data-reduced-flash="true"] * {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
 }
 .agent-accessible-controls {
   position: fixed;
@@ -515,4 +586,78 @@ canvas {
 .audio-options input {
   width: 100%;
   accent-color: #e9a84c;
+}
+.shift-mirror {
+  position: fixed;
+  z-index: 12;
+  left: 8px;
+  top: 8px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.shift-mirror:focus {
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 16px));
+  height: auto;
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  clip-path: none;
+  padding: 12px;
+  border: 3px solid #68d8dc;
+  background: #261a25;
+  color: #f4e1bd;
+  font:
+    calc(15px * var(--text-scale, 1)) Arial,
+    sans-serif;
+}
+.fatal-error {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: #170e18;
+  color: #f4e1bd;
+  font:
+    18px Arial,
+    sans-serif;
+}
+.fatal-error[hidden] {
+  display: none;
+}
+.fatal-error h1 {
+  margin: 0;
+  font:
+    bold 42px Georgia,
+    serif;
+}
+.fatal-error p {
+  max-width: 650px;
+}
+.fatal-error textarea {
+  box-sizing: border-box;
+  width: min(800px, 95vw);
+  height: min(280px, 35vh);
+  padding: 12px;
+  background: #e9c99a;
+  color: #30232a;
+}
+.fatal-error button {
+  padding: 10px 16px;
+  border: 2px solid #ffcc7d;
+  background: #e9a84c;
+  color: #211423;
+  font:
+    bold 16px Arial,
+    sans-serif;
+}
+.fatal-error :focus-visible {
+  outline: 3px solid #68d8dc;
 }

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { TOKENS } from "../../ui/tokens";
 import { ReactionScheduler } from "./reactionScheduler";
+import { prefersReducedMotion } from "../../app/options";
 
 export class PresentationSystem {
   private readonly scheduler = new ReactionScheduler();
@@ -53,7 +54,7 @@ export class PresentationSystem {
     if (!this.scheduler.allow(key, group, priority, now)) return;
     const graphic = this.graphics[group];
     if (!graphic) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       graphic.setAlpha(1);
       this.scene.time.delayedCall(400, () => graphic.setAlpha(0.72));
       return;

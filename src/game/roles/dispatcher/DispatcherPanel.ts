@@ -5,6 +5,10 @@ import type { RoleView } from "../../state/contracts";
 import { label, neon, plate } from "../../presentation/art";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
+import {
+  prefersReducedFlash,
+  prefersReducedMotion,
+} from "../../../app/options";
 
 type DispatcherView = Extract<RoleView, { role: "dispatcher" }>;
 const C = TOKENS.color;
@@ -268,7 +272,7 @@ export class DispatcherPanel {
     if (this.submit({ kind: "ROUTE_COMMIT", caseId: id })) this.playLever();
   }
   private playLever(): void {
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const calm = prefersReducedMotion();
     if (!calm)
       this.scene.tweens.add({
         targets: this.leverArm,
@@ -278,11 +282,12 @@ export class DispatcherPanel {
         ease: "Back.easeIn",
       });
     const sparks = this.scene.add.graphics();
-    for (let i = 0; i < 7; i++) {
-      sparks
-        .lineStyle(3, i % 2 ? C.fire : C.warning)
-        .lineBetween(1680 + i * 9, 926, 1660 + i * 14, 890 - (i % 3) * 17);
-    }
+    if (!prefersReducedFlash())
+      for (let i = 0; i < 7; i++) {
+        sparks
+          .lineStyle(3, i % 2 ? C.fire : C.warning)
+          .lineBetween(1680 + i * 9, 926, 1660 + i * 14, 890 - (i % 3) * 17);
+      }
     sparks.fillStyle(0xa0a4a7, 0.8).fillEllipse(1670, 875, 125, 60);
     if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
     else
@@ -343,7 +348,7 @@ export class DispatcherPanel {
     panel.add([backdrop, title, caption, soul, skip]);
     panel.setDepth(100);
     this.vignette = panel;
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    if (!prefersReducedMotion())
       this.scene.tweens.add({
         targets: soul,
         x: success ? 555 : 330,

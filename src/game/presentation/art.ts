@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { DESIGN, TOKENS } from "../../ui/tokens";
 import type { PublicShiftView, Role } from "../state/contracts";
+import { prefersReducedMotion } from "../../app/options";
 
 const C = TOKENS.color;
 
@@ -213,7 +214,7 @@ export function room(scene: Phaser.Scene, offset = 0): void {
       i * 157 + 76,
       1060,
     );
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (!prefersReducedMotion()) {
     scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       const shift = pointer.x / DESIGN.width - 0.5;
       bridge.x = -shift * 10;
@@ -410,7 +411,7 @@ export function devil(
     27 * scale,
     29 * scale,
   );
-  if (idle && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (idle && !prefersReducedMotion()) {
     scene.tweens.add({
       targets: root,
       y: y - 8,

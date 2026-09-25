@@ -73,7 +73,12 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     name: "Agentenpult und Tastatursteuerung",
   });
   await agentControls.getByRole("button", { name: "Anruf annehmen" }).focus();
-  await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
+  await agentControls
+    .getByRole("button", { name: "Anruf annehmen" })
+    .press("Enter");
+  await expect(
+    host.getByRole("region", { name: "Gemeinsamer Schichtstatus" }),
+  ).toContainText("Wartedruck");
   await expect(agentControls).toHaveAttribute("data-portrait-loaded", "true");
   await expect(agentControls.getByRole("status")).toContainText(
     "Wo ist mein Antrag?",
@@ -81,7 +86,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   const dialogueChoice = agentControls.getByRole("button", {
     name: /Warteten Sie lange/,
   });
-  await dialogueChoice.click();
+  await dialogueChoice.press("Enter");
   await expect(agentControls.getByRole("status")).toContainText(
     "Eine Ewigkeit.",
   );
@@ -93,7 +98,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     .selectOption("core.tag.ink");
   await agentControls
     .getByRole("button", { name: /Hinweis veröffentlichen, Slot 1/ })
-    .click();
+    .press("Enter");
   await expect(
     agentControls.getByRole("button", { name: /Hinweis ersetzen, Slot 1/ }),
   ).toBeVisible();
@@ -102,7 +107,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     .selectOption("core.destination.archive");
   await agentControls
     .getByRole("button", { name: "Zielbitte an Disponent senden" })
-    .click();
+    .press("Enter");
   await expect(
     agentControls.getByRole("button", {
       name: "Zielbitte an Disponent senden",
@@ -132,7 +137,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await expect(
     archive.getByRole("button", { name: /Pin 1: F. Beamter, Schalter 13/ }),
   ).toBeVisible();
-  await archive.getByRole("button", { name: /FRAGWÜRDIG/ }).click();
+  await archive.getByRole("button", { name: /FRAGWÜRDIG/ }).press("Enter");
   await expect(archive.getByText("Stempel: ? FRAGWÜRDIG")).toBeVisible();
   if (process.env.CAPTURE_AGENT === "1") {
     await archivist.locator("canvas").click({ position: { x: 700, y: 100 } });
@@ -180,26 +185,32 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   });
   const archiveTarget = machine.getByRole("button", { name: /Ziel: Archiv\./ });
   await archiveTarget.focus();
-  await archiveTarget.click();
+  await archiveTarget.press("Enter");
   await expect(
     machine.getByRole("button", { name: /Hitze: 1\./ }),
   ).toBeVisible();
-  await machine.getByRole("button", { name: /Hitze: 1\./ }).click();
-  await machine.getByRole("button", { name: /Störung beheben:/ }).click();
-  await machine.getByRole("button", { name: /Ventil: AUS/ }).click();
-  await machine.getByRole("button", { name: "Anlage vorbereiten" }).click();
+  await machine.getByRole("button", { name: /Hitze: 1\./ }).press("Enter");
+  await machine
+    .getByRole("button", { name: /Störung beheben:/ })
+    .press("Enter");
+  await machine.getByRole("button", { name: /Ventil: AUS/ }).press("Enter");
+  await machine
+    .getByRole("button", { name: "Anlage vorbereiten" })
+    .press("Enter");
   await expect(machine.getByRole("status")).toContainText("Anlage vorbereitet");
   const agentApproval = agentControls.getByRole("button", {
     name: "Ausgewähltes Ziel freigeben",
   });
   await agentApproval.focus();
-  await agentApproval.click();
+  await agentApproval.press("Enter");
   const archiveApproval = archive.getByRole("button", {
     name: "Vorbereitetes Ziel freigeben",
   });
   await archiveApproval.focus();
-  await archiveApproval.click();
-  await machine.getByRole("button", { name: "Bereitschaft melden" }).click();
+  await archiveApproval.press("Enter");
+  await machine
+    .getByRole("button", { name: "Bereitschaft melden" })
+    .press("Enter");
   await expect(
     machine.getByRole("button", {
       name: "Hebel entsichern und Zusammenfassung prüfen",
@@ -220,10 +231,10 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     .getByRole("button", {
       name: "Hebel entsichern und Zusammenfassung prüfen",
     })
-    .click();
+    .press("Enter");
   await machine
     .getByRole("button", { name: "Zustellung endgültig auslösen" })
-    .click();
+    .press("Enter");
   await expect(
     dispatcher
       .getByRole("region", { name: "Netzwerkstatus" })

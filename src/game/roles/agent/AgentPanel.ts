@@ -5,6 +5,7 @@ import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
 import { label, plate } from "../../presentation/art";
 import { TOKENS } from "../../../ui/tokens";
+import { prefersReducedMotion } from "../../../app/options";
 
 type AgentView = Extract<RoleView, { role: "agent" }>;
 const C = TOKENS.color;
@@ -436,8 +437,7 @@ export class AgentPanel {
     }
     this.handset.clear();
     if (worm) {
-      const offset = window.matchMedia("(prefers-reduced-motion: reduce)")
-        .matches
+      const offset = prefersReducedMotion()
         ? 0
         : Math.sin(sceneTime(this.scene) / 170) * 10;
       this.handset

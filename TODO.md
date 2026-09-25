@@ -360,13 +360,13 @@ Abnahme:
 
 Ziel: das dichte visuelle Design bleibt bedienbar.
 
-- [ ] vollständige Tastaturbedienung und logische Fokusreihenfolge je Pult prüfen.
-- [ ] Farbsehschwäche-Palette und Symbolcodierung für alle Ziel-/Statusfarben integrieren.
-- [ ] UI-Skalierung, Textgröße, reduzierte Bewegung und Blitzreduktion anbieten.
-- [ ] DOM-Textspiegel für zentrale Phaser-Texte und Live-Status implementieren.
-- [ ] keine zeitkritische Aktion ausschließlich über präzises Drag-and-drop anbieten.
-- [ ] sichere Wiederaufnahme nach Sichtbarkeitswechsel und Canvas-Kontextverlust testen.
-- [ ] verständliche Fatal-Error-Seite mit Diagnosekopie bauen.
+- [x] vollständige Tastaturbedienung und logische Fokusreihenfolge je Pult prüfen.
+- [x] Farbsehschwäche-Palette und Symbolcodierung für alle Ziel-/Statusfarben integrieren.
+- [x] UI-Skalierung, Textgröße, reduzierte Bewegung und Blitzreduktion anbieten.
+- [x] DOM-Textspiegel für zentrale Phaser-Texte und Live-Status implementieren.
+- [x] keine zeitkritische Aktion ausschließlich über präzises Drag-and-drop anbieten.
+- [x] sichere Wiederaufnahme nach Sichtbarkeitswechsel und Canvas-Kontextverlust testen.
+- [x] verständliche Fatal-Error-Seite mit Diagnosekopie bauen.
 
 Abnahme:
 
