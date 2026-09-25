@@ -279,15 +279,15 @@ Abnahme:
 
 Ziel: drei Modi nutzen dieselben Kernsysteme ohne Sondercode in Rollenpulten.
 
-- [ ] `GameMode`-Vertrag für Content-Pool, Sessionregeln, Siegbedingung und Ergebnisfortschritt definieren.
-- [ ] Tutorial als reguläre Drei-Spieler-Partie mit drei geführten Rollenstationen plus gemeinsamem Übungsfall umsetzen; lokale Einzelrollen-Vorschauen bleiben Debug-/Eingabetests ohne Fortschritt.
-- [ ] Basiskampagne in Kapitel und Szenarien mit Intro, Regelpaket, Mutatoren und Abschluss gliedern.
-- [ ] Kampagnenfortschritt als exportierbaren lokalen Code/JSON speichern; keine Accounts voraussetzen.
-- [ ] Host-Fortschritt und Gastzugriff transparent behandeln.
-- [ ] freies Spiel mit Seed, Länge, Schwierigkeit, Ziel-/Regelpool und Störungsdichte konfigurieren.
-- [ ] Presets für entspannt, Standard und höllisch erstellen.
-- [ ] Content-Auswahl vor Lobby-Ready synchronisieren und Hash aller Pakete vergleichen.
-- [ ] Beispiel für zweite Kampagne als kleines separates Paket hinzufügen.
+- [x] `GameMode`-Vertrag für Content-Pool, Sessionregeln, Siegbedingung und Ergebnisfortschritt definieren.
+- [x] Tutorial als reguläre Drei-Spieler-Partie mit drei geführten Rollenstationen plus gemeinsamem Übungsfall umsetzen; lokale Einzelrollen-Vorschauen bleiben Debug-/Eingabetests ohne Fortschritt.
+- [x] Basiskampagne in Kapitel und Szenarien mit Intro, Regelpaket, Mutatoren und Abschluss gliedern.
+- [x] Kampagnenfortschritt als exportierbaren lokalen Code/JSON speichern; keine Accounts voraussetzen.
+- [x] Host-Fortschritt und Gastzugriff transparent behandeln.
+- [x] freies Spiel mit Seed, Länge, Schwierigkeit, Ziel-/Regelpool und Störungsdichte konfigurieren.
+- [x] Presets für entspannt, Standard und höllisch erstellen.
+- [x] Content-Auswahl vor Lobby-Ready synchronisieren und Hash aller Pakete vergleichen.
+- [x] Beispiel für zweite Kampagne als kleines separates Paket hinzufügen.
 
 Abnahme:
 

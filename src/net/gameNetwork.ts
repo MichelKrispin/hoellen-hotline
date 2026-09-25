@@ -1,8 +1,15 @@
-import core from "../content/core/fixture.json";
-import audit from "../content/campaigns/audit/fixture.json";
+import { CAMPAIGN_CATALOG } from "../content/catalog";
 import { loadContent } from "../content/registry";
 import type { CampaignPackage } from "../content/schemas";
 import { createActionId } from "../game/core/ids";
+import { materializeMode, planMode } from "../game/modes/config";
+import {
+  addGuestCompletion,
+  completeScenario,
+  exportProgress,
+  readLocalProgress,
+  writeLocalProgress,
+} from "../game/campaign/progress";
 import type { ActionId, PlayerId, SessionId } from "../game/core/ids";
 import type { PlayerViewState, Role } from "../game/state/contracts";
 import { projectView } from "../game/state/projectView";
@@ -84,7 +91,8 @@ export class GameNetwork {
   }
   static async host(lobby: PrivateLobby, role: Role): Promise<GameNetwork> {
     const network = new GameNetwork(lobby, role);
-    const registry = await loadContent([core, audit]);
+    const plan = planMode(lobby.mode, CAMPAIGN_CATALOG);
+    const registry = await loadContent(materializeMode(plan));
     network.packages = registry.packages;
     const players = ([0, 1, 2] as const).map((slot) => ({
       id: lobby.playerIdFor(slot) as PlayerId,
@@ -93,13 +101,28 @@ export class GameNetwork {
     const config = {
       sessionId: lobby.sessionId as SessionId,
       hostPlayerId: lobby.playerIdFor(0) as PlayerId,
-      scenarioId: "core.scenario.first",
+      scenarioId: plan.scenario.id,
       players,
+      tutorial: plan.mode.kind === "tutorial",
+      difficulty: plan.difficulty,
+      incidentDensity: plan.incidentDensity,
+      shiftTicks:
+        plan.mode.kind === "freePlay"
+          ? plan.difficulty === "relaxed"
+            ? 12_000
+            : plan.difficulty === "infernal"
+              ? 7_200
+              : 9_000
+          : undefined,
     };
     network.startConfig = config;
     network.state = createSimulation(
       config,
-      crypto.randomUUID(),
+      plan.mode.kind === "tutorial"
+        ? "tutorial-v1"
+        : "seed" in plan.mode && plan.mode.seed
+          ? plan.mode.seed
+          : crypto.randomUUID(),
       registry.gameplayHash,
     );
     for (const player of players)
@@ -142,7 +165,8 @@ export class GameNetwork {
   }
   private async verifyContent(expectedHash: string): Promise<void> {
     try {
-      const registry = await loadContent([core, audit]);
+      const plan = planMode(this.lobby.mode, CAMPAIGN_CATALOG);
+      const registry = await loadContent(materializeMode(plan));
       if (registry.gameplayHash !== expectedHash)
         throw new Error("Inkompatibler Content-Hash.");
     } catch (error) {
@@ -288,6 +312,25 @@ export class GameNetwork {
         this.remainingMs = payload.remainingMs;
         this.emit();
       } else if (payload.type === "GAME_OVER") {
+        let completionSaveFailed = false;
+        if (
+          this.lobby.mode.kind === "campaign" &&
+          ["completed", "time", "pressure"].includes(payload.reason) &&
+          this.view?.public.report
+        ) {
+          try {
+            writeLocalProgress(
+              addGuestCompletion(readLocalProgress(), {
+                sessionId: this.lobby.sessionId,
+                campaignId: this.lobby.mode.campaignId,
+                scenarioId: this.lobby.mode.scenarioId,
+                result: payload.reason as "completed" | "time" | "pressure",
+              }),
+            );
+          } catch {
+            completionSaveFailed = true;
+          }
+        }
         this.status =
           payload.reason === "abandoned" || payload.reason === "host-left"
             ? "host-aborted"
@@ -300,6 +343,8 @@ export class GameNetwork {
             : payload.reason === "disconnect"
               ? "Reconnect-Frist abgelaufen. Die Partie ist beendet."
               : "";
+        if (completionSaveFailed)
+          this.error = "Abschlussvermerk konnte nicht gespeichert werden.";
         this.emit();
       } else throw new Error("Nachrichtentyp vom Host nicht erlaubt.");
     }
@@ -511,6 +556,19 @@ export class GameNetwork {
   private finish(): void {
     if (terminal(this.status)) return;
     const reason = this.state?.endReason ?? "abandoned";
+    if (reason === "completed" && this.lobby.mode.kind === "campaign") {
+      try {
+        writeLocalProgress(
+          completeScenario(
+            readLocalProgress(),
+            this.lobby.mode.campaignId,
+            this.lobby.mode.scenarioId,
+          ),
+        );
+      } catch {
+        this.error = "Kampagnenfortschritt konnte nicht gespeichert werden.";
+      }
+    }
     this.status =
       reason === "abandoned"
         ? "host-aborted"
@@ -543,6 +601,11 @@ export class GameNetwork {
   exportDebugReplay(): Replay | null {
     return this.isHost && this.startConfig && this.state
       ? createReplay(this.startConfig, this.state, this.entries)
+      : null;
+  }
+  exportCampaignProgress(): string | null {
+    return this.isHost && this.lobby.mode.kind === "campaign"
+      ? exportProgress(readLocalProgress())
       : null;
   }
   destroy(): void {

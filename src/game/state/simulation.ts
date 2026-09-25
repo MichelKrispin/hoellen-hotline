@@ -34,6 +34,9 @@ export interface StartConfig {
   scenarioId: string;
   players: { id: PlayerId; role: Role }[];
   shiftTicks?: number;
+  tutorial?: boolean;
+  difficulty?: "relaxed" | "standard" | "infernal";
+  incidentDensity?: "none" | "low" | "normal" | "high";
 }
 
 export interface SimCase extends Omit<
@@ -66,6 +69,11 @@ export interface SimulationState extends GameState {
   hostPlayerId: PlayerId;
   contentHash: string;
   shiftTicks: number;
+  tutorial: boolean;
+  tutorialStage: "stations" | "practice";
+  tutorialStations: Record<Role, boolean>;
+  difficulty: "relaxed" | "standard" | "infernal";
+  incidentDensity: "none" | "low" | "normal" | "high";
   resolvedCount: number;
   escalationLevel: number;
   cooldownUntil: Record<string, number>;
@@ -77,6 +85,10 @@ export interface SimulationState extends GameState {
 export type SimCommand =
   | { kind: "READY"; ready: boolean }
   | { kind: "START" }
+  | {
+      kind: "COMPLETE_TUTORIAL_STATION";
+      answer: string;
+    }
   | { kind: "ACCEPT_CASE"; caseId: CaseId }
   | { kind: "DIALOGUE"; caseId: CaseId; choiceId: string }
   | { kind: "INTERRUPT"; caseId: CaseId }
@@ -241,6 +253,11 @@ export function createSimulation(
     hostPlayerId: config.hostPlayerId,
     contentHash,
     shiftTicks,
+    tutorial: config.tutorial ?? false,
+    tutorialStage: "stations",
+    tutorialStations: { agent: false, archivist: false, dispatcher: false },
+    difficulty: config.difficulty ?? "standard",
+    incidentDensity: config.incidentDensity ?? "normal",
     resolvedCount: 0,
     escalationLevel: 0,
     cooldownUntil: {},
@@ -251,6 +268,7 @@ export function createSimulation(
 
 function endIfNeeded(state: SimulationState): void {
   if (state.phase !== "shift") return;
+  if (state.tutorial) return;
   const pressures = [
     state.shift.queuePressure,
     state.shift.boilerPressure,
@@ -293,16 +311,30 @@ function spawnCase(
     .flatMap((pack) => pack.incidents)
     .find(
       (entry) =>
-        entry.id === content.scenario.allowedContent.incidents[0] &&
+        content.scenario.allowedContent.incidents.includes(entry.id) &&
         entry.layout === layout.id,
     );
-  const incidentActive = Boolean(incident) && state.cases.length % 2 === 0;
+  const incidentEvery = {
+    none: Infinity,
+    low: 4,
+    normal: 2,
+    high: 1,
+  }[state.incidentDensity];
+  const incidentActive =
+    Boolean(incident) &&
+    state.incidentDensity !== "none" &&
+    state.cases.length % incidentEvery === 0;
   state.cases.push({
     id: `${state.scenarioId}.case.${state.cases.length + 1}` as CaseId,
     status: "queued",
     callerName: archetype.nameKey,
     dialogueOptions: node.choices.map((choice) => choice.id),
-    callerMood: 50,
+    callerMood:
+      state.difficulty === "relaxed"
+        ? 65
+        : state.difficulty === "infernal"
+          ? 35
+          : 50,
     dossier: archetype.dossierKey,
     ruleText: state.activeRules.join(", "),
     trueDestination:
@@ -334,7 +366,8 @@ function fillQueue(
   const limit = caseContent(packages, state.scenarioId).scenario.casePlan.count;
   while (
     state.cases.length < limit &&
-    state.cases.filter((item) => item.status === "queued").length < 3
+    state.cases.filter((item) => item.status === "queued").length <
+      (state.difficulty === "infernal" ? 4 : 3)
   )
     spawnCase(state, packages);
 }
@@ -381,10 +414,20 @@ export function advanceToTick(
     if (state.phase === "shift" && state.pause)
       for (const playerId of Object.keys(state.cooldownUntil))
         state.cooldownUntil[playerId]!++;
-    if (state.phase === "shift" && !state.pause) {
+    if (
+      state.phase === "shift" &&
+      !state.pause &&
+      (!state.tutorial || state.tutorialStage === "practice")
+    ) {
       state.shift.elapsedMs += TICK_MS;
       if (
-        state.hostTick % 50 === 0 &&
+        state.hostTick %
+          (state.difficulty === "relaxed"
+            ? 100
+            : state.difficulty === "infernal"
+              ? 25
+              : 50) ===
+          0 &&
         state.cases.some((item) => item.status === "queued")
       )
         state.shift.queuePressure = clamp(state.shift.queuePressure + 1);
@@ -577,310 +620,337 @@ export function reduceInput(
     } else {
       if (state.phase !== "shift" || state.pause)
         return reject("Shift is not active");
-      const item = activeCase(state, command.caseId);
-      if (command.kind === "ACCEPT_CASE") {
-        const queued = state.cases.find(
-          (entry) => entry.id === command.caseId && entry.status === "queued",
-        );
-        if (
-          role !== "agent" ||
-          !queued ||
-          queued !== state.cases.find((entry) => entry.status === "queued") ||
-          state.cases.some((entry) => activeCase(state, entry.id))
-        )
-          return reject("Case cannot be accepted");
-        const currentContent = caseContent(packages, state.scenarioId);
-        const currentLayout = currentContent.layouts.find(
-          (entry) => entry.id === queued.generated.layoutId,
-        )!;
-        const currentValidDestinations = validDestinations(
-          currentContent,
-          {
-            tags: queued.generated.tags,
-            stamps: queued.stamps,
-            pressure: state.shift.queuePressure,
-            caseCount: state.resolvedCount,
-          },
-          currentContent.exceptions.filter((entry) =>
-            queued.generated.exceptionIds.includes(entry.id),
-          ),
-          currentLayout,
-          state.activeRules,
-        );
-        if (currentValidDestinations.length === 0)
-          return reject("Queued case has no valid destination");
-        queued.generated.validDestinations = currentValidDestinations;
-        if (
-          !currentValidDestinations.includes(
-            queued.generated.preferredDestination,
-          )
-        ) {
-          queued.generated.preferredDestination = currentValidDestinations[0]!;
-          queued.trueDestination =
-            currentValidDestinations[0] as SimCase["trueDestination"];
-        }
-        queued.ruleText = state.activeRules.join(", ");
-        queued.status = "active";
-        queued.acceptedElapsedMs = state.shift.elapsedMs;
-        prepareMachineForCase(state, queued, packages);
-        const complaint = packages
-          .flatMap((pkg) => pkg.packs)
-          .flatMap((pack) => pack.complaints)
-          .find((entry) => entry.id === queued.generated.complaintId);
-        if (
-          complaint?.hintTag &&
-          queued.generated.tags.includes(complaint.hintTag)
-        )
-          queued.discoveredTags.push(complaint.hintTag);
+      if (command.kind === "COMPLETE_TUTORIAL_STATION") {
+        if (!state.tutorial || state.tutorialStage !== "stations")
+          return reject("Tutorial station is not active");
+        if (state.tutorialStations[role])
+          return reject("Tutorial station already complete");
+        const answerByRole = {
+          agent: "tag",
+          archivist: "pin",
+          dispatcher: "approvals",
+        } as const;
+        if (command.answer !== answerByRole[role])
+          return reject("Tutorial station answer is incorrect");
+        state.tutorialStations[role] = true;
+        if (Object.values(state.tutorialStations).every(Boolean))
+          state.tutorialStage = "practice";
       } else {
-        if (!item) return reject("Stale or inactive case ID");
-        const content = caseContent(packages, state.scenarioId);
-        const layout = content.layouts.find(
-          (entry) => entry.id === item.generated.layoutId,
-        )!;
-        switch (command.kind) {
-          case "DIALOGUE": {
-            if (role !== "agent") return reject("Wrong role");
-            if (state.hostTick < (state.cooldownUntil[playerId] ?? 0))
-              return reject("Cooldown active");
-            const dialogue = packages
-              .flatMap((pkg) => pkg.packs)
-              .flatMap((pack) => pack.dialogues)
-              .find((entry) => entry.id === item.generated.dialogueId)!;
-            const node = dialogue.nodes.find(
-              (entry) => entry.id === item.dialogueNode,
-            )!;
-            const choice = node.choices.find(
-              (entry) => entry.id === command.choiceId,
-            );
-            if (!choice) return reject("Unknown dialogue choice");
-            item.dialogueNode = choice.next;
-            item.dialogueOptions = dialogue.nodes
-              .find((entry) => entry.id === choice.next)!
-              .choices.map((entry) => entry.id);
-            item.callerMood = clamp(item.callerMood + (choice.moodDelta ?? 0));
-            if (choice.moodDelta && choice.moodDelta < 0)
+        if (state.tutorial && state.tutorialStage === "stations")
+          return reject("Tutorial stations are incomplete");
+        const item = activeCase(state, command.caseId);
+        if (command.kind === "ACCEPT_CASE") {
+          const queued = state.cases.find(
+            (entry) => entry.id === command.caseId && entry.status === "queued",
+          );
+          if (
+            role !== "agent" ||
+            !queued ||
+            queued !== state.cases.find((entry) => entry.status === "queued") ||
+            state.cases.some((entry) => activeCase(state, entry.id))
+          )
+            return reject("Case cannot be accepted");
+          const currentContent = caseContent(packages, state.scenarioId);
+          const currentLayout = currentContent.layouts.find(
+            (entry) => entry.id === queued.generated.layoutId,
+          )!;
+          const currentValidDestinations = validDestinations(
+            currentContent,
+            {
+              tags: queued.generated.tags,
+              stamps: queued.stamps,
+              pressure: state.shift.queuePressure,
+              caseCount: state.resolvedCount,
+            },
+            currentContent.exceptions.filter((entry) =>
+              queued.generated.exceptionIds.includes(entry.id),
+            ),
+            currentLayout,
+            state.activeRules,
+          );
+          if (currentValidDestinations.length === 0)
+            return reject("Queued case has no valid destination");
+          queued.generated.validDestinations = currentValidDestinations;
+          if (
+            !currentValidDestinations.includes(
+              queued.generated.preferredDestination,
+            )
+          ) {
+            queued.generated.preferredDestination =
+              currentValidDestinations[0]!;
+            queued.trueDestination =
+              currentValidDestinations[0] as SimCase["trueDestination"];
+          }
+          queued.ruleText = state.activeRules.join(", ");
+          queued.status = "active";
+          queued.acceptedElapsedMs = state.shift.elapsedMs;
+          prepareMachineForCase(state, queued, packages);
+          const complaint = packages
+            .flatMap((pkg) => pkg.packs)
+            .flatMap((pack) => pack.complaints)
+            .find((entry) => entry.id === queued.generated.complaintId);
+          if (
+            complaint?.hintTag &&
+            queued.generated.tags.includes(complaint.hintTag)
+          )
+            queued.discoveredTags.push(complaint.hintTag);
+          if (state.difficulty === "relaxed")
+            for (const tag of queued.generated.tags)
+              if (!queued.discoveredTags.includes(tag))
+                queued.discoveredTags.push(tag);
+          if (state.difficulty === "infernal") queued.discoveredTags = [];
+        } else {
+          if (!item) return reject("Stale or inactive case ID");
+          const content = caseContent(packages, state.scenarioId);
+          const layout = content.layouts.find(
+            (entry) => entry.id === item.generated.layoutId,
+          )!;
+          switch (command.kind) {
+            case "DIALOGUE": {
+              if (role !== "agent") return reject("Wrong role");
+              if (state.hostTick < (state.cooldownUntil[playerId] ?? 0))
+                return reject("Cooldown active");
+              const dialogue = packages
+                .flatMap((pkg) => pkg.packs)
+                .flatMap((pack) => pack.dialogues)
+                .find((entry) => entry.id === item.generated.dialogueId)!;
+              const node = dialogue.nodes.find(
+                (entry) => entry.id === item.dialogueNode,
+              )!;
+              const choice = node.choices.find(
+                (entry) => entry.id === command.choiceId,
+              );
+              if (!choice) return reject("Unknown dialogue choice");
+              item.dialogueNode = choice.next;
+              item.dialogueOptions = dialogue.nodes
+                .find((entry) => entry.id === choice.next)!
+                .choices.map((entry) => entry.id);
+              item.callerMood = clamp(
+                item.callerMood + (choice.moodDelta ?? 0),
+              );
+              if (choice.moodDelta && choice.moodDelta < 0)
+                events.push({ kind: "CALLER_ANGERED", caseId: item.id });
+              if (
+                choice.revealTag &&
+                item.generated.tags.includes(choice.revealTag) &&
+                !item.discoveredTags.includes(choice.revealTag)
+              )
+                item.discoveredTags.push(choice.revealTag);
+              item.status = "investigating";
+              state.cooldownUntil[playerId] = state.hostTick + COOLDOWN_TICKS;
+              break;
+            }
+            case "INTERRUPT": {
+              if (role !== "agent") return reject("Wrong role");
+              if (state.hostTick < (state.cooldownUntil[playerId] ?? 0))
+                return reject("Cooldown active");
+              const dialogue = packages
+                .flatMap((pkg) => pkg.packs)
+                .flatMap((pack) => pack.dialogues)
+                .find((entry) => entry.id === item.generated.dialogueId)!;
+              const node = dialogue.nodes.find(
+                (entry) => entry.id === item.dialogueNode,
+              )!;
+              if (node.choices.length === 0)
+                return reject("Dialogue already ended");
+              const queue = [node];
+              const visited = new Set<string>();
+              let exitNode: typeof node | undefined;
+              while (queue.length) {
+                const current = queue.shift()!;
+                if (visited.has(current.id)) continue;
+                visited.add(current.id);
+                if (current.choices.length === 0) {
+                  exitNode = current;
+                  break;
+                }
+                for (const choice of current.choices) {
+                  const following = dialogue.nodes.find(
+                    (entry) => entry.id === choice.next,
+                  );
+                  if (following) queue.push(following);
+                }
+              }
+              if (!exitNode) return reject("No dialogue exit");
+              item.dialogueNode = exitNode.id;
+              item.dialogueOptions = [];
+              item.callerMood = clamp(item.callerMood - 12);
+              item.status = "investigating";
+              state.cooldownUntil[playerId] = state.hostTick + 100;
               events.push({ kind: "CALLER_ANGERED", caseId: item.id });
-            if (
-              choice.revealTag &&
-              item.generated.tags.includes(choice.revealTag) &&
-              !item.discoveredTags.includes(choice.revealTag)
-            )
-              item.discoveredTags.push(choice.revealTag);
-            item.status = "investigating";
-            state.cooldownUntil[playerId] = state.hostTick + COOLDOWN_TICKS;
-            break;
-          }
-          case "INTERRUPT": {
-            if (role !== "agent") return reject("Wrong role");
-            if (state.hostTick < (state.cooldownUntil[playerId] ?? 0))
-              return reject("Cooldown active");
-            const dialogue = packages
-              .flatMap((pkg) => pkg.packs)
-              .flatMap((pack) => pack.dialogues)
-              .find((entry) => entry.id === item.generated.dialogueId)!;
-            const node = dialogue.nodes.find(
-              (entry) => entry.id === item.dialogueNode,
-            )!;
-            if (node.choices.length === 0)
-              return reject("Dialogue already ended");
-            const queue = [node];
-            const visited = new Set<string>();
-            let exitNode: typeof node | undefined;
-            while (queue.length) {
-              const current = queue.shift()!;
-              if (visited.has(current.id)) continue;
-              visited.add(current.id);
-              if (current.choices.length === 0) {
-                exitNode = current;
-                break;
+              break;
+            }
+            case "PUBLISH_TAG":
+              if (
+                role !== "agent" ||
+                !item.discoveredTags.includes(command.tagId)
+              )
+                return reject("Invalid agent tag");
+              if (!item.publishedTags.includes(command.tagId)) {
+                if (command.replaceIndex === undefined) {
+                  if (item.publishedTags.length >= 3)
+                    return reject("Tag slots full");
+                  item.publishedTags.push(command.tagId);
+                } else if (
+                  command.replaceIndex >= 0 &&
+                  command.replaceIndex < item.publishedTags.length
+                )
+                  item.publishedTags[command.replaceIndex] = command.tagId;
+                else return reject("Invalid tag slot");
               }
-              for (const choice of current.choices) {
-                const following = dialogue.nodes.find(
-                  (entry) => entry.id === choice.next,
-                );
-                if (following) queue.push(following);
+              item.status = "investigating";
+              break;
+            case "SUGGEST_DESTINATION":
+              if (role !== "agent" || item.suggestionUsed)
+                return reject("Destination suggestion unavailable");
+              if (!layout.availableDestinations.includes(command.destinationId))
+                return reject("Unavailable destination");
+              item.suggestedDestination = command.destinationId as never;
+              item.suggestionUsed = true;
+              item.status = "investigating";
+              break;
+            case "ARCHIVE_PIN":
+              if (
+                role !== "archivist" ||
+                !content.scenario.allowedContent.archetypes.includes(
+                  command.recordId,
+                )
+              )
+                return reject("Invalid archive record");
+              if (!item.archivePins.includes(command.recordId)) {
+                if (command.replaceIndex === undefined) {
+                  if (item.archivePins.length >= 2)
+                    return reject("Pin slots full");
+                  item.archivePins.push(command.recordId);
+                } else if (
+                  command.replaceIndex >= 0 &&
+                  command.replaceIndex < item.archivePins.length
+                )
+                  item.archivePins[command.replaceIndex] = command.recordId;
+                else return reject("Invalid pin slot");
               }
+              setApproval(item, "archivist", false, state.hostTick);
+              item.status = "investigating";
+              break;
+            case "ARCHIVE_UNPIN":
+              if (
+                role !== "archivist" ||
+                command.index < 0 ||
+                command.index >= item.archivePins.length
+              )
+                return reject("Invalid pin slot");
+              item.archivePins.splice(command.index, 1);
+              setApproval(item, "archivist", false, state.hostTick);
+              item.status = "investigating";
+              break;
+            case "STAMP":
+              if (role !== "archivist") return reject("Wrong role");
+              item.stamps = [command.stamp];
+              setApproval(item, "archivist", false, state.hostTick);
+              item.status = "investigating";
+              events.push({
+                kind: "STAMP_APPLIED",
+                caseId: item.id,
+                stamp: command.stamp,
+              });
+              break;
+            case "SELECT_DESTINATION":
+              if (
+                role !== "dispatcher" ||
+                !layout.availableDestinations.includes(command.destinationId) ||
+                !content.scenario.allowedContent.destinations.includes(
+                  command.destinationId,
+                )
+              )
+                return reject("Unavailable destination");
+              item.selectedDestination = command.destinationId as never;
+              for (const affected of [
+                "agent",
+                "archivist",
+                "dispatcher",
+              ] as const)
+                setApproval(item, affected, false, state.hostTick);
+              item.prepared = false;
+              item.status = "investigating";
+              break;
+            case "MACHINE_CONTROL": {
+              if (role !== "dispatcher") return reject("Wrong role");
+              const control = layout.controls.find(
+                (entry) => entry.id === command.controlId,
+              );
+              if (!control || !control.values.includes(command.value))
+                return reject("Invalid machine value");
+              state.machine.controls[command.controlId] = command.value;
+              setApproval(item, "dispatcher", false, state.hostTick);
+              item.prepared = false;
+              item.status = "investigating";
+              break;
             }
-            if (!exitNode) return reject("No dialogue exit");
-            item.dialogueNode = exitNode.id;
-            item.dialogueOptions = [];
-            item.callerMood = clamp(item.callerMood - 12);
-            item.status = "investigating";
-            state.cooldownUntil[playerId] = state.hostTick + 100;
-            events.push({ kind: "CALLER_ANGERED", caseId: item.id });
-            break;
-          }
-          case "PUBLISH_TAG":
-            if (
-              role !== "agent" ||
-              !item.discoveredTags.includes(command.tagId)
-            )
-              return reject("Invalid agent tag");
-            if (!item.publishedTags.includes(command.tagId)) {
-              if (command.replaceIndex === undefined) {
-                if (item.publishedTags.length >= 3)
-                  return reject("Tag slots full");
-                item.publishedTags.push(command.tagId);
-              } else if (
-                command.replaceIndex >= 0 &&
-                command.replaceIndex < item.publishedTags.length
+            case "RECOVER_INCIDENT": {
+              if (
+                role !== "dispatcher" ||
+                !item.incidentId ||
+                item.incidentRecovered
               )
-                item.publishedTags[command.replaceIndex] = command.tagId;
-              else return reject("Invalid tag slot");
+                return reject("No active incident");
+              const incident = packages
+                .flatMap((pkg) => pkg.packs)
+                .flatMap((pack) => pack.incidents)
+                .find((entry) => entry.id === item.incidentId)!;
+              if (
+                state.machine.controls[incident.recovery.control] !==
+                incident.recovery.equals
+              )
+                return reject("Incident recovery condition not met");
+              item.incidentRecovered = true;
+              item.prepared = false;
+              break;
             }
-            item.status = "investigating";
-            break;
-          case "SUGGEST_DESTINATION":
-            if (role !== "agent" || item.suggestionUsed)
-              return reject("Destination suggestion unavailable");
-            if (!layout.availableDestinations.includes(command.destinationId))
-              return reject("Unavailable destination");
-            item.suggestedDestination = command.destinationId as never;
-            item.suggestionUsed = true;
-            item.status = "investigating";
-            break;
-          case "ARCHIVE_PIN":
-            if (
-              role !== "archivist" ||
-              !content.scenario.allowedContent.archetypes.includes(
-                command.recordId,
-              )
-            )
-              return reject("Invalid archive record");
-            if (!item.archivePins.includes(command.recordId)) {
-              if (command.replaceIndex === undefined) {
-                if (item.archivePins.length >= 2)
-                  return reject("Pin slots full");
-                item.archivePins.push(command.recordId);
-              } else if (
-                command.replaceIndex >= 0 &&
-                command.replaceIndex < item.archivePins.length
-              )
-                item.archivePins[command.replaceIndex] = command.recordId;
-              else return reject("Invalid pin slot");
+            case "PREPARE": {
+              if (role !== "dispatcher" || !item.selectedDestination)
+                return reject("No destination selected");
+              if (!item.incidentRecovered) return reject("Incident unresolved");
+              const destination = content.destinations.find(
+                (entry) => entry.id === item.selectedDestination,
+              )!;
+              if (!machineCanRoute(destination, layout, state.machine.controls))
+                return reject("Machine requirements not met");
+              item.prepared = true;
+              break;
             }
-            setApproval(item, "archivist", false, state.hostTick);
-            item.status = "investigating";
-            break;
-          case "ARCHIVE_UNPIN":
-            if (
-              role !== "archivist" ||
-              command.index < 0 ||
-              command.index >= item.archivePins.length
-            )
-              return reject("Invalid pin slot");
-            item.archivePins.splice(command.index, 1);
-            setApproval(item, "archivist", false, state.hostTick);
-            item.status = "investigating";
-            break;
-          case "STAMP":
-            if (role !== "archivist") return reject("Wrong role");
-            item.stamps = [command.stamp];
-            setApproval(item, "archivist", false, state.hostTick);
-            item.status = "investigating";
-            events.push({
-              kind: "STAMP_APPLIED",
-              caseId: item.id,
-              stamp: command.stamp,
-            });
-            break;
-          case "SELECT_DESTINATION":
-            if (
-              role !== "dispatcher" ||
-              !layout.availableDestinations.includes(command.destinationId) ||
-              !content.scenario.allowedContent.destinations.includes(
-                command.destinationId,
+            case "APPROVE":
+              if (!item.selectedDestination)
+                return reject("No destination selected");
+              if (role === "dispatcher" && command.approved && !item.prepared)
+                return reject("Machine not prepared");
+              setApproval(item, role, command.approved, state.hostTick);
+              item.status = Object.values(item.approvals).every(Boolean)
+                ? "approved"
+                : "investigating";
+              break;
+            case "ROUTE_COMMIT":
+              if (
+                role !== "dispatcher" ||
+                item.status !== "approved" ||
+                !item.selectedDestination ||
+                !item.prepared ||
+                !item.incidentRecovered ||
+                !Object.values(item.approvals).every(Boolean)
               )
-            )
-              return reject("Unavailable destination");
-            item.selectedDestination = command.destinationId as never;
-            for (const affected of [
-              "agent",
-              "archivist",
-              "dispatcher",
-            ] as const)
-              setApproval(item, affected, false, state.hostTick);
-            item.prepared = false;
-            item.status = "investigating";
-            break;
-          case "MACHINE_CONTROL": {
-            if (role !== "dispatcher") return reject("Wrong role");
-            const control = layout.controls.find(
-              (entry) => entry.id === command.controlId,
-            );
-            if (!control || !control.values.includes(command.value))
-              return reject("Invalid machine value");
-            state.machine.controls[command.controlId] = command.value;
-            setApproval(item, "dispatcher", false, state.hostTick);
-            item.prepared = false;
-            item.status = "investigating";
-            break;
-          }
-          case "RECOVER_INCIDENT": {
-            if (
-              role !== "dispatcher" ||
-              !item.incidentId ||
-              item.incidentRecovered
-            )
-              return reject("No active incident");
-            const incident = packages
-              .flatMap((pkg) => pkg.packs)
-              .flatMap((pack) => pack.incidents)
-              .find((entry) => entry.id === item.incidentId)!;
-            if (
-              state.machine.controls[incident.recovery.control] !==
-              incident.recovery.equals
-            )
-              return reject("Incident recovery condition not met");
-            item.incidentRecovered = true;
-            item.prepared = false;
-            break;
-          }
-          case "PREPARE": {
-            if (role !== "dispatcher" || !item.selectedDestination)
-              return reject("No destination selected");
-            if (!item.incidentRecovered) return reject("Incident unresolved");
-            const destination = content.destinations.find(
-              (entry) => entry.id === item.selectedDestination,
-            )!;
-            if (!machineCanRoute(destination, layout, state.machine.controls))
-              return reject("Machine requirements not met");
-            item.prepared = true;
-            break;
-          }
-          case "APPROVE":
-            if (!item.selectedDestination)
-              return reject("No destination selected");
-            if (role === "dispatcher" && command.approved && !item.prepared)
-              return reject("Machine not prepared");
-            setApproval(item, role, command.approved, state.hostTick);
-            item.status = Object.values(item.approvals).every(Boolean)
-              ? "approved"
-              : "investigating";
-            break;
-          case "ROUTE_COMMIT":
-            if (
-              role !== "dispatcher" ||
-              item.status !== "approved" ||
-              !item.selectedDestination ||
-              !item.prepared ||
-              !item.incidentRecovered ||
-              !Object.values(item.approvals).every(Boolean)
-            )
-              return reject("Routing not approved");
-            if (
-              !machineCanRoute(
-                content.destinations.find(
-                  (entry) => entry.id === item.selectedDestination,
-                )!,
-                layout,
-                state.machine.controls,
+                return reject("Routing not approved");
+              if (
+                !machineCanRoute(
+                  content.destinations.find(
+                    (entry) => entry.id === item.selectedDestination,
+                  )!,
+                  layout,
+                  state.machine.controls,
+                )
               )
-            )
-              return reject("Machine requirements changed");
-            resolve(state, item, packages, events);
-            break;
+                return reject("Machine requirements changed");
+              resolve(state, item, packages, events);
+              break;
+          }
         }
       }
     }

@@ -67,6 +67,19 @@ const publicView = z
         })
         .strict(),
     ),
+    tutorial: z
+      .object({
+        stage: z.enum(["stations", "practice"]),
+        stations: z
+          .object({
+            agent: z.boolean(),
+            archivist: z.boolean(),
+            dispatcher: z.boolean(),
+          })
+          .strict(),
+      })
+      .strict()
+      .nullable(),
     report: z
       .object({
         seed: z.string(),
@@ -237,6 +250,10 @@ export const playerViewSchema = z
 export const commandSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("READY"), ready: z.boolean() }),
   z.object({ kind: z.literal("START") }),
+  z.object({
+    kind: z.literal("COMPLETE_TUTORIAL_STATION"),
+    answer: z.string().min(1).max(32),
+  }),
   z.object({ kind: z.literal("ACCEPT_CASE"), caseId: z.string() }),
   z.object({
     kind: z.literal("DIALOGUE"),

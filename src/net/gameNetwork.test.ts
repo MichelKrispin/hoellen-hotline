@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GameNetwork } from "./gameNetwork";
 import core from "../content/core/fixture.json";
-import audit from "../content/campaigns/audit/fixture.json";
 import { loadContent } from "../content/registry";
 import type { CampaignPackage } from "../content/schemas";
 import { createActionId, type CaseId } from "../game/core/ids";
@@ -12,6 +11,7 @@ import {
 } from "../game/state/simulation";
 import type { PrivateLobby, Member, Slot } from "./privateLobby";
 import type { Role } from "../game/state/contracts";
+import { DEFAULT_GAME_MODE } from "../game/modes/config";
 
 const ids = ["a", "b", "c"].map((c) => c.repeat(32));
 const connections = [null, "d".repeat(32), "e".repeat(32)];
@@ -22,6 +22,7 @@ const members: [Member, Member, Member] = roles.map((role, i) => ({
   ready: true,
   connected: true,
   ping: null,
+  contentHash: null,
 })) as [Member, Member, Member];
 const live: GameNetwork[] = [];
 
@@ -41,6 +42,7 @@ function fakeLobby(
     localSlot,
     sessionId: "f".repeat(32),
     members: structuredClone(members),
+    mode: DEFAULT_GAME_MODE,
     playerIdFor: (slot: Slot) => ids[slot],
     connectionIdFor: (slot: Slot) => connections[isHost ? slot : localSlot],
     channelFor: (slot: Slot) => channels[slot] ?? null,
@@ -213,9 +215,7 @@ describe("host simulation over role-filtered channels", () => {
     expect(agent.exportDebugReplay()).toBeNull();
     const replay = host.exportDebugReplay()!;
     expect(replay.entries).toHaveLength(host.getDebugState()!.entries);
-    const packages = (
-      await loadContent([core as CampaignPackage, audit as CampaignPackage])
-    ).packages;
+    const packages = (await loadContent([core as CampaignPackage])).packages;
     expect(
       canonicalState(replaySimulation(replay, packages, replay.contentHash)),
     ).toBe(

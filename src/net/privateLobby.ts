@@ -7,6 +7,12 @@ import {
   sessionCode,
 } from "../game/core/ids";
 import type { Role } from "../game/state/contracts";
+import {
+  DEFAULT_GAME_MODE,
+  GameModeSchema,
+  modeContentHash,
+  type GameMode,
+} from "../game/modes/config";
 import { GameNetwork } from "./gameNetwork";
 import { MAX_ENVELOPE_BYTES } from "./protocol";
 import {
@@ -25,6 +31,7 @@ export type Member = {
   ready: boolean;
   connected: boolean;
   ping: number | null;
+  contentHash: string | null;
 };
 const roleSchema = z.enum(["agent", "archivist", "dispatcher"]);
 const memberSchema = z.object({
@@ -33,6 +40,10 @@ const memberSchema = z.object({
   ready: z.boolean(),
   connected: z.boolean(),
   ping: z.number().nullable(),
+  contentHash: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .nullable(),
 });
 const messageSchema = z.discriminatedUnion("type", [
   z.object({
@@ -55,12 +66,18 @@ const messageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("LOBBY_STATE"),
     members: z.array(memberSchema).length(3),
+    mode: GameModeSchema,
+    modeHash: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .nullable(),
   }),
   z.object({
     type: z.literal("CHOICE"),
     role: roleSchema.nullable(),
     ready: z.boolean(),
     name: z.string().min(1).max(24),
+    contentHash: z.string().regex(/^[0-9a-f]{64}$/),
   }),
   z.object({ type: z.literal("PING"), at: z.number() }),
   z.object({ type: z.literal("PONG"), at: z.number() }),
@@ -72,6 +89,7 @@ const messageSchema = z.discriminatedUnion("type", [
     startTick: z.number().int().nonnegative(),
     scenarioId: z.string(),
     contentHash: z.string().regex(/^[0-9a-f]{64}$/),
+    mode: GameModeSchema,
   }),
 ]);
 type Message = z.infer<typeof messageSchema>;
@@ -95,6 +113,7 @@ const emptyMember = (name: string): Member => ({
   ready: false,
   connected: false,
   ping: null,
+  contentHash: null,
 });
 
 export async function waitForIce(
@@ -149,6 +168,8 @@ export class PrivateLobby {
   readonly isHost: boolean;
   readonly members: [Member, Member, Member];
   readonly localSlot: Slot;
+  mode: GameMode = DEFAULT_GAME_MODE;
+  modeHash: string | null = null;
   onChange: () => void = () => undefined;
   onStart: (role: Role, network: GameNetwork) => void = () => undefined;
   game: GameNetwork | null = null;
@@ -221,7 +242,12 @@ export class PrivateLobby {
     }
     const members = this.members.map((m) => ({ ...m }));
     for (const entry of this.slots.values())
-      this.send(entry.channel, { type: "LOBBY_STATE", members });
+      this.send(entry.channel, {
+        type: "LOBBY_STATE",
+        members,
+        mode: this.mode,
+        modeHash: this.modeHash,
+      });
     this.emit();
   }
   async createOffer(slot: 1 | 2): Promise<void> {
@@ -315,11 +341,13 @@ export class PrivateLobby {
           const taken = this.members.some(
             (m, i) => i !== slot && m.role === msg.role && msg.role !== null,
           );
+          const compatible = msg.contentHash === this.modeHash;
           this.members[slot] = {
             ...this.members[slot],
             name: msg.name,
             role: taken ? null : msg.role,
-            ready: !taken && msg.role !== null && msg.ready,
+            ready: !taken && compatible && msg.role !== null && msg.ready,
+            contentHash: msg.contentHash,
           };
           this.broadcast();
         } else if (msg.type === "PING")
@@ -485,6 +513,8 @@ export class PrivateLobby {
         this.emit();
       } else if (msg.type === "LOBBY_STATE") {
         for (let i = 0; i < 3; i++) this.members[i] = msg.members[i]!;
+        this.mode = msg.mode;
+        this.modeHash = msg.modeHash;
         this.emit();
       } else if (msg.type === "PING")
         this.send(this.guestChannel!, { type: "PONG", at: msg.at });
@@ -498,7 +528,8 @@ export class PrivateLobby {
         if (
           msg.v !== 1 ||
           msg.sessionId !== this.sessionId ||
-          msg.role !== this.members[this.localSlot].role
+          msg.role !== this.members[this.localSlot].role ||
+          JSON.stringify(msg.mode) !== JSON.stringify(this.mode)
         )
           throw new Error("Fremde oder widersprüchliche Startnachricht.");
         this.game = GameNetwork.guest(this, msg.role, msg.contentHash);
@@ -511,7 +542,7 @@ export class PrivateLobby {
       this.guestChannel?.close();
     }
   }
-  choose(role: Role | null, ready: boolean, name: string): void {
+  async choose(role: Role | null, ready: boolean, name: string): Promise<void> {
     const cleanName =
       name.trim().slice(0, 24) || `Spieler ${this.localSlot + 1}`;
     if (!this.members[this.localSlot].connected)
@@ -521,12 +552,17 @@ export class PrivateLobby {
       this.members.some((m, i) => i !== this.localSlot && m.role === role)
     )
       throw new Error("Diese Rolle ist bereits vergeben.");
+    const hash = await modeContentHash(this.mode);
+    if (this.modeHash && hash !== this.modeHash)
+      throw new Error("Content-Hash stimmt nicht mit dem Host überein.");
     if (this.isHost) {
+      this.modeHash = hash;
       this.members[0] = {
         ...this.members[0],
         name: cleanName,
         role,
         ready: !!role && ready,
+        contentHash: hash,
       };
       this.broadcast();
     } else
@@ -535,12 +571,31 @@ export class PrivateLobby {
         name: cleanName,
         role,
         ready,
+        contentHash: hash,
       });
+  }
+  async chooseMode(input: unknown): Promise<void> {
+    if (!this.isHost || this.game)
+      throw new Error("Nur der Host kann vor dem Start den Modus wählen.");
+    const selectedMode = GameModeSchema.parse(input);
+    this.mode = selectedMode;
+    for (const member of this.members) {
+      member.ready = false;
+      member.contentHash = null;
+    }
+    this.modeHash = null;
+    this.broadcast();
+    const hash = await modeContentHash(selectedMode);
+    if (this.mode !== selectedMode) return;
+    this.modeHash = hash;
+    this.broadcast();
   }
   canStart(): boolean {
     return (
       this.isHost &&
       this.members.every((m) => m.connected && m.ready && m.role) &&
+      this.modeHash !== null &&
+      this.members.every((m) => m.contentHash === this.modeHash) &&
       new Set(this.members.map((m) => m.role)).size === 3
     );
   }
@@ -556,6 +611,7 @@ export class PrivateLobby {
         v: 1,
         sessionId: this.sessionId,
         role: this.members[slot].role!,
+        mode: this.mode,
         ...this.game.publicStart(),
       });
     this.game.startHost();
@@ -582,7 +638,9 @@ export class PrivateLobby {
   channelFor(slot: Slot): RTCDataChannel | null {
     return slot === 0
       ? this.guestChannel
-      : (this.slots.get(slot)?.channel ?? null);
+      : this.slots.get(slot)?.status === "Verbunden"
+        ? this.slots.get(slot)!.channel
+        : null;
   }
   async createReconnectOffer(slot: 1 | 2): Promise<void> {
     if (

@@ -8,7 +8,11 @@
     "descriptionKey": "text.core.description",
     "requiredCoreVersion": "1.0.0",
     "dependencies": [],
-    "chapters": ["core.chapter.first"],
+    "chapters": [
+      "core.chapter.first",
+      "core.chapter.audit",
+      "core.chapter.strike"
+    ],
     "contentPacks": ["core.pack.base"],
     "assetPack": "asset.core.pack"
   },
@@ -17,7 +21,19 @@
       "schemaVersion": 1,
       "id": "core.chapter.first",
       "titleKey": "text.core.chapter",
-      "scenarios": ["core.scenario.first"]
+      "scenarios": ["core.scenario.first", "core.scenario.forms"]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.chapter.audit",
+      "titleKey": "text.core.chapter.audit",
+      "scenarios": ["core.scenario.auditor", "core.scenario.stamps"]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.chapter.strike",
+      "titleKey": "text.core.chapter.strike",
+      "scenarios": ["core.scenario.work-to-rule", "core.scenario.misdirection"]
     }
   ],
   "scenarios": [
@@ -48,7 +64,7 @@
           "core.destination.return",
           "core.destination.quarantine"
         ],
-        "incidents": ["core.incident.jam"]
+        "incidents": ["core.incident.jam", "core.incident.jam-backup"]
       },
       "casePlan": {
         "count": 8,
@@ -67,14 +83,355 @@
       "machineLayouts": ["core.machine.switchboard"],
       "startingRules": ["core.rule.ink-red"],
       "mutators": [
-        { "afterCase": 2, "rule": "core.rule.audit-dust" },
-        { "afterCase": 4, "rule": "core.rule.form-reform" },
-        { "afterCase": 6, "rule": "core.rule.quarantine" }
+        {
+          "afterCase": 2,
+          "rule": "core.rule.audit-dust"
+        },
+        {
+          "afterCase": 4,
+          "rule": "core.rule.form-reform"
+        },
+        {
+          "afterCase": 6,
+          "rule": "core.rule.quarantine"
+        }
       ],
       "victory": {
         "kind": "resolveCases",
         "count": 8
-      }
+      },
+      "intro": "text.core.scenario.first.intro",
+      "outro": "text.core.scenario.first.outro"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.scenario.forms",
+      "mode": "campaign",
+      "titleKey": "text.core.scenario.forms",
+      "allowedContent": {
+        "archetypes": [
+          "core.archetype.clerk",
+          "core.archetype.clerk-copy",
+          "core.archetype.clerk-retired"
+        ],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": [
+          "core.destination.archive",
+          "core.destination.wrath",
+          "core.destination.greed",
+          "core.destination.envy",
+          "core.destination.sloth",
+          "core.destination.lust",
+          "core.destination.gluttony",
+          "core.destination.pride",
+          "core.destination.limbo",
+          "core.destination.audit",
+          "core.destination.return",
+          "core.destination.quarantine"
+        ],
+        "incidents": ["core.incident.jam", "core.incident.jam-backup"]
+      },
+      "casePlan": {
+        "count": 8,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": [],
+            "stamps": [],
+            "pressure": 20,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [
+        {
+          "afterCase": 2,
+          "rule": "core.rule.form-reform"
+        },
+        {
+          "afterCase": 4,
+          "rule": "core.rule.audit-dust"
+        },
+        {
+          "afterCase": 6,
+          "rule": "core.rule.quarantine"
+        }
+      ],
+      "victory": {
+        "kind": "resolveCases",
+        "count": 8
+      },
+      "intro": "text.core.scenario.forms.intro",
+      "outro": "text.core.scenario.forms.outro"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.scenario.auditor",
+      "mode": "campaign",
+      "titleKey": "text.core.scenario.auditor",
+      "allowedContent": {
+        "archetypes": [
+          "core.archetype.clerk",
+          "core.archetype.clerk-copy",
+          "core.archetype.clerk-retired"
+        ],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": [
+          "core.destination.archive",
+          "core.destination.wrath",
+          "core.destination.greed",
+          "core.destination.envy",
+          "core.destination.sloth",
+          "core.destination.lust",
+          "core.destination.gluttony",
+          "core.destination.pride",
+          "core.destination.limbo",
+          "core.destination.audit",
+          "core.destination.return",
+          "core.destination.quarantine"
+        ],
+        "incidents": ["core.incident.jam", "core.incident.jam-backup"]
+      },
+      "casePlan": {
+        "count": 8,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": [],
+            "stamps": [],
+            "pressure": 20,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [
+        {
+          "afterCase": 2,
+          "rule": "core.rule.audit-dust"
+        },
+        {
+          "afterCase": 4,
+          "rule": "core.rule.quarantine"
+        },
+        {
+          "afterCase": 6,
+          "rule": "core.rule.form-reform"
+        }
+      ],
+      "victory": {
+        "kind": "resolveCases",
+        "count": 8
+      },
+      "intro": "text.core.scenario.auditor.intro",
+      "outro": "text.core.scenario.auditor.outro"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.scenario.stamps",
+      "mode": "campaign",
+      "titleKey": "text.core.scenario.stamps",
+      "allowedContent": {
+        "archetypes": [
+          "core.archetype.clerk",
+          "core.archetype.clerk-copy",
+          "core.archetype.clerk-retired"
+        ],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": [
+          "core.destination.archive",
+          "core.destination.wrath",
+          "core.destination.greed",
+          "core.destination.envy",
+          "core.destination.sloth",
+          "core.destination.lust",
+          "core.destination.gluttony",
+          "core.destination.pride",
+          "core.destination.limbo",
+          "core.destination.audit",
+          "core.destination.return",
+          "core.destination.quarantine"
+        ],
+        "incidents": ["core.incident.jam", "core.incident.jam-backup"]
+      },
+      "casePlan": {
+        "count": 8,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": [],
+            "stamps": [],
+            "pressure": 20,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [
+        {
+          "afterCase": 2,
+          "rule": "core.rule.form-reform"
+        },
+        {
+          "afterCase": 4,
+          "rule": "core.rule.quarantine"
+        },
+        {
+          "afterCase": 6,
+          "rule": "core.rule.audit-dust"
+        }
+      ],
+      "victory": {
+        "kind": "resolveCases",
+        "count": 8
+      },
+      "intro": "text.core.scenario.stamps.intro",
+      "outro": "text.core.scenario.stamps.outro"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.scenario.work-to-rule",
+      "mode": "campaign",
+      "titleKey": "text.core.scenario.work-to-rule",
+      "allowedContent": {
+        "archetypes": [
+          "core.archetype.clerk",
+          "core.archetype.clerk-copy",
+          "core.archetype.clerk-retired"
+        ],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": [
+          "core.destination.archive",
+          "core.destination.wrath",
+          "core.destination.greed",
+          "core.destination.envy",
+          "core.destination.sloth",
+          "core.destination.lust",
+          "core.destination.gluttony",
+          "core.destination.pride",
+          "core.destination.limbo",
+          "core.destination.audit",
+          "core.destination.return",
+          "core.destination.quarantine"
+        ],
+        "incidents": ["core.incident.jam", "core.incident.jam-backup"]
+      },
+      "casePlan": {
+        "count": 8,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": [],
+            "stamps": [],
+            "pressure": 20,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [
+        {
+          "afterCase": 2,
+          "rule": "core.rule.quarantine"
+        },
+        {
+          "afterCase": 4,
+          "rule": "core.rule.form-reform"
+        },
+        {
+          "afterCase": 6,
+          "rule": "core.rule.audit-dust"
+        }
+      ],
+      "victory": {
+        "kind": "resolveCases",
+        "count": 8
+      },
+      "intro": "text.core.scenario.work-to-rule.intro",
+      "outro": "text.core.scenario.work-to-rule.outro"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "core.scenario.misdirection",
+      "mode": "campaign",
+      "titleKey": "text.core.scenario.misdirection",
+      "allowedContent": {
+        "archetypes": [
+          "core.archetype.clerk",
+          "core.archetype.clerk-copy",
+          "core.archetype.clerk-retired"
+        ],
+        "complaints": ["core.complaint.missing-form"],
+        "tags": ["core.tag.ink", "core.tag.queue"],
+        "destinations": [
+          "core.destination.archive",
+          "core.destination.wrath",
+          "core.destination.greed",
+          "core.destination.envy",
+          "core.destination.sloth",
+          "core.destination.lust",
+          "core.destination.gluttony",
+          "core.destination.pride",
+          "core.destination.limbo",
+          "core.destination.audit",
+          "core.destination.return",
+          "core.destination.quarantine"
+        ],
+        "incidents": ["core.incident.jam", "core.incident.jam-backup"]
+      },
+      "casePlan": {
+        "count": 8,
+        "samples": [
+          {
+            "archetype": "core.archetype.clerk",
+            "tags": ["core.tag.ink", "core.tag.queue"],
+            "complaint": "core.complaint.missing-form",
+            "exceptions": [],
+            "stamps": [],
+            "pressure": 20,
+            "caseCount": 0
+          }
+        ]
+      },
+      "machineLayouts": ["core.machine.switchboard"],
+      "startingRules": ["core.rule.ink-red"],
+      "mutators": [
+        {
+          "afterCase": 2,
+          "rule": "core.rule.quarantine"
+        },
+        {
+          "afterCase": 4,
+          "rule": "core.rule.audit-dust"
+        },
+        {
+          "afterCase": 6,
+          "rule": "core.rule.form-reform"
+        }
+      ],
+      "victory": {
+        "kind": "resolveCases",
+        "count": 8
+      },
+      "intro": "text.core.scenario.misdirection.intro",
+      "outro": "text.core.scenario.misdirection.outro"
     }
   ],
   "packs": [
@@ -591,6 +948,60 @@
             "core.destination.quarantine"
           ],
           "bodyAsset": "asset.core.machine"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.machine.backup",
+          "nameKey": "text.core.machine.backup",
+          "controls": [
+            {
+              "id": "core.control.valve",
+              "kind": "toggle",
+              "values": [false, true],
+              "labelKey": "text.core.valve"
+            },
+            {
+              "id": "core.control.heat",
+              "kind": "dial",
+              "values": [0, 1],
+              "labelKey": "text.core.heat"
+            },
+            {
+              "id": "core.control.form",
+              "kind": "selector",
+              "values": ["red", "blue"],
+              "labelKey": "text.core.form"
+            },
+            {
+              "id": "core.control.seal",
+              "kind": "toggle",
+              "values": [false, true],
+              "labelKey": "text.core.seal"
+            },
+            {
+              "id": "core.control.diverter",
+              "kind": "selector",
+              "values": ["left", "neutral", "return"],
+              "labelKey": "text.core.diverter"
+            },
+            {
+              "id": "core.control.pressure",
+              "kind": "dial",
+              "values": [0, 1, 2],
+              "labelKey": "text.core.pressure"
+            }
+          ],
+          "availableDestinations": [
+            "core.destination.archive",
+            "core.destination.greed",
+            "core.destination.envy",
+            "core.destination.sloth",
+            "core.destination.limbo",
+            "core.destination.audit",
+            "core.destination.return",
+            "core.destination.quarantine"
+          ],
+          "bodyAsset": "asset.core.machine"
         }
       ],
       "incidents": [
@@ -600,6 +1011,18 @@
           "textKey": "text.core.jam",
           "diagnosisKey": "text.core.jam-diagnosis",
           "layout": "core.machine.switchboard",
+          "recovery": {
+            "control": "core.control.heat",
+            "equals": 0
+          },
+          "reaction": "core.reaction.wrong"
+        },
+        {
+          "schemaVersion": 1,
+          "id": "core.incident.jam-backup",
+          "textKey": "text.core.jam",
+          "diagnosisKey": "text.core.jam-diagnosis",
+          "layout": "core.machine.backup",
           "recovery": {
             "control": "core.control.heat",
             "equals": 0
@@ -752,6 +1175,25 @@
   ],
   "translations": {
     "text.core.title": "Probezeit in der Ewigkeit",
+    "text.core.chapter.audit": "Audit aus der Oberhölle",
+    "text.core.chapter.strike": "Kesselstreik",
+    "text.core.scenario.first.intro": "Erster Dienst. Das Telefon klingelt schon, bevor die Stempeluhr wach ist.",
+    "text.core.scenario.first.outro": "Die Leitung steht noch. Für heute gilt das als Beförderung.",
+    "text.core.scenario.forms": "Formulare, Feuer, Feierabend",
+    "text.core.scenario.forms.intro": "Eine Formularreform trifft auf einen Kessel voller alter Akten.",
+    "text.core.scenario.forms.outro": "Die Akten sind sortiert. Der Kessel fordert eine Kopie.",
+    "text.core.scenario.auditor": "Der Prüfer hört mit",
+    "text.core.scenario.auditor.intro": "Der Oberhöllenprüfer protokolliert jeden Hebelzug.",
+    "text.core.scenario.auditor.outro": "Das Audit endet mit nur leicht angekokelten Formularen.",
+    "text.core.scenario.stamps": "Stempel unter Verdacht",
+    "text.core.scenario.stamps.intro": "Drei Stempel sind verschwunden. Der Archivar zählt vier.",
+    "text.core.scenario.stamps.outro": "Alle Freigaben sind lesbar. Niemand fragt nach dem vierten Stempel.",
+    "text.core.scenario.work-to-rule": "Dienst nach Vorschrift",
+    "text.core.scenario.work-to-rule.intro": "Der Kessel streikt. Jede Entscheidung braucht nun eine saubere Begründung.",
+    "text.core.scenario.work-to-rule.outro": "Die Schicht endet pünktlich. Das ist hier fast ein Aufstand.",
+    "text.core.scenario.misdirection": "Die große Fehlleitung",
+    "text.core.scenario.misdirection.intro": "Die Rohrpost ist umgebaut. Niemand hat den Plan aktualisiert.",
+    "text.core.scenario.misdirection.outro": "Die Leitung läuft wieder. Die Rohrpost behauptet, es sei Absicht gewesen.",
     "text.core.description": "Eine kurze Probeschicht.",
     "text.core.chapter": "Erster Arbeitstag",
     "text.core.scenario": "Die Leitung glüht",
@@ -783,6 +1225,7 @@
     "text.core.archive-desc": "Für hoffnungslose Ablagefälle.",
     "text.core.wrath": "Zorn",
     "text.core.wrath-desc": "Heiß und laut.",
+    "text.core.machine.backup": "Ersatz-Rohrpostverteiler",
     "text.core.machine": "Rohrpostverteiler",
     "text.core.valve": "Ventil",
     "text.core.heat": "Hitze",

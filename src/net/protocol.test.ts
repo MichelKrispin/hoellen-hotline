@@ -30,6 +30,7 @@ const view = (revision: number): PlayerViewState => ({
     approvals: { agent: false, archivist: false, dispatcher: false },
     approvalLog: [],
     modifiers: [],
+    tutorial: null,
     report: null,
     colleagues: ["agent", "archivist", "dispatcher"].map((role) => ({
       role: role as "agent" | "archivist" | "dispatcher",

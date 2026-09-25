@@ -1,13 +1,60 @@
 import type { Role } from "../game/state/contracts";
+import type { GameMode } from "../game/modes/config";
+import { CAMPAIGN_CATALOG } from "../content/catalog";
+import {
+  importProgress,
+  isScenarioUnlocked,
+  readLocalProgress,
+  writeLocalProgress,
+} from "../game/campaign/progress";
 import { PrivateLobby } from "../net/privateLobby";
 import type { GameNetwork } from "../net/gameNetwork";
 import { clearFragment, fragmentFrom } from "../net/signalingLink";
+import {
+  readFreePlayControls,
+  renderFreePlayControls,
+  type FreePlayMode,
+} from "./freePlayControls";
 
 const roles: { id: Role; label: string }[] = [
   { id: "agent", label: "Agent" },
   { id: "archivist", label: "Archivar" },
   { id: "dispatcher", label: "Disponent" },
 ];
+const modeChoices: { key: string; label: string; mode: GameMode }[] = [
+  ...CAMPAIGN_CATALOG.flatMap((pkg) =>
+    pkg.scenarios.map((scenario) => ({
+      key: scenario.id,
+      label: `Kampagne · ${pkg.translations[scenario.titleKey] ?? scenario.id}`,
+      mode: {
+        kind: "campaign" as const,
+        campaignId: pkg.manifest.id,
+        scenarioId: scenario.id,
+      },
+    })),
+  ),
+  {
+    key: "tutorial",
+    label: "Tutorial · Übungsfall",
+    mode: { kind: "tutorial", scenarioId: "core.scenario.first" },
+  },
+  ...(["relaxed", "standard", "infernal"] as const).map((preset) => ({
+    key: `free-${preset}`,
+    label: `Freies Spiel · ${preset === "relaxed" ? "Feierabendrunde" : preset === "standard" ? "Dienstplan" : "Ewige Warteschleife"}`,
+    mode: {
+      kind: "freePlay" as const,
+      scenarioId: "core.scenario.first",
+      preset,
+      campaignIds: ["campaign.core"],
+    },
+  })),
+];
+const modeKey = (mode: GameMode): string =>
+  mode.kind === "tutorial"
+    ? "tutorial"
+    : mode.kind === "freePlay"
+      ? `free-${mode.preset}`
+      : mode.scenarioId;
 const escapeHtml = (value: string): string =>
   value.replace(
     /[&<>"']/g,
@@ -26,6 +73,14 @@ export class LobbyOverlay {
   private answerInputs: [string, string] = ["", ""];
   private notice = "";
   private openedAnswer = "";
+  private progressImport = "";
+  private seedInput = "";
+  private freeDraft: FreePlayMode = {
+    kind: "freePlay",
+    scenarioId: "core.scenario.first",
+    preset: "standard",
+    campaignIds: ["campaign.core"],
+  };
   onStart: (role: Role, network: GameNetwork) => void = () => undefined;
   constructor() {
     this.root.className = "lobby-overlay";
@@ -41,12 +96,40 @@ export class LobbyOverlay {
       if (target.id === "player-name") this.name = target.value;
       if (target.id === "answer-1") this.answerInputs[0] = target.value;
       if (target.id === "answer-2") this.answerInputs[1] = target.value;
+      if (target.id === "progress-import") this.progressImport = target.value;
+      if (target.id === "game-seed") this.seedInput = target.value;
+      if (target.closest(".freeplay-config"))
+        this.freeDraft = readFreePlayControls(this.root, this.freeDraft);
     });
     this.root.addEventListener("click", (event) => {
       const target = event.target as HTMLElement;
       const action =
         target.closest<HTMLElement>("[data-action]")?.dataset.action;
       if (action) void this.act(action);
+    });
+    this.root.addEventListener("change", (event) => {
+      const target = event.target;
+      if (target instanceof HTMLSelectElement && target.id === "game-mode")
+        void this.act(`mode-${target.value}`);
+      else if (
+        target instanceof HTMLElement &&
+        target.closest(".freeplay-config")
+      ) {
+        this.freeDraft = readFreePlayControls(this.root, this.freeDraft);
+        if (
+          target instanceof HTMLSelectElement &&
+          target.id === "free-layout-policy" &&
+          target.value === "random"
+        ) {
+          this.freeDraft.layoutIds = undefined;
+          this.render();
+        }
+        if (
+          target instanceof HTMLInputElement &&
+          target.name === "free-campaign"
+        )
+          this.render();
+      }
     });
     void this.init();
   }
@@ -99,7 +182,55 @@ export class LobbyOverlay {
         await this.copy(this.lobby!.answerLink);
       else if (action === "ping") this.lobby!.ping();
       else if (action === "start") await this.lobby!.start();
-      else if (action.startsWith("offer-"))
+      else if (action === "import-progress") {
+        if (!this.lobby?.isHost)
+          throw new Error("Nur der Host importiert Fortschritt.");
+        writeLocalProgress(importProgress(this.progressImport));
+        this.notice = "Kampagnenfortschritt importiert.";
+      } else if (action === "apply-seed") {
+        if (!this.lobby?.isHost)
+          throw new Error("Nur der Host wählt den Seed.");
+        const mode = this.lobby.mode;
+        if (mode.kind === "tutorial")
+          throw new Error("Der Übungsfall verwendet einen festen Seed.");
+        await this.lobby.chooseMode({
+          ...mode,
+          seed: this.seedInput.trim() || undefined,
+        });
+        this.notice =
+          "Seed übernommen. Alle Spieler müssen erneut bereit melden.";
+      } else if (action === "apply-freeplay") {
+        if (!this.lobby?.isHost || this.lobby.mode.kind !== "freePlay")
+          throw new Error("Freies Spiel kann nur der Host konfigurieren.");
+        this.freeDraft = readFreePlayControls(this.root, this.freeDraft);
+        await this.lobby.chooseMode({
+          ...this.freeDraft,
+          seed: this.seedInput.trim() || undefined,
+        });
+        this.notice =
+          "Freies Spiel übernommen. Alle Spieler müssen erneut bereit melden.";
+      } else if (action.startsWith("mode-")) {
+        const choice = modeChoices.find((item) => item.key === action.slice(5));
+        if (!choice) throw new Error("Unbekannter Spielmodus.");
+        const selectedMode = choice.mode;
+        if (selectedMode.kind === "campaign") {
+          const pkg = CAMPAIGN_CATALOG.find(
+            (item) => item.manifest.id === selectedMode.campaignId,
+          );
+          if (
+            !pkg ||
+            !isScenarioUnlocked(
+              readLocalProgress(),
+              pkg,
+              selectedMode.scenarioId,
+            )
+          )
+            throw new Error("Dieses Szenario ist noch gesperrt.");
+        }
+        await this.lobby!.chooseMode(selectedMode);
+        if (selectedMode.kind === "freePlay")
+          this.freeDraft = structuredClone(selectedMode);
+      } else if (action.startsWith("offer-"))
         await this.lobby!.createOffer(Number(action.slice(-1)) as 1 | 2);
       else if (action.startsWith("import-"))
         await this.lobby!.importAnswer(
@@ -111,10 +242,10 @@ export class LobbyOverlay {
           this.lobby!.getSlot(Number(action.slice(-1)) as 1 | 2).offerLink,
         );
       else if (action.startsWith("role-"))
-        this.lobby!.choose(action.slice(5) as Role, false, this.name);
+        await this.lobby!.choose(action.slice(5) as Role, false, this.name);
       else if (action === "ready") {
         const local = this.lobby!.members[this.lobby!.localSlot];
-        this.lobby!.choose(local.role, !local.ready, this.name);
+        await this.lobby!.choose(local.role, !local.ready, this.name);
       }
     } catch (error) {
       this.notice = readable(error);
@@ -132,6 +263,31 @@ export class LobbyOverlay {
       return;
     }
     const local = lobby.members[lobby.localSlot];
+    const progress = lobby.isHost ? readLocalProgress() : null;
+    const intro =
+      CAMPAIGN_CATALOG.flatMap((pkg) =>
+        pkg.scenarios.map((scenario) =>
+          scenario.id === lobby.mode.scenarioId && scenario.intro
+            ? pkg.translations[scenario.intro]
+            : null,
+        ),
+      ).find((text) => text) ?? "";
+    const modeOptions = modeChoices
+      .map((item) => {
+        const mode = item.mode;
+        const locked =
+          mode.kind === "campaign" && progress
+            ? !isScenarioUnlocked(
+                progress,
+                CAMPAIGN_CATALOG.find(
+                  (pkg) => pkg.manifest.id === mode.campaignId,
+                )!,
+                mode.scenarioId,
+              )
+            : false;
+        return `<option value="${item.key}" ${modeKey(lobby.mode) === item.key ? "selected" : ""} ${locked ? "disabled" : ""}>${locked ? "🔒 " : ""}${escapeHtml(item.label)}</option>`;
+      })
+      .join("");
     const slotHtml = ([1, 2] as const)
       .map((slot) => {
         const info = lobby.getSlot(slot);
@@ -140,8 +296,9 @@ export class LobbyOverlay {
       .join("");
     this.root.innerHTML = `<div class="lobby-card"><header><h1>Warteraum <span>${lobby.code}</span></h1><p>Nur mit vertrauten Mitspielern teilen · Direktverbindung per WebRTC</p></header>
       <div class="lobby-grid"><div><label>Dein Name<input id="player-name" maxlength="24" value="${escapeHtml(this.name)}" /></label>
+      ${lobby.isHost ? `<label>Spielmodus<select id="game-mode">${modeOptions}</select></label>${lobby.mode.kind === "tutorial" ? "" : `<label>Seed (leer = zufällig)<input id="game-seed" maxlength="128" value="${escapeHtml(this.seedInput)}"></label>${lobby.mode.kind === "campaign" ? '<button data-action="apply-seed">Seed übernehmen</button>' : renderFreePlayControls(this.freeDraft)}`}<label>Fortschritt von anderem Gerät importieren<textarea id="progress-import" aria-label="Kampagnenfortschritt importieren">${escapeHtml(this.progressImport)}</textarea></label><button data-action="import-progress">Fortschritt importieren</button>` : `<p>Spielmodus: ${escapeHtml(modeChoices.find((item) => item.key === modeKey(lobby.mode))?.label ?? lobby.mode.kind)} · Hostauswahl; nur der Host schaltet Szenarien frei.</p>`}<p class="scenario-intro">${escapeHtml(intro)}</p>
       ${lobby.isHost ? `<h2>Einladungen</h2>${slotHtml}` : `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>Sitzungskürzel mit dem Host abgleichen.</p><button data-action="join" ${lobby.answerLink ? "disabled" : ""}>Beitreten und Antwort erzeugen</button>${lobby.answerLink ? `<label>Antwortlink · an Host senden<textarea readonly aria-label="Antwortlink">${escapeHtml(lobby.answerLink)}</textarea></label><button data-action="copy-generated-answer">Antwort kopieren</button><p>Der Host fügt diesen Link in seine bestehende Lobby ein.</p>` : ""}`}</div>
-      <div><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
+      <div><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.contentHash === null || lobby.modeHash === null ? "Inhalte offen" : m.contentHash === lobby.modeHash ? "✓ Inhalte gleich" : "× Inhalte verschieden"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
       <h2>Deine Rolle</h2><div class="lobby-actions">${roles.map((r) => `<button data-action="role-${r.id}" ${!local.connected || lobby.members.some((m, i) => i !== lobby.localSlot && m.role === r.id) ? "disabled" : ""} aria-pressed="${local.role === r.id}">${r.label}</button>`).join("")}</div><div class="lobby-actions"><button data-action="ready" ${!local.role || !local.connected ? "disabled" : ""}>${local.ready ? "Bereits bereit ✓" : "Bereit melden"}</button><button data-action="ping">Verbindung testen</button></div>${lobby.isHost ? `<button data-action="start" ${lobby.canStart() ? "" : "disabled"}>Schicht starten</button>` : ""}</div></div>
       <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht.</p></div>`;
   }

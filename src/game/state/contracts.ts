@@ -126,6 +126,10 @@ export interface PublicShiftView {
     text: string;
     state: "announced" | "active";
   }[];
+  tutorial: null | {
+    stage: "stations" | "practice";
+    stations: Record<Role, boolean>;
+  };
   report: null | {
     seed: string;
     contentHash: string;

@@ -79,7 +79,7 @@ describe("content registry", () => {
     const registered = await loadContent([core, audit]);
     const baseline = registered.gameplayHash;
     expect(baseline).toBe(
-      "0f3aa59b7cd5fba7b44040b5af170e81eddc394d4faec782bc2683b1d4aa7b9c",
+      "8037986c7edf34ca4bc62c5ebcfa0eb69e5742012919b9b6144c1baa86de6d5f",
     );
     const cosmetic = copy(core);
     cosmetic.translations["text.core.title"] = "Other title";

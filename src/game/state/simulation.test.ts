@@ -37,6 +37,167 @@ const config: StartConfig = {
 };
 
 describe("deterministic simulation", () => {
+  it("changes information, queue work and incident frequency by difficulty", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    const start = (
+      difficulty: "relaxed" | "standard" | "infernal",
+      incidentDensity: "none" | "low" | "normal" | "high",
+    ) => {
+      let state = createSimulation(
+        { ...config, difficulty, incidentDensity },
+        "difficulty-seed",
+        hash,
+      );
+      for (const player of config.players)
+        state = reduceInput(
+          state,
+          {
+            type: "command",
+            playerId: player.id,
+            actionId: `ready-${player.id}` as ActionId,
+            command: { kind: "READY", ready: true },
+          },
+          packages,
+        ).state;
+      state = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: agent,
+          actionId: "start" as ActionId,
+          command: { kind: "START" },
+        },
+        packages,
+      ).state;
+      return state;
+    };
+    const relaxed = start("relaxed", "low");
+    const infernal = start("infernal", "high");
+    const none = start("standard", "none");
+    expect(
+      relaxed.cases.filter((item) => item.status === "queued"),
+    ).toHaveLength(3);
+    expect(
+      infernal.cases.filter((item) => item.status === "queued"),
+    ).toHaveLength(4);
+    expect(infernal.cases.every((item) => item.incidentId !== null)).toBe(true);
+    expect(none.cases.every((item) => item.incidentId === null)).toBe(true);
+    expect(relaxed.cases[0]!.callerMood).toBeGreaterThan(
+      infernal.cases[0]!.callerMood,
+    );
+    const accepted = (state: SimulationState) =>
+      reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: agent,
+          actionId: "accept" as ActionId,
+          command: { kind: "ACCEPT_CASE", caseId: state.cases[0]!.id },
+        },
+        packages,
+      ).state;
+    expect(accepted(relaxed).cases[0]!.discoveredTags).toHaveLength(2);
+    expect(accepted(infernal).cases[0]!.discoveredTags).toHaveLength(0);
+    expect(canonicalState(start("infernal", "high"))).toBe(
+      canonicalState(infernal),
+    );
+  });
+  it("keeps the tutorial practice case open despite time and pressure", async () => {
+    const hash = (await loadContent(packages)).gameplayHash;
+    let state = createSimulation(
+      { ...config, tutorial: true, shiftTicks: 1 },
+      "practice",
+      hash,
+    );
+    for (const player of config.players)
+      state = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: player.id,
+          actionId: `tutorial-ready-${player.id}` as ActionId,
+          command: { kind: "READY", ready: true },
+        },
+        packages,
+      ).state;
+    state = reduceInput(
+      state,
+      {
+        type: "command",
+        playerId: agent,
+        actionId: "tutorial-start" as ActionId,
+        command: { kind: "START" },
+      },
+      packages,
+    ).state;
+    const caseId = state.cases[0]!.id;
+    expect(
+      reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: agent,
+          actionId: "tutorial-too-early" as ActionId,
+          command: { kind: "ACCEPT_CASE", caseId },
+        },
+        packages,
+      ).rejected,
+    ).toBe("Tutorial stations are incomplete");
+    expect(
+      reduceInput(
+        state,
+        {
+          type: "command",
+          playerId: agent,
+          actionId: "tutorial-wrong" as ActionId,
+          command: { kind: "COMPLETE_TUTORIAL_STATION", answer: "pin" },
+        },
+        packages,
+      ).rejected,
+    ).toBe("Tutorial station answer is incorrect");
+    for (const [playerId, answer] of [
+      [agent, "tag"],
+      [archivist, "pin"],
+      [dispatcher, "approvals"],
+    ] as const) {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `tutorial-station-${answer}` as ActionId,
+          command: { kind: "COMPLETE_TUTORIAL_STATION", answer },
+        },
+        packages,
+      );
+      expect(result.rejected).toBeUndefined();
+      state = result.state;
+    }
+    expect(state.tutorialStage).toBe("practice");
+    expect(
+      projectView(state, "agent", packages).public.tutorial?.stations,
+    ).toEqual({
+      agent: true,
+      archivist: true,
+      dispatcher: true,
+    });
+    state = reduceInput(
+      state,
+      {
+        type: "command",
+        playerId: agent,
+        actionId: "tutorial-accept" as ActionId,
+        command: { kind: "ACCEPT_CASE", caseId },
+      },
+      packages,
+    ).state;
+    expect(state.cases[0]!.status).toBe("active");
+    state.shift.queuePressure = 100;
+    state.shift.boilerPressure = 100;
+    state = advanceToTick(state, 100);
+    expect(state.phase).toBe("shift");
+    expect(state.endReason).toBeNull();
+  });
   it("freezes shift time and dialogue cooldowns during host and disconnect pauses", async () => {
     const hash = (await loadContent(packages)).gameplayHash;
     let state = createSimulation(config, "pause", hash);

@@ -77,6 +77,12 @@ export function projectView(
     },
     approvalLog: [...(simCase?.approvalLog ?? [])],
     modifiers,
+    tutorial: simState.tutorial
+      ? {
+          stage: simState.tutorialStage,
+          stations: { ...simState.tutorialStations },
+        }
+      : null,
     report:
       state.phase === "results"
         ? {
