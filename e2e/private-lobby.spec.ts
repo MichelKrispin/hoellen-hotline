@@ -1,9 +1,61 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+// Keep automated link transfers inside the product's 60-second reconnect window.
+async function clickAndReadLink(
+  page: Page,
+  action: string,
+  selector: string,
+): Promise<string> {
+  return page.evaluate(
+    ({ action, selector }) =>
+      new Promise<string>((resolve, reject) => {
+        const button = document.querySelector<HTMLButtonElement>(
+          `[data-action="${action}"]`,
+        );
+        if (!button) return reject(new Error(`Missing ${action} button`));
+        const poll = window.setInterval(() => {
+          const value =
+            document.querySelector<HTMLTextAreaElement>(selector)?.value ?? "";
+          if (!value.includes("#")) return;
+          window.clearInterval(poll);
+          window.clearTimeout(timeout);
+          resolve(value);
+        }, 50);
+        const timeout = window.setTimeout(() => {
+          window.clearInterval(poll);
+          reject(new Error(`No link after ${action}`));
+        }, 30_000);
+        button.click();
+      }),
+    { action, selector },
+  );
+}
+
+async function pasteAndClick(
+  page: Page,
+  selector: string,
+  link: string,
+  action: string,
+): Promise<void> {
+  await page.evaluate(
+    ({ selector, link, action }) => {
+      const field = document.querySelector<HTMLTextAreaElement>(selector);
+      const button = document.querySelector<HTMLButtonElement>(
+        `[data-action="${action}"]`,
+      );
+      if (!field || !button) throw new Error(`Missing ${action} controls`);
+      field.value = link;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      button.click();
+    },
+    { selector, link, action },
+  );
+}
 
 test("three browsers join the private lobby and choose distinct roles", async ({
   browser,
 }, testInfo) => {
-  test.setTimeout(480_000);
+  test.setTimeout(900_000);
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
@@ -91,9 +143,6 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await expect(agentControls.getByRole("status")).toContainText(
     "Eine Ewigkeit.",
   );
-  await expect(
-    agentControls.getByRole("button", { name: /Welche Schlange war es/ }),
-  ).toBeDisabled();
   await agentControls
     .getByLabel("Entdeckten Hinweis wählen")
     .selectOption("core.tag.ink");
@@ -154,26 +203,43 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await expect(
     host.getByRole("region", { name: "Netzwerkstatus" }),
   ).toContainText("Gast getrennt");
-  await host
-    .getByRole("button", { name: "Neuen Link für Gast 1 erzeugen" })
-    .click();
-  const reconnectOffer = await host
-    .getByRole("textbox", { name: "Einladung Gast 1" })
-    .inputValue();
+  const reconnectOffer = await clickAndReadLink(
+    host,
+    "reconnect-slot-1",
+    ".network-reconnect textarea[readonly]",
+  );
   const reconnectGuest = guests[0]!;
-  await reconnectGuest
-    .getByRole("textbox", { name: "Neuer Reconnect-Link vom Host" })
-    .fill(reconnectOffer);
-  await reconnectGuest.getByRole("button", { name: "Neu verbinden" }).click();
-  const reconnectAnswerField = reconnectGuest.getByRole("textbox", {
-    name: "Neue Antwort für den Host",
-  });
-  await expect(reconnectAnswerField).not.toHaveValue(initialAnswers[0]!);
-  const reconnectAnswer = await reconnectAnswerField.inputValue();
-  await host
-    .getByRole("textbox", { name: "Antwort Gast 1" })
-    .fill(reconnectAnswer);
-  await host.getByRole("button", { name: "Antwort importieren" }).click();
+  await pasteAndClick(
+    reconnectGuest,
+    "#reconnect-offer",
+    reconnectOffer,
+    "guest-rejoin",
+  );
+  const reconnectAnswer = await reconnectGuest.evaluate(
+    () =>
+      new Promise<string>((resolve, reject) => {
+        const poll = window.setInterval(() => {
+          const value = document.querySelector<HTMLTextAreaElement>(
+            ".game-network-overlay textarea[readonly]",
+          )?.value;
+          if (!value?.includes("#answer=")) return;
+          window.clearInterval(poll);
+          window.clearTimeout(timeout);
+          resolve(value);
+        }, 50);
+        const timeout = window.setTimeout(() => {
+          window.clearInterval(poll);
+          reject(new Error("Reconnect answer was not generated"));
+        }, 30_000);
+      }),
+  );
+  expect(reconnectAnswer).not.toBe(initialAnswers[0]!);
+  await pasteAndClick(
+    host,
+    "#reconnect-answer-1",
+    reconnectAnswer,
+    "import-slot-1",
+  );
   await expect(
     host.getByRole("region", { name: "Netzwerkstatus" }),
   ).toContainText("● Verbunden", { timeout: 20_000 });

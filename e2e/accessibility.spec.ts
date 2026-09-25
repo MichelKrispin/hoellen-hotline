@@ -5,6 +5,7 @@ test("display options remain usable at a small viewport and persist", async ({
 }) => {
   await page.setViewportSize({ width: 640, height: 360 });
   await page.goto("/");
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
   await page.keyboard.press("o");
   const dialog = page.getByRole("dialog", { name: "Darstellungsoptionen" });
   await expect(dialog).toBeVisible();
@@ -17,6 +18,7 @@ test("display options remain usable at a small viewport and persist", async ({
     "contrast",
   );
   await page.reload();
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
   await expect(page.locator("html")).toHaveAttribute(
     "data-palette",
     "contrast",

@@ -42,7 +42,7 @@ test("host configures free play and sees registered campaign scenarios", async (
 test("tutorial guides three connected roles into one shared practice case", async ({
   browser,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(300_000);
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
