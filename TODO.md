@@ -299,14 +299,14 @@ Abnahme:
 
 Ziel: die geforderte Varianz ist vollständig, lösbar und stilistisch konsistent.
 
-- [ ] mindestens 30 Anrufer-Archetypen schreiben und illustrieren.
-- [ ] mindestens 40 Lebens-/Sünden-Tags, 20 Beschwerden, 18 Ausnahmen und 24 Regelklauseln anlegen.
-- [ ] neun Standardziele und drei temporäre Sonderziele ausarbeiten.
-- [ ] zwölf Maschinenstörungen mit Diagnose und Gegenaktion erstellen.
-- [ ] mindestens 20 visuelle Reaktionen Ereignissen zuordnen.
-- [ ] Dialoge auf Informationswert, Kürze, Wiederholung und Humor prüfen.
-- [ ] Safety-Review gegen reale Tragödien, geschützte Gruppen und realistische Gewalt durchführen.
-- [ ] Generator-Balancing per Simulation prüfen: Zielverteilung, Schwierigkeit, Dead Ends, Wiederholungen.
+- [x] mindestens 30 Anrufer-Archetypen schreiben und illustrieren.
+- [x] mindestens 40 Lebens-/Sünden-Tags, 20 Beschwerden, 18 Ausnahmen und 24 Regelklauseln anlegen.
+- [x] neun Standardziele und drei temporäre Sonderziele ausarbeiten.
+- [x] zwölf Maschinenstörungen mit Diagnose und Gegenaktion erstellen.
+- [x] mindestens 20 visuelle Reaktionen Ereignissen zuordnen.
+- [x] Dialoge auf Informationswert, Kürze, Wiederholung und Humor prüfen.
+- [x] Safety-Review gegen reale Tragödien, geschützte Gruppen und realistische Gewalt durchführen.
+- [x] Generator-Balancing per Simulation prüfen: Zielverteilung, Schwierigkeit, Dead Ends, Wiederholungen.
 
 Abnahme:
 

@@ -117,6 +117,13 @@ export function generateCase(
     const possibleExceptions = [...content.exceptions].sort((a, b) =>
       a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
     );
+    for (let i = possibleExceptions.length - 1; i > 0; i--) {
+      const j = rng.int(i + 1);
+      [possibleExceptions[i], possibleExceptions[j]] = [
+        possibleExceptions[j]!,
+        possibleExceptions[i]!,
+      ];
+    }
     const exceptionIds = possibleExceptions
       .slice(0, rng.int(Math.min(2, possibleExceptions.length) + 1))
       .map((item) => item.id);

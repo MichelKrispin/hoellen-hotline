@@ -87,6 +87,12 @@ export class ArchivistPanel {
       this.render(true);
     };
     this.mirror.className = "archivist-mirror";
+    this.mirror.addEventListener("pointerdown", (event) =>
+      event.stopPropagation(),
+    );
+    this.mirror.addEventListener("pointerup", (event) =>
+      event.stopPropagation(),
+    );
     this.mirror.setAttribute(
       "aria-label",
       "Akten, Regelbuch und Stempel per Tastatur",
@@ -249,7 +255,10 @@ export class ArchivistPanel {
   private selectRecord(index: number): void {
     const record = this.results[this.page * 3 + index];
     if (!record) return;
-    this.selectedRecordId = record.id;
+    this.selectRecordById(record.id);
+  }
+  private selectRecordById(recordId: string): void {
+    this.selectedRecordId = recordId;
     this.tab = "dossier";
     this.render();
   }
@@ -393,10 +402,10 @@ export class ArchivistPanel {
       this.mirrorResults.replaceChildren(
         ...this.results
           .slice(this.page * 3, this.page * 3 + 3)
-          .map((record, index) => {
+          .map((record) => {
             const button = document.createElement("button");
             button.textContent = `${record.name} · ${record.aliases[0] ?? record.occupation}`;
-            button.onclick = () => this.selectRecord(index);
+            button.onclick = () => this.selectRecordById(record.id);
             return button;
           }),
       );

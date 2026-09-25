@@ -32,6 +32,29 @@ export function projectView(
     .flatMap((pack) => pack.machineLayouts)
     .find((entry) => entry.id === simCase?.generated?.layoutId);
   const destinations = packs.flatMap((pack) => pack.destinations);
+  const lastResolved = [...state.cases]
+    .reverse()
+    .find((entry) => entry.status === "resolved") as SimCase | undefined;
+  const deliveredTo = destinations.find(
+    (item) => item.id === lastResolved?.selectedDestination,
+  );
+  const reactionId =
+    deliveredTo && lastResolved?.outcome
+      ? deliveredTo.reactions[
+          lastResolved.outcome === "correct"
+            ? "correct"
+            : lastResolved.outcome === "acceptable"
+              ? "acceptable"
+              : "wrong"
+        ]
+      : null;
+  const reaction = packs
+    .flatMap((pack) => pack.reactions)
+    .find((item) => item.id === reactionId);
+  const portraitFor = (archetypeId: string | undefined): string | null =>
+    packs
+      .flatMap((pack) => pack.archetypes)
+      .find((item) => item.id === archetypeId)?.portrait ?? null;
   const agentId = Object.entries(state.players).find(
     ([, player]) => player.role === "agent",
   )?.[0];
@@ -83,6 +106,14 @@ export function projectView(
           stations: { ...simState.tutorialStations },
         }
       : null,
+    lastReaction:
+      lastResolved && reaction
+        ? {
+            caseId: lastResolved.id,
+            assetId: reaction.asset,
+            caption: translate(reaction.captionKey),
+          }
+        : null,
     report:
       state.phase === "results"
         ? {
@@ -144,6 +175,7 @@ export function projectView(
         role: {
           role,
           callerName: active ? translate(active.callerName) : null,
+          callerPortrait: portraitFor(simCase?.generated?.archetypeId),
           callerMood: active?.callerMood ?? null,
           dialogueOptions: [...(active?.dialogueOptions ?? [])],
           dialogueText: node ? translate(node.textKey) : null,
@@ -155,6 +187,9 @@ export function projectView(
           ),
           incomingCaseId: incoming?.id ?? null,
           incomingCallerName: incoming ? translate(incoming.callerName) : null,
+          incomingCallerPortrait: portraitFor(
+            (incoming as SimCase | undefined)?.generated?.archetypeId,
+          ),
           discoveredTags: [...(simCase?.discoveredTags ?? [])],
           tagLabels: Object.fromEntries(
             (simCase?.discoveredTags ?? []).map((id) => [
@@ -289,9 +324,9 @@ export function projectView(
         .flatMap((pkg) => pkg.packs)
         .flatMap((pack) => pack.incidents)
         .find((entry) => entry.id === simCase?.incidentId);
-      const lastResolved = [...state.cases]
-        .reverse()
-        .find((entry) => entry.status === "resolved") as SimCase | undefined;
+      const incidentReaction = packs
+        .flatMap((pack) => pack.reactions)
+        .find((entry) => entry.id === incident?.reaction);
       return {
         public: publicView,
         role: {
@@ -308,6 +343,10 @@ export function projectView(
                   id: incident.id,
                   name: translate(incident.textKey),
                   diagnosis: translate(incident.diagnosisKey),
+                  reactionAssetId: incidentReaction?.asset ?? "",
+                  reactionCaption: incidentReaction
+                    ? translate(incidentReaction.captionKey)
+                    : "",
                   recoveryControlId: incident.recovery.control,
                   recoveryValue: incident.recovery.equals,
                 }

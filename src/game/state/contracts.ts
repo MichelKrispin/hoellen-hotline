@@ -130,6 +130,11 @@ export interface PublicShiftView {
     stage: "stations" | "practice";
     stations: Record<Role, boolean>;
   };
+  lastReaction: null | {
+    caseId: CaseId;
+    assetId: string;
+    caption: string;
+  };
   report: null | {
     seed: string;
     contentHash: string;
@@ -193,12 +198,14 @@ export type RoleView =
   | {
       role: "agent";
       callerName: string | null;
+      callerPortrait: string | null;
       callerMood: number | null;
       dialogueOptions: string[];
       dialogueText: string | null;
       dialogueLabels: Record<string, string>;
       incomingCaseId: CaseId | null;
       incomingCallerName: string | null;
+      incomingCallerPortrait: string | null;
       discoveredTags: string[];
       tagLabels: Record<string, string>;
       cooldownMs: number;
@@ -223,6 +230,8 @@ export type RoleView =
         id: string;
         name: string;
         diagnosis: string;
+        reactionAssetId: string;
+        reactionCaption: string;
         recoveryControlId: string;
         recoveryValue: string | number | boolean;
       } | null;

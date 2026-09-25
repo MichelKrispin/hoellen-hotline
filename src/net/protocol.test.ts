@@ -31,6 +31,7 @@ const view = (revision: number): PlayerViewState => ({
     approvalLog: [],
     modifiers: [],
     tutorial: null,
+    lastReaction: null,
     report: null,
     colleagues: ["agent", "archivist", "dispatcher"].map((role) => ({
       role: role as "agent" | "archivist" | "dispatcher",
@@ -40,12 +41,14 @@ const view = (revision: number): PlayerViewState => ({
   role: {
     role: "agent",
     callerName: "caller",
+    callerPortrait: null,
     callerMood: 50,
     dialogueOptions: ["a"],
     dialogueText: "Hello",
     dialogueLabels: { a: "Ask" },
     incomingCaseId: null,
     incomingCallerName: null,
+    incomingCallerPortrait: null,
     discoveredTags: [],
     tagLabels: {},
     cooldownMs: 0,

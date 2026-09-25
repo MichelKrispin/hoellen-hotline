@@ -80,6 +80,14 @@ const publicView = z
       })
       .strict()
       .nullable(),
+    lastReaction: z
+      .object({
+        caseId: z.string(),
+        assetId: z.string(),
+        caption: z.string(),
+      })
+      .strict()
+      .nullable(),
     report: z
       .object({
         seed: z.string(),
@@ -157,12 +165,14 @@ const roleView = z.discriminatedUnion("role", [
     .object({
       role: z.literal("agent"),
       callerName: z.string().nullable(),
+      callerPortrait: z.string().nullable(),
       callerMood: z.number().nullable(),
       dialogueOptions: z.array(z.string()),
       dialogueText: z.string().nullable(),
       dialogueLabels: z.record(z.string(), z.string()),
       incomingCaseId: z.string().nullable(),
       incomingCallerName: z.string().nullable(),
+      incomingCallerPortrait: z.string().nullable(),
       discoveredTags: z.array(z.string()),
       tagLabels: z.record(z.string(), z.string()),
       cooldownMs: z.number().int().nonnegative(),
@@ -228,6 +238,8 @@ const roleView = z.discriminatedUnion("role", [
           id: z.string(),
           name: z.string(),
           diagnosis: z.string(),
+          reactionAssetId: z.string(),
+          reactionCaption: z.string(),
           recoveryControlId: z.string(),
           recoveryValue: controlValue,
         })

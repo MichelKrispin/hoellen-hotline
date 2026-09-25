@@ -74,6 +74,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   });
   await agentControls.getByRole("button", { name: "Anruf annehmen" }).focus();
   await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
+  await expect(agentControls).toHaveAttribute("data-portrait-loaded", "true");
   await expect(agentControls.getByRole("status")).toContainText(
     "Wo ist mein Antrag?",
   );
@@ -123,11 +124,11 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     name: /F. Beamter, Schalter 13/,
   });
   await correctRecord.focus();
-  await correctRecord.click();
+  await correctRecord.press("Enter");
   await expect(archive.getByRole("status")).toContainText(
     "Aktiver Sachbearbeiter",
   );
-  await archive.getByRole("button", { name: /Pin 1: frei/ }).click();
+  await archive.getByRole("button", { name: /Pin 1: frei/ }).press("Enter");
   await expect(
     archive.getByRole("button", { name: /Pin 1: F. Beamter, Schalter 13/ }),
   ).toBeVisible();
@@ -223,6 +224,11 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await machine
     .getByRole("button", { name: "Zustellung endgültig auslösen" })
     .click();
+  await expect(
+    dispatcher
+      .getByRole("region", { name: "Netzwerkstatus" })
+      .locator(".network-reaction img"),
+  ).toBeVisible();
   for (let caseNumber = 2; caseNumber <= 8; caseNumber++) {
     await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
     await archiveTarget.click();

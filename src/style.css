@@ -454,6 +454,21 @@ canvas {
   margin: 5px 0;
   color: #ffcc7d;
 }
+.network-reaction {
+  margin: 7px 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #f4e1bd;
+}
+.network-reaction img {
+  width: 105px;
+  height: auto;
+}
+.network-reaction figcaption {
+  font-size: 13px;
+  line-height: 1.25;
+}
 .network-panel textarea,
 .network-panel select {
   display: block;

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 100" width="240" height="100">
+<path d="M8 9l224-3 2 82-224 5z" fill="#30232a" stroke="#8bc98f" stroke-width="5"/>
+<path d="M18 22h210M18 78h210" stroke="#8bc98f" stroke-width="2" opacity=".6"/>
+<circle cx="50" cy="50" r="27" fill="#8bc98f" stroke="#17121b" stroke-width="4"/>
+<text x="50" y="62" text-anchor="middle" font-size="39" font-family="sans-serif" font-weight="900" fill="#17121b">✓</text>
+<text x="93" y="55" font-size="17" font-family="sans-serif" font-weight="800" fill="#f4e1bd">HABGIER</text>
+<path d="M207 29l11-10M210 65l12 9M91 22l-7-12" stroke="#8bc98f" stroke-width="4" stroke-linecap="round"/>
+</svg>

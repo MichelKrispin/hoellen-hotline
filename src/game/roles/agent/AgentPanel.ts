@@ -16,6 +16,7 @@ function pressureLabel(value: number): string {
 }
 
 export class AgentPanel {
+  private readonly portrait: Phaser.GameObjects.Image;
   private readonly caller: Phaser.GameObjects.Text;
   private readonly speech: Phaser.GameObjects.Text;
   private readonly mood: Phaser.GameObjects.Text;
@@ -76,6 +77,8 @@ export class AgentPanel {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
+    this.portrait = scene.add.image(697, 440, "asset.core.portrait.clerk");
+    this.portrait.setDisplaySize(166, 208).setVisible(false);
     this.caller = label(scene, 817, 416, "Noch kein Anruf", 35, C.text, 515);
     this.speech = label(scene, 817, 466, "Leitung frei.", 27, "#91eafa", 510);
     this.mood = label(scene, 122, 843, "Stimmung: –", 22);
@@ -406,8 +409,15 @@ export class AgentPanel {
     if (this.mirrorStatus.textContent !== accessibleStatus)
       this.mirrorStatus.textContent = accessibleStatus;
     const worm = role.callerMood !== null && role.callerMood < 45;
+    const portraitId = role.callerPortrait ?? role.incomingCallerPortrait;
+    const hasPortrait = Boolean(
+      portraitId && this.scene.textures.exists(portraitId),
+    );
+    if (hasPortrait && portraitId) this.portrait.setTexture(portraitId);
+    this.portrait.setVisible(hasPortrait);
+    this.mirror.dataset.portraitLoaded = String(hasPortrait);
     this.face.clear();
-    if (role.callerMood !== null) {
+    if (role.callerMood !== null && !hasPortrait) {
       this.face
         .lineStyle(5, 0x122b37)
         .beginPath()

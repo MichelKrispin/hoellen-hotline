@@ -294,7 +294,6 @@ function spawnCase(
     state.shift.queuePressure,
     state.activeRules,
   );
-  state.rngState = rng.state;
   const archetype = content.archetypes.find(
     (item) => item.id === generated.archetypeId,
   )!;
@@ -306,14 +305,18 @@ function spawnCase(
   const layout = content.layouts.find(
     (item) => item.id === generated.layoutId,
   )!;
-  const incident = packages
+  const incidents = packages
     .flatMap((pkg) => pkg.packs)
     .flatMap((pack) => pack.incidents)
-    .find(
+    .filter(
       (entry) =>
         content.scenario.allowedContent.incidents.includes(entry.id) &&
         entry.layout === layout.id,
-    );
+    )
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const incident =
+    incidents.length > 1 ? incidents[rng.int(incidents.length)] : incidents[0];
+  state.rngState = rng.state;
   const incidentEvery = {
     none: Infinity,
     low: 4,

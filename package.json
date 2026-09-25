@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "test": "vitest run src",
     "content:validate": "node --import tsx tools/content-validate.ts",
+    "content:analyze": "node --import tsx tools/analyze-content.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

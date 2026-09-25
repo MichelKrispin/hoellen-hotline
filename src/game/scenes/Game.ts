@@ -4,6 +4,7 @@ import { TOKENS } from "../../ui/tokens";
 import type { Role } from "../state/contracts";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
+import { preloadPortraits } from "../../assets/portraits";
 import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
@@ -184,6 +185,9 @@ export class Game extends Phaser.Scene {
       data.role === "archivist" || data.role === "dispatcher"
         ? data.role
         : "agent";
+  }
+  preload(): void {
+    preloadPortraits(this);
   }
   create(): void {
     this.game.canvas.dataset.scene = "Game";
