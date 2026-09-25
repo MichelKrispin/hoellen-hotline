@@ -1,0 +1,13 @@
+# Asset-Spezifikation
+
+Die Vektorquellen in `portraits/` und `reactions/` sind die editierbaren 2×-Quellen. `npm run assets:build` rastert sie bei doppelter Laufzeitauflösung und erzeugt PNG, WebP und TexturePacker-kompatible Atlanten in `../generated/`. Die Pipeline benötigt `rsvg-convert` und ImageMagick (`magick`). Generierte Dateien werden eingecheckt, sodass der normale Webbuild diese Werkzeuge nicht benötigt.
+
+Neue Dateien und Asset-IDs folgen `<domain>.<entity>.<variant>.<state>.<frame>`. Für die bestehenden statischen Porträts ist der letzte Frame implizit `still.0`; die stabilen Content-IDs `asset.core.portrait.<slug>` bleiben als Alias erhalten. Alle Assets brauchen einen numerischen `viewBox`. Innerhalb eines Atlas müssen die Zellen dieselbe Größe haben.
+
+Animationen verwenden entweder separat austauschbare Teile (`body`, `head`, `eyes`, `mouth`, `hands`, `prop`, `fx`) mit jeweils konstantem Pivot oder vollständige, konsistente Frames. Die derzeitigen Porträts sind vollständige Einzelbilder. Metadaten je Atlas enthalten die Laufzeitgröße, den mittigen Pivot, FPS, Loop, Hitbox und `allowedCropping: false`. Frames werden nicht getrimmt oder rotiert; deshalb ändern sie beim Wechsel weder Pivot noch Bounds. Starke Wackel- oder Blitzvarianten erhalten künftig eine gleichnamige `calm`-Variante; bis dahin verwendet die Präsentation bei reduzierter Bewegung ein Standbild ohne Kamerawackeln.
+
+Die Ladegruppen heißen `boot`, `shared`, `role-agent`, `role-archivist`, `role-dispatcher` und `campaign-<id>`. `boot` enthält nur Code und Schrift, `shared` die Reaktionen. Die Rollenatlanten werden bei Eintritt in das jeweilige Pult geladen. Ein fehlendes Portrait fällt auf eine rot durchkreuzte Diagnostiktextur zurück. Im Debugmodus zeigt Taste 7 alle Atlanten, Framegrenzen, Pivots und Speichergrößen.
+
+Atlaslimit: 2048 × 2048 Pixel; Zielbudget je Rollenwechsel: 2 MiB komprimierter Download und 16 MiB geschätzter RGBA-VRAM. Die Pipeline bricht ab, wenn ein Atlas das Limit überschreitet, und meldet Download- und VRAM-Kosten. Quelle `@2x.png`, Laufzeit-PNG und WebP werden automatisch erzeugt. PNG ist die in Phaser geladene, verlustfreie Fassung; WebP steht für DOM oder spätere progressive Ladepfade bereit.
+
+Materialklassifizierung: Pult-Rahmen und Papierkarten sind `9-slice`, Rohre und Ketten `tileable`, Schrauben, Stempel und Figuren `non-scalable-detail`. Die derzeitigen Pultmaterialien werden prozedural in `src/game/presentation/art.ts` gezeichnet. Neue Rastermaterialien müssen diese Klassifizierung in ihren Metadaten tragen, bevor sie die prozedurale Version ersetzen.

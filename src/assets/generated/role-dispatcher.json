@@ -1,0 +1,66 @@
+{
+  "frames": {
+    "clerk-retired": {
+      "filename": "clerk-retired",
+      "assetName": "core.role-dispatcher.clerk-retired.still.0",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "clerk-retired"
+      }
+    }
+  },
+  "meta": {
+    "app": "hoellen-hotline-asset-pipeline",
+    "image": "role-dispatcher.png",
+    "size": {
+      "w": 160,
+      "h": 200
+    },
+    "scale": "1",
+    "assetGroup": "role-dispatcher",
+    "vramBytes": 128000,
+    "preloadBytes": 23976,
+    "animation": {
+      "fps": 1,
+      "loop": false,
+      "hitbox": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "allowedCropping": false
+    },
+    "material": "non-scalable-detail"
+  }
+}

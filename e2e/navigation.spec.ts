@@ -13,6 +13,7 @@ test("scene navigation covers lobby, three roles and results", async ({
     ["4", "Game"],
     ["5", "Game"],
     ["6", "Results"],
+    ["7", "AtlasReview"],
     ["1", "Title"],
   ] as const) {
     await page.keyboard.press(key);

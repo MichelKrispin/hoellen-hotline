@@ -4,7 +4,7 @@ import { TOKENS } from "../../ui/tokens";
 import type { Role } from "../state/contracts";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
-import { preloadPortraits } from "../../assets/portraits";
+import { preloadAssetGroups } from "../../assets/registry";
 import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
@@ -187,7 +187,16 @@ export class Game extends Phaser.Scene {
         : "agent";
   }
   preload(): void {
-    preloadPortraits(this);
+    const progress = this.add.text(96, 72, "Pultgrafiken laden: 0 %", {
+      fontFamily: "Arial, sans-serif",
+      fontSize: "28px",
+      color: "#f4e1bd",
+    });
+    this.load.on("progress", (fraction: number) =>
+      progress.setText(`Pultgrafiken laden: ${Math.round(fraction * 100)} %`),
+    );
+    this.load.once("complete", () => progress.destroy());
+    preloadAssetGroups(this, ["shared", `role-${this.role}`]);
   }
   create(): void {
     this.game.canvas.dataset.scene = "Game";

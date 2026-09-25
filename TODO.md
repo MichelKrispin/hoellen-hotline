@@ -318,19 +318,19 @@ Abnahme:
 
 Ziel: finale Illustrationen lassen sich ohne Codeumbau einsetzen und bleiben scharf, performant und animierbar.
 
-- [ ] verbindliche Asset-Spezifikation unter `src/assets/source/README.md` anlegen.
-- [ ] Namensschema nutzen: `<domain>.<entity>.<variant>.<state>.<frame>`.
-- [ ] Figuren in separat animierbare Teile zerlegen: Körper, Kopf, Augen, Mund, Hände, Requisit und FX; bei Frameanimation alternativ vollständige konsistente Frames.
-- [ ] pro Animation Pivot, Anker, nominale Pixelgröße, FPS, Loop, Hitbox und erlaubtes Cropping in Metadaten speichern.
-- [ ] Sprite-Atlanten pro Rolle und allgemeinem FX-Paket erzeugen; TexturePacker-kompatibles JSON oder Phaser Multiatlas verwenden.
-- [ ] 2×-Quelldateien erzeugen, Laufzeitgröße festlegen und automatische Downscale-/WebP/PNG-Ausgabe bauen.
-- [ ] 9-Slice-Rahmen, tilebare Rohre/Ketten und nicht skalierbare Details kennzeichnen.
-- [ ] Trim-Regeln so konfigurieren, dass Anker über alle Frames stabil bleiben.
-- [ ] Asset Registry mit Platzhalter-Fallback integrieren; Logik referenziert ausschließlich Asset-IDs.
-- [ ] Ladegruppen definieren: `boot`, `shared`, `role-agent`, `role-archivist`, `role-dispatcher`, `campaign-<id>`.
-- [ ] Preload-Budget, Atlasgrößenlimit, VRAM-Schätzung und Ladefortschritt prüfen.
-- [ ] visuellen Atlas-Review-Screen bauen, der alle Frames, Pivots, Bounds und Animationen zeigt.
-- [ ] reduzierte-Bewegung-Varianten für starke Wackel-/Blitz-Effekte definieren.
+- [x] verbindliche Asset-Spezifikation unter `src/assets/source/README.md` anlegen.
+- [x] Namensschema nutzen: `<domain>.<entity>.<variant>.<state>.<frame>`.
+- [x] Figuren in separat animierbare Teile zerlegen: Körper, Kopf, Augen, Mund, Hände, Requisit und FX; bei Frameanimation alternativ vollständige konsistente Frames.
+- [x] pro Animation Pivot, Anker, nominale Pixelgröße, FPS, Loop, Hitbox und erlaubtes Cropping in Metadaten speichern.
+- [x] Sprite-Atlanten pro Rolle und allgemeinem FX-Paket erzeugen; TexturePacker-kompatibles JSON oder Phaser Multiatlas verwenden.
+- [x] 2×-Quelldateien erzeugen, Laufzeitgröße festlegen und automatische Downscale-/WebP/PNG-Ausgabe bauen.
+- [x] 9-Slice-Rahmen, tilebare Rohre/Ketten und nicht skalierbare Details kennzeichnen.
+- [x] Trim-Regeln so konfigurieren, dass Anker über alle Frames stabil bleiben.
+- [x] Asset Registry mit Platzhalter-Fallback integrieren; Logik referenziert ausschließlich Asset-IDs.
+- [x] Ladegruppen definieren: `boot`, `shared`, `role-agent`, `role-archivist`, `role-dispatcher`, `campaign-<id>`.
+- [x] Preload-Budget, Atlasgrößenlimit, VRAM-Schätzung und Ladefortschritt prüfen.
+- [x] visuellen Atlas-Review-Screen bauen, der alle Frames, Pivots, Bounds und Animationen zeigt.
+- [x] reduzierte-Bewegung-Varianten für starke Wackel-/Blitz-Effekte definieren.
 
 Abnahme:
 

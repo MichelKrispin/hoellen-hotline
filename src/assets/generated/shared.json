@@ -1,0 +1,788 @@
+{
+  "frames": {
+    "incident-amber": {
+      "filename": "incident-amber",
+      "assetName": "core.shared.incident-amber.still.0",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "incident-amber"
+      }
+    },
+    "incident-cinder": {
+      "filename": "incident-cinder",
+      "assetName": "core.shared.incident-cinder.still.0",
+      "frame": {
+        "x": 240,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "incident-cinder"
+      }
+    },
+    "incident-fizzle": {
+      "filename": "incident-fizzle",
+      "assetName": "core.shared.incident-fizzle.still.0",
+      "frame": {
+        "x": 480,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "incident-fizzle"
+      }
+    },
+    "incident-flutter": {
+      "filename": "incident-flutter",
+      "assetName": "core.shared.incident-flutter.still.0",
+      "frame": {
+        "x": 720,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "incident-flutter"
+      }
+    },
+    "incident-wink": {
+      "filename": "incident-wink",
+      "assetName": "core.shared.incident-wink.still.0",
+      "frame": {
+        "x": 960,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "incident-wink"
+      }
+    },
+    "maybe": {
+      "filename": "maybe",
+      "assetName": "core.shared.maybe.still.0",
+      "frame": {
+        "x": 1200,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "maybe"
+      }
+    },
+    "ok": {
+      "filename": "ok",
+      "assetName": "core.shared.ok.still.0",
+      "frame": {
+        "x": 0,
+        "y": 100,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "ok"
+      }
+    },
+    "route-archive": {
+      "filename": "route-archive",
+      "assetName": "core.shared.route-archive.still.0",
+      "frame": {
+        "x": 240,
+        "y": 100,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-archive"
+      }
+    },
+    "route-audit": {
+      "filename": "route-audit",
+      "assetName": "core.shared.route-audit.still.0",
+      "frame": {
+        "x": 480,
+        "y": 100,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-audit"
+      }
+    },
+    "route-envy": {
+      "filename": "route-envy",
+      "assetName": "core.shared.route-envy.still.0",
+      "frame": {
+        "x": 720,
+        "y": 100,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-envy"
+      }
+    },
+    "route-gluttony": {
+      "filename": "route-gluttony",
+      "assetName": "core.shared.route-gluttony.still.0",
+      "frame": {
+        "x": 960,
+        "y": 100,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-gluttony"
+      }
+    },
+    "route-greed": {
+      "filename": "route-greed",
+      "assetName": "core.shared.route-greed.still.0",
+      "frame": {
+        "x": 1200,
+        "y": 100,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-greed"
+      }
+    },
+    "route-limbo": {
+      "filename": "route-limbo",
+      "assetName": "core.shared.route-limbo.still.0",
+      "frame": {
+        "x": 0,
+        "y": 200,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-limbo"
+      }
+    },
+    "route-lust": {
+      "filename": "route-lust",
+      "assetName": "core.shared.route-lust.still.0",
+      "frame": {
+        "x": 240,
+        "y": 200,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-lust"
+      }
+    },
+    "route-pride": {
+      "filename": "route-pride",
+      "assetName": "core.shared.route-pride.still.0",
+      "frame": {
+        "x": 480,
+        "y": 200,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-pride"
+      }
+    },
+    "route-quarantine": {
+      "filename": "route-quarantine",
+      "assetName": "core.shared.route-quarantine.still.0",
+      "frame": {
+        "x": 720,
+        "y": 200,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-quarantine"
+      }
+    },
+    "route-return": {
+      "filename": "route-return",
+      "assetName": "core.shared.route-return.still.0",
+      "frame": {
+        "x": 960,
+        "y": 200,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-return"
+      }
+    },
+    "route-sloth": {
+      "filename": "route-sloth",
+      "assetName": "core.shared.route-sloth.still.0",
+      "frame": {
+        "x": 1200,
+        "y": 200,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-sloth"
+      }
+    },
+    "route-wrath": {
+      "filename": "route-wrath",
+      "assetName": "core.shared.route-wrath.still.0",
+      "frame": {
+        "x": 0,
+        "y": 300,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "route-wrath"
+      }
+    },
+    "wrong": {
+      "filename": "wrong",
+      "assetName": "core.shared.wrong.still.0",
+      "frame": {
+        "x": 240,
+        "y": 300,
+        "w": 240,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 240,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 240,
+          "h": 100
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "wrong"
+      }
+    }
+  },
+  "meta": {
+    "app": "hoellen-hotline-asset-pipeline",
+    "image": "shared.png",
+    "size": {
+      "w": 1440,
+      "h": 400
+    },
+    "scale": "1",
+    "assetGroup": "shared",
+    "vramBytes": 2304000,
+    "preloadBytes": 145219,
+    "animation": {
+      "fps": 1,
+      "loop": false,
+      "hitbox": {
+        "x": 0,
+        "y": 0,
+        "w": 240,
+        "h": 100
+      },
+      "allowedCropping": false
+    },
+    "material": "non-scalable-detail"
+  }
+}

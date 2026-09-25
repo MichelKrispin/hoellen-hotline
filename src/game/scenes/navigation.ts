@@ -1,7 +1,14 @@
 import Phaser from "phaser";
 import { DESIGN, TOKENS } from "../../ui/tokens";
 
-export const SCENES = ["Boot", "Title", "Lobby", "Game", "Results"] as const;
+export const SCENES = [
+  "Boot",
+  "Title",
+  "Lobby",
+  "Game",
+  "Results",
+  "AtlasReview",
+] as const;
 export type SceneName = (typeof SCENES)[number];
 
 export function sceneHeader(
@@ -85,6 +92,7 @@ export function installDebugNavigation(scene: Phaser.Scene): void {
     ["FOUR", "Game", { role: "archivist" }],
     ["FIVE", "Game", { role: "dispatcher" }],
     ["SIX", "Results"],
+    ["SEVEN", "AtlasReview"],
   ];
   for (const [key, target, data] of bindings) {
     scene.input.keyboard?.on(`keydown-${key}`, () =>

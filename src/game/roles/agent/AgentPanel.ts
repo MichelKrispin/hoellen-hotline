@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { textureFor } from "../../../assets/registry";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
@@ -77,7 +78,13 @@ export class AgentPanel {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
-    this.portrait = scene.add.image(697, 440, "asset.core.portrait.clerk");
+    const initialPortrait = textureFor(scene, "asset.core.portrait.clerk");
+    this.portrait = scene.add.image(
+      697,
+      440,
+      initialPortrait.key,
+      initialPortrait.frame,
+    );
     this.portrait.setDisplaySize(166, 208).setVisible(false);
     this.caller = label(scene, 817, 416, "Noch kein Anruf", 35, C.text, 515);
     this.speech = label(scene, 817, 466, "Leitung frei.", 27, "#91eafa", 510);
@@ -410,12 +417,13 @@ export class AgentPanel {
       this.mirrorStatus.textContent = accessibleStatus;
     const worm = role.callerMood !== null && role.callerMood < 45;
     const portraitId = role.callerPortrait ?? role.incomingCallerPortrait;
-    const hasPortrait = Boolean(
-      portraitId && this.scene.textures.exists(portraitId),
-    );
-    if (hasPortrait && portraitId) this.portrait.setTexture(portraitId);
-    this.portrait.setVisible(hasPortrait);
+    const portrait = textureFor(this.scene, portraitId ?? "");
+    const hasPortrait = Boolean(portraitId && !portrait.missing);
+    if (portraitId) this.portrait.setTexture(portrait.key, portrait.frame);
+    this.portrait.setVisible(Boolean(portraitId));
     this.mirror.dataset.portraitLoaded = String(hasPortrait);
+    this.mirror.dataset.missingAsset =
+      portraitId && portrait.missing ? portraitId : "";
     this.face.clear();
     if (role.callerMood !== null && !hasPortrait) {
       this.face

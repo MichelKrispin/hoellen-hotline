@@ -5,6 +5,7 @@ import { Title } from "./game/scenes/Title";
 import { Lobby } from "./game/scenes/Lobby";
 import { Game } from "./game/scenes/Game";
 import { Results } from "./game/scenes/Results";
+import { AtlasReview } from "./game/scenes/AtlasReview";
 import "./style.css";
 
 new Phaser.Game({
@@ -14,6 +15,6 @@ new Phaser.Game({
   height: DESIGN.height,
   backgroundColor: "#1b111b",
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-  scene: [Boot, Title, Lobby, Game, Results],
+  scene: [Boot, Title, Lobby, Game, Results, AtlasReview],
   render: { pixelArt: false, antialias: true },
 });

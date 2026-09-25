@@ -1,0 +1,1168 @@
+{
+  "frames": {
+    "apology-writer": {
+      "filename": "apology-writer",
+      "assetName": "core.role-agent.apology-writer.still.0",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "apology-writer"
+      }
+    },
+    "bell-ringer": {
+      "filename": "bell-ringer",
+      "assetName": "core.role-agent.bell-ringer.still.0",
+      "frame": {
+        "x": 160,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "bell-ringer"
+      }
+    },
+    "biscuit-auditor": {
+      "filename": "biscuit-auditor",
+      "assetName": "core.role-agent.biscuit-auditor.still.0",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "biscuit-auditor"
+      }
+    },
+    "chair-broker": {
+      "filename": "chair-broker",
+      "assetName": "core.role-agent.chair-broker.still.0",
+      "frame": {
+        "x": 480,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "chair-broker"
+      }
+    },
+    "clerk-copy": {
+      "filename": "clerk-copy",
+      "assetName": "core.role-agent.clerk-copy.still.0",
+      "frame": {
+        "x": 640,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "clerk-copy"
+      }
+    },
+    "clerk-retired": {
+      "filename": "clerk-retired",
+      "assetName": "core.role-agent.clerk-retired.still.0",
+      "frame": {
+        "x": 800,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "clerk-retired"
+      }
+    },
+    "clerk": {
+      "filename": "clerk",
+      "assetName": "core.role-agent.clerk.still.0",
+      "frame": {
+        "x": 0,
+        "y": 200,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "clerk"
+      }
+    },
+    "coat-curator": {
+      "filename": "coat-curator",
+      "assetName": "core.role-agent.coat-curator.still.0",
+      "frame": {
+        "x": 160,
+        "y": 200,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "coat-curator"
+      }
+    },
+    "coffee-debtor": {
+      "filename": "coffee-debtor",
+      "assetName": "core.role-agent.coffee-debtor.still.0",
+      "frame": {
+        "x": 320,
+        "y": 200,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "coffee-debtor"
+      }
+    },
+    "crown-renter": {
+      "filename": "crown-renter",
+      "assetName": "core.role-agent.crown-renter.still.0",
+      "frame": {
+        "x": 480,
+        "y": 200,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "crown-renter"
+      }
+    },
+    "cup-inspector": {
+      "filename": "cup-inspector",
+      "assetName": "core.role-agent.cup-inspector.still.0",
+      "frame": {
+        "x": 640,
+        "y": 200,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "cup-inspector"
+      }
+    },
+    "elevator-poet": {
+      "filename": "elevator-poet",
+      "assetName": "core.role-agent.elevator-poet.still.0",
+      "frame": {
+        "x": 800,
+        "y": 200,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "elevator-poet"
+      }
+    },
+    "hall-dj": {
+      "filename": "hall-dj",
+      "assetName": "core.role-agent.hall-dj.still.0",
+      "frame": {
+        "x": 0,
+        "y": 400,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "hall-dj"
+      }
+    },
+    "ink-illusionist": {
+      "filename": "ink-illusionist",
+      "assetName": "core.role-agent.ink-illusionist.still.0",
+      "frame": {
+        "x": 160,
+        "y": 400,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "ink-illusionist"
+      }
+    },
+    "key-keeper": {
+      "filename": "key-keeper",
+      "assetName": "core.role-agent.key-keeper.still.0",
+      "frame": {
+        "x": 320,
+        "y": 400,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "key-keeper"
+      }
+    },
+    "manual-editor": {
+      "filename": "manual-editor",
+      "assetName": "core.role-agent.manual-editor.still.0",
+      "frame": {
+        "x": 480,
+        "y": 400,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "manual-editor"
+      }
+    },
+    "map-folder": {
+      "filename": "map-folder",
+      "assetName": "core.role-agent.map-folder.still.0",
+      "frame": {
+        "x": 640,
+        "y": 400,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "map-folder"
+      }
+    },
+    "meeting-twin": {
+      "filename": "meeting-twin",
+      "assetName": "core.role-agent.meeting-twin.still.0",
+      "frame": {
+        "x": 800,
+        "y": 400,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "meeting-twin"
+      }
+    },
+    "minute-lender": {
+      "filename": "minute-lender",
+      "assetName": "core.role-agent.minute-lender.still.0",
+      "frame": {
+        "x": 0,
+        "y": 600,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "minute-lender"
+      }
+    },
+    "minutes-collector": {
+      "filename": "minutes-collector",
+      "assetName": "core.role-agent.minutes-collector.still.0",
+      "frame": {
+        "x": 160,
+        "y": 600,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "minutes-collector"
+      }
+    },
+    "mirror-clerk": {
+      "filename": "mirror-clerk",
+      "assetName": "core.role-agent.mirror-clerk.still.0",
+      "frame": {
+        "x": 320,
+        "y": 600,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "mirror-clerk"
+      }
+    },
+    "night-janitor": {
+      "filename": "night-janitor",
+      "assetName": "core.role-agent.night-janitor.still.0",
+      "frame": {
+        "x": 480,
+        "y": 600,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "night-janitor"
+      }
+    },
+    "plant-advocate": {
+      "filename": "plant-advocate",
+      "assetName": "core.role-agent.plant-advocate.still.0",
+      "frame": {
+        "x": 640,
+        "y": 600,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "plant-advocate"
+      }
+    },
+    "queue-composer": {
+      "filename": "queue-composer",
+      "assetName": "core.role-agent.queue-composer.still.0",
+      "frame": {
+        "x": 800,
+        "y": 600,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "queue-composer"
+      }
+    },
+    "receipt-poet": {
+      "filename": "receipt-poet",
+      "assetName": "core.role-agent.receipt-poet.still.0",
+      "frame": {
+        "x": 0,
+        "y": 800,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "receipt-poet"
+      }
+    },
+    "shortcut-engineer": {
+      "filename": "shortcut-engineer",
+      "assetName": "core.role-agent.shortcut-engineer.still.0",
+      "frame": {
+        "x": 160,
+        "y": 800,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "shortcut-engineer"
+      }
+    },
+    "sign-corrector": {
+      "filename": "sign-corrector",
+      "assetName": "core.role-agent.sign-corrector.still.0",
+      "frame": {
+        "x": 320,
+        "y": 800,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "sign-corrector"
+      }
+    },
+    "stamp-magician": {
+      "filename": "stamp-magician",
+      "assetName": "core.role-agent.stamp-magician.still.0",
+      "frame": {
+        "x": 480,
+        "y": 800,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "stamp-magician"
+      }
+    },
+    "ticket-broker": {
+      "filename": "ticket-broker",
+      "assetName": "core.role-agent.ticket-broker.still.0",
+      "frame": {
+        "x": 640,
+        "y": 800,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "ticket-broker"
+      }
+    },
+    "umbrella-accountant": {
+      "filename": "umbrella-accountant",
+      "assetName": "core.role-agent.umbrella-accountant.still.0",
+      "frame": {
+        "x": 800,
+        "y": 800,
+        "w": 160,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 160,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "animation": {
+        "fps": 1,
+        "loop": false,
+        "hitbox": {
+          "x": 0,
+          "y": 0,
+          "w": 160,
+          "h": 200
+        },
+        "allowedCropping": false,
+        "reducedMotionFrame": "umbrella-accountant"
+      }
+    }
+  },
+  "meta": {
+    "app": "hoellen-hotline-asset-pipeline",
+    "image": "role-agent.png",
+    "size": {
+      "w": 960,
+      "h": 1000
+    },
+    "scale": "1",
+    "assetGroup": "role-agent",
+    "vramBytes": 3840000,
+    "preloadBytes": 491514,
+    "animation": {
+      "fps": 1,
+      "loop": false,
+      "hitbox": {
+        "x": 0,
+        "y": 0,
+        "w": 160,
+        "h": 200
+      },
+      "allowedCropping": false
+    },
+    "material": "non-scalable-detail"
+  }
+}

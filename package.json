@@ -11,6 +11,7 @@
     "test": "vitest run src",
     "content:validate": "node --import tsx tools/content-validate.ts",
     "content:analyze": "node --import tsx tools/analyze-content.ts",
+    "assets:build": "node --import tsx tools/build-assets.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
