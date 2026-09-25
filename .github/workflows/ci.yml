@@ -20,7 +20,7 @@ jobs:
       - run: npm run content:validate
       - run: npm run build
         env:
-          VITE_BASE: /hoellen_hotline/
+          VITE_BASE: /hoellen-hotline/
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test -c playwright.pages.config.ts e2e/pages-base.spec.ts
       - run: npm run test:e2e

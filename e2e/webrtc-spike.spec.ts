@@ -60,7 +60,7 @@ test("one host exchanges complete offers and answers with two guests", async ({
     expect(offer?.sdp).toContain("candidate:");
     const offerLink = new URL(
       `#offer=${Buffer.from(JSON.stringify({ slot, offer })).toString("base64url")}`,
-      "https://example.github.io/hoellen_hotline/",
+      "https://example.github.io/hoellen-hotline/",
     ).href;
     links.push(offerLink.length);
 
@@ -97,7 +97,7 @@ test("one host exchanges complete offers and answers with two guests", async ({
     expect(answer?.sdp).toContain("candidate:");
     const answerLink = new URL(
       `#answer=${Buffer.from(JSON.stringify({ slot, answer })).toString("base64url")}`,
-      "https://example.github.io/hoellen_hotline/",
+      "https://example.github.io/hoellen-hotline/",
     ).href;
     links.push(answerLink.length);
     await host.evaluate(

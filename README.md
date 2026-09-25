@@ -28,7 +28,7 @@ npm run content:validate
 npm run content:analyze
 npm run build
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npm run test:e2e
-VITE_BASE=/hoellen_hotline/ npm run build
+VITE_BASE=/hoellen-hotline/ npm run build
 ```
 
 Für `test:e2e` muss ein Playwright-kompatibles Chromium verfügbar sein. Ohne `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` verwendet Playwright seine eigene Browserinstallation.

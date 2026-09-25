@@ -12,8 +12,8 @@ export default defineConfig({
   },
   webServer: {
     command: "npx vite preview --host 127.0.0.1 --port 4173",
-    env: { VITE_BASE: "/hoellen_hotline/", VITE_STUN_URL: "" },
-    url: "http://127.0.0.1:4173/hoellen_hotline/",
+    env: { VITE_BASE: "/hoellen-hotline/", VITE_STUN_URL: "" },
+    url: "http://127.0.0.1:4173/hoellen-hotline/",
     reuseExistingServer: !process.env.CI,
   },
 });
