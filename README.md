@@ -33,4 +33,4 @@ VITE_BASE=/hoellen-hotline/ npm run build
 
 Für `test:e2e` muss ein Playwright-kompatibles Chromium verfügbar sein. Ohne `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` verwendet Playwright seine eigene Browserinstallation.
 
-`VITE_BASE` ist der Pages-Unterpfad mit führendem und abschließendem Schrägstrich. Der Standard ist `/`. CI prüft den Unterpfad, die Chromium- und Firefox-Flows und veröffentlicht erfolgreiche Pushes auf `main` über GitHub Pages.
+`VITE_BASE` ist der Pages-Unterpfad mit führendem und abschließendem Schrägstrich. Der Standard ist `/`. CI prüft den Unterpfad sowie kurze Chromium- und Firefox-Flows und veröffentlicht erfolgreiche Pushes auf `main` über GitHub Pages. `npm run test:e2e` enthält zusätzlich das vollständige Drei-Tab-Tutorial und die Acht-Fälle-Schicht; diese ressourcenintensiven Läufe sind auf dem GitHub-Runner nicht Teil des Deploy-Gates.

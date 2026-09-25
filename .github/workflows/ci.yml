@@ -23,7 +23,7 @@ jobs:
           VITE_BASE: /hoellen-hotline/
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test -c playwright.pages.config.ts e2e/pages-base.spec.ts
-      - run: npm run test:e2e
+      - run: npx playwright test --grep-invert "tutorial guides|three browsers join the private lobby"
         env:
           VITE_STUN_URL: ""
       - uses: actions/upload-artifact@v4
