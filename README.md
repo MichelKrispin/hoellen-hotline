@@ -2,6 +2,8 @@
 
 Kooperatives Drei-Personen-Spiel im Aufbau. Die Spielregeln stehen in `gameplay.md`, technische Anforderungen in `hoellen-hotline-spezifikation.md` und die Batches in `TODO.md`.
 
+Veröffentlichte Version: [Höllen-Hotline auf GitHub Pages](https://michelkrispin.github.io/hoellen-hotline/).
+
 ## Lokal starten
 
 ```sh

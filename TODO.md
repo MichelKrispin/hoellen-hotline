@@ -384,7 +384,7 @@ Ziel: reproduzierbarer MVP-Release auf GitHub Pages.
 - [ ] Assets auf Ladezeit, Speicher und schwächeren integrierten GPUs profilieren.
 - [ ] Offline-/STUN-Fehler, manipulierte Links, Hintergrundtabs und Reconnect testen.
 - [x] Content-Hash und Version in Ergebnis-/Fehlerdiagnose anzeigen.
-- [ ] GitHub-Pages-Workflow deployen und Smoke-Test gegen veröffentlichte URL ausführen.
+- [x] GitHub-Pages-Workflow deployen und Smoke-Test gegen veröffentlichte URL ausführen.
 - [x] Datenschutzhinweis zu SDP/STUN sowie Credits und Lizenzen finalisieren.
 
 Abnahme / MVP Definition of Done:
