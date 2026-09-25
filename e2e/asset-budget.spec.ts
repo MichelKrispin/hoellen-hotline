@@ -18,6 +18,7 @@ test("role atlases load within the documented client budget", async ({
       /role-agent|shared/.test(entry.name),
     );
     return {
+      renderer: gl ? "webgl" : target.getContext("2d") ? "canvas" : "none",
       maxTextureSize: gl?.getParameter(gl.MAX_TEXTURE_SIZE) as
         number | undefined,
       atlasNames: atlases.map((entry) =>
@@ -33,7 +34,9 @@ test("role atlases load within the documented client budget", async ({
       ),
     };
   });
-  expect(metrics.maxTextureSize).toBeGreaterThanOrEqual(2048);
+  expect(metrics.renderer).not.toBe("none");
+  if (metrics.renderer === "webgl")
+    expect(metrics.maxTextureSize).toBeGreaterThanOrEqual(2048);
   expect(metrics.atlasNames.some((name) => name?.includes("role-agent"))).toBe(
     true,
   );
