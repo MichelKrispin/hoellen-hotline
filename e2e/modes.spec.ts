@@ -51,6 +51,9 @@ test("tutorial guides three connected roles into one shared practice case", asyn
   await host.keyboard.press("d");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
+  await host
+    .getByRole("button", { name: "Manuelle Verbindung (Fallback)" })
+    .click();
   await host.getByLabel("Spielmodus").selectOption("tutorial");
   const guests = [];
   for (const slot of [1, 2]) {

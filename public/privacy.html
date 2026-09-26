@@ -34,13 +34,19 @@
     </p>
     <h2>Einladungslinks und IP-Adressen</h2>
     <p>
-      Einladungs- und Antwortlinks enthalten WebRTC-Verbindungsdaten (SDP und
-      ICE-Kandidaten). Je nach Netzwerk können darin öffentliche oder lokale
-      IP-Adressen stehen. Teile Links nur mit vertrauten Mitspielern und
-      verwende dafür einen Kommunikationsweg deiner Wahl. Die Links werden im
-      URL-Fragment verarbeitet und nach Übernahme aus der Adresszeile entfernt.
-      Wer den Link über einen externen Messenger versendet, unterliegt
-      zusätzlich dessen Datenschutzregeln.
+      Der normale Einladungslink enthält eine zufällige Sitzungskennung. Der
+      öffentliche PeerJS-Signalisierungsdienst vermittelt damit die
+      WebRTC-Verbindung; er verarbeitet Verbindungsmetadaten wie IP-Adressen und
+      ICE-Kandidaten, aber keine Spielzustände. Die Spielnachrichten laufen
+      danach direkt zwischen den Browsern. Teile den Link nur mit vertrauten
+      Mitspielern. Er wird nach Übernahme aus der Adresszeile entfernt. Wer ihn
+      über einen Messenger versendet, unterliegt zusätzlich dessen
+      Datenschutzregeln.
+    </p>
+    <p>
+      Die manuelle Verbindung ist als Fallback verfügbar. Ihre Offer- und
+      Answer-Links enthalten WebRTC-Verbindungsdaten (SDP und ICE-Kandidaten),
+      darunter je nach Netzwerk öffentliche oder lokale IP-Adressen.
     </p>
     <p>
       Standardmäßig fragt der Browser den STUN-Dienst

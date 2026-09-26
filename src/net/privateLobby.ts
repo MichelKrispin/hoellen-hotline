@@ -1,4 +1,5 @@
 import { z } from "zod";
+import Peer, { type DataConnection } from "peerjs";
 import {
   createClientId,
   createConnectionId,
@@ -20,7 +21,9 @@ import {
   decodeSignal,
   encodeSignal,
   fragmentFrom,
+  inviteLinkFor,
   linkFor,
+  sessionFromInvite,
   type Signal,
 } from "./signalingLink";
 
@@ -107,6 +110,20 @@ const iceConfig: RTCConfiguration = {
 };
 const ICE_TIMEOUT = 15_000;
 const CONNECT_TIMEOUT = 20_000;
+const SIGNAL_TIMEOUT = 20_000;
+const peerIdFor = (sessionId: string): string => `hh-${sessionId}`;
+const signalHost = import.meta.env.VITE_SIGNAL_HOST;
+const signalOptions = {
+  config: iceConfig,
+  ...(signalHost
+    ? {
+        host: signalHost,
+        port: Number(import.meta.env.VITE_SIGNAL_PORT ?? 9000),
+        path: import.meta.env.VITE_SIGNAL_PATH ?? "/peerjs",
+        secure: false,
+      }
+    : {}),
+};
 const emptyMember = (name: string): Member => ({
   name,
   role: null,
@@ -183,6 +200,10 @@ export class PrivateLobby {
   error = "";
   pendingOffer: (Signal & { kind: "offer" }) | null = null;
   answerLink = "";
+  inviteLink = "";
+  private signalingPeer: Peer | null = null;
+  private signalingConnection: DataConnection | null = null;
+  private signalingSlots = new Map<1 | 2, DataConnection>();
   private slots = new Map<1 | 2, PeerSlot>();
   private guestPeer: RTCPeerConnection | null = null;
   private guestChannel: RTCDataChannel | null = null;
@@ -203,7 +224,164 @@ export class PrivateLobby {
     this.pulseTimer = window.setInterval(() => this.ping(), 5000);
   }
   static host(): PrivateLobby {
-    return new PrivateLobby(true, createSessionId(), 0);
+    const lobby = new PrivateLobby(true, createSessionId(), 0);
+    if (import.meta.env.VITE_SIGNAL_MODE !== "manual") lobby.startSignaling();
+    return lobby;
+  }
+  private startSignaling(): void {
+    const peer = new Peer(peerIdFor(this.sessionId), signalOptions);
+    this.signalingPeer = peer;
+    peer.on("open", () => {
+      this.inviteLink = inviteLinkFor(this.sessionId);
+      this.emit();
+    });
+    peer.on("connection", (connection) => {
+      if (connection.metadata?.sessionId !== this.sessionId) {
+        connection.close();
+        return;
+      }
+      const slot = ([1, 2] as const).find(
+        (candidate) =>
+          !this.members[candidate].connected &&
+          !this.signalingSlots.has(candidate),
+      );
+      if (!slot) {
+        connection.on("open", () =>
+          connection.send({ type: "error", message: "Lobby ist voll." }),
+        );
+        return;
+      }
+      this.signalingSlots.set(slot, connection);
+      connection.on("open", () => {
+        void this.createOffer(slot).then(() => {
+          const offerLink = this.getSlot(slot).offerLink;
+          if (connection.open && offerLink)
+            connection.send({ type: "offer", link: offerLink });
+          else if (connection.open)
+            connection.send({
+              type: "error",
+              message:
+                "Direkte Verbindung fehlgeschlagen. Manuelle Verbindung versuchen.",
+            });
+        });
+      });
+      connection.on("data", (raw: unknown) => {
+        const answer = z
+          .object({ type: z.literal("answer"), link: z.string().max(50_000) })
+          .safeParse(raw);
+        if (answer.success)
+          void this.importAnswer(answer.data.link, slot).catch((error) =>
+            this.fail(error),
+          );
+      });
+      connection.on("close", () => {
+        if (this.signalingSlots.get(slot) === connection)
+          this.signalingSlots.delete(slot);
+      });
+    });
+    peer.on("disconnected", () => {
+      if (!peer.destroyed) peer.reconnect();
+    });
+    peer.on("error", () => {
+      this.inviteLink = "";
+      this.fail(
+        new Error(
+          "Ein-Link-Einladung nicht erreichbar. Manuelle Verbindung verwenden.",
+        ),
+      );
+    });
+  }
+  static async fromInvite(input: string): Promise<PrivateLobby> {
+    const sessionId = sessionFromInvite(input);
+    const peer = new Peer(signalOptions);
+    return new Promise<PrivateLobby>((resolve, reject) => {
+      let settled = false;
+      const timer = window.setTimeout(
+        () => fail(new Error("Einladungsdienst oder Host nicht erreichbar.")),
+        SIGNAL_TIMEOUT,
+      );
+      const fail = (error: Error): void => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        peer.destroy();
+        reject(error);
+      };
+      peer.on("error", () =>
+        fail(new Error("Einladungsdienst oder Host nicht erreichbar.")),
+      );
+      peer.on("open", () => {
+        const connection = peer.connect(peerIdFor(sessionId), {
+          reliable: true,
+          serialization: "json",
+          metadata: { sessionId },
+        });
+        connection.on("error", () => fail(new Error("Host nicht erreichbar.")));
+        connection.on("close", () =>
+          fail(new Error("Host hat die Einladung geschlossen.")),
+        );
+        connection.on("data", (raw: unknown) => {
+          if (settled) return;
+          const message = z
+            .discriminatedUnion("type", [
+              z.object({
+                type: z.literal("offer"),
+                link: z.string().max(50_000),
+              }),
+              z.object({
+                type: z.literal("error"),
+                message: z.string().max(200),
+              }),
+            ])
+            .safeParse(raw);
+          if (!message.success) return fail(new Error("Ungültige Einladung."));
+          if (message.data.type === "error")
+            return fail(new Error(message.data.message));
+          void PrivateLobby.fromOffer(message.data.link)
+            .then((lobby) => {
+              if (lobby.sessionId !== sessionId)
+                return fail(new Error("Fremde Einladung."));
+              settled = true;
+              clearTimeout(timer);
+              lobby.signalingPeer = peer;
+              lobby.signalingConnection = connection;
+              lobby.bindGuestSignaling(connection);
+              clearFragment();
+              resolve(lobby);
+            })
+            .catch((error) =>
+              fail(
+                error instanceof Error
+                  ? error
+                  : new Error("Ungültige Einladung."),
+              ),
+            );
+        });
+      });
+    });
+  }
+  private bindGuestSignaling(connection: DataConnection): void {
+    connection.on("close", () => this.emit());
+    connection.on("data", (raw: unknown) => {
+      if (!this.game) return;
+      const message = z
+        .object({
+          type: z.literal("offer"),
+          link: z.string().max(50_000),
+        })
+        .safeParse(raw);
+      if (message.success)
+        void this.rejoin(
+          message.data.link,
+          this.members[this.localSlot].name,
+        ).catch((error) => this.fail(error));
+    });
+  }
+  get isAutomaticGuest(): boolean {
+    return this.signalingConnection?.open ?? false;
+  }
+  get automaticSignalingEnabled(): boolean {
+    return import.meta.env.VITE_SIGNAL_MODE !== "manual";
   }
   static async fromOffer(input: string): Promise<PrivateLobby> {
     const fragment = fragmentFrom(input);
@@ -493,6 +671,11 @@ export class PrivateLobby {
             description: { type: "answer", sdp: peer.localDescription!.sdp },
           }),
         );
+        if (this.signalingConnection?.open)
+          this.signalingConnection.send({
+            type: "answer",
+            link: this.answerLink,
+          });
         this.emit();
         return;
       } catch (error) {
@@ -673,6 +856,10 @@ export class PrivateLobby {
     )
       throw new Error("Reconnect ist derzeit nicht möglich.");
     await this.createOffer(slot);
+    const connection = this.signalingSlots.get(slot);
+    const offerLink = this.getSlot(slot).offerLink;
+    if (connection?.open && offerLink)
+      connection.send({ type: "offer", link: offerLink });
   }
   async rejoin(input: string, name: string): Promise<void> {
     if (!this.game || this.isHost)
@@ -704,5 +891,8 @@ export class PrivateLobby {
     if (this.pulseTimer !== null) clearInterval(this.pulseTimer);
     for (const entry of this.slots.values()) entry.peer.close();
     this.guestPeer?.close();
+    this.signalingConnection?.close();
+    for (const connection of this.signalingSlots.values()) connection.close();
+    this.signalingPeer?.destroy();
   }
 }

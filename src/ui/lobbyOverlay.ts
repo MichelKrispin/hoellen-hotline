@@ -123,6 +123,7 @@ export class LobbyOverlay {
   private lobby: PrivateLobby | null = null;
   private name = "";
   private answerInputs: [string, string] = ["", ""];
+  private showManual = false;
   private notice = "";
   private openedAnswer = "";
   private progressImport = "";
@@ -188,12 +189,21 @@ export class LobbyOverlay {
   private async init(): Promise<void> {
     if (location.hash) {
       try {
-        const fragment = fragmentFrom(location.hash);
-        if (fragment.kind === "answer") {
-          this.openedAnswer = location.href;
-          this.notice =
-            "Dieser Answer-Link muss im bereits geöffneten Host-Tab eingefügt werden. Erst kopieren, dann hier schließen.";
-        } else this.setLobby(await PrivateLobby.fromOffer(location.hash));
+        if (location.hash.startsWith("#join=")) {
+          this.notice = "Verbindung zum Host wird vorbereitet …";
+          this.render();
+          const lobby = await PrivateLobby.fromInvite(location.hash);
+          this.setLobby(lobby);
+          await lobby.join(this.name.trim().slice(0, 24) || "Gast");
+          this.notice = "";
+        } else {
+          const fragment = fragmentFrom(location.hash);
+          if (fragment.kind === "answer") {
+            this.openedAnswer = location.href;
+            this.notice =
+              "Dieser Answer-Link muss im bereits geöffneten Host-Tab eingefügt werden. Erst kopieren, dann hier schließen.";
+          } else this.setLobby(await PrivateLobby.fromOffer(location.hash));
+        }
       } catch (error) {
         this.notice = readable(error);
         clearFragment();
@@ -223,7 +233,10 @@ export class LobbyOverlay {
       if (action === "host") {
         this.setLobby(PrivateLobby.host());
         clearFragment();
-      } else if (action === "dismiss-answer") {
+      } else if (action === "toggle-manual") this.showManual = !this.showManual;
+      else if (action === "copy-invite")
+        await this.copy(this.lobby!.inviteLink);
+      else if (action === "dismiss-answer") {
         clearFragment();
         this.openedAnswer = "";
       } else if (action === "copy-answer-opened")
@@ -314,7 +327,7 @@ export class LobbyOverlay {
     }
     if (!lobby) {
       this.updateMarkup(
-        `<div class="lobby-card"><h1>Private Lobby</h1><p>Drei bekannte Personen verbinden sich über Einladungs- und Antwortlinks. Links nur vertraulich teilen.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p><p>${legalLinks}</p></div>`,
+        `<div class="lobby-card"><h1>Private Lobby</h1><p>Host erstellt eine Lobby und teilt einen Einladungslink mit zwei Mitspielern.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p><p>${legalLinks}</p></div>`,
       );
       return;
     }
@@ -350,11 +363,16 @@ export class LobbyOverlay {
         return `<div class="slot-box"><h3>Gast ${slot} · ${escapeHtml(info.status)}</h3><button data-action="offer-${slot}">${info.offerLink ? "Neuen Link erzeugen" : "Einladung erzeugen"}</button>${info.offerLink ? `<label>Einladungslink<textarea readonly aria-label="Einladungslink Gast ${slot}">${escapeHtml(info.offerLink)}</textarea></label><button data-action="copy-offer-${slot}">Einladung kopieren</button><label>Antwortlink hier einfügen<textarea id="answer-${slot}" aria-label="Antwortlink Gast ${slot}">${escapeHtml(this.answerInputs[slot - 1] ?? "")}</textarea></label><button data-action="import-${slot}">Antwort importieren</button>` : ""}</div>`;
       })
       .join("");
+    const invitations = lobby.isHost
+      ? `<h2>Einladung</h2><p>Diesen Link an beide Gäste senden.</p>${lobby.inviteLink ? `<label>Einladungslink<textarea readonly aria-label="Einladungslink">${escapeHtml(lobby.inviteLink)}</textarea></label><button data-action="copy-invite">Einladung kopieren</button>` : lobby.automaticSignalingEnabled ? "<p>Einladungslink wird vorbereitet. Falls der Dienst nicht erreichbar ist, die manuelle Verbindung öffnen.</p>" : "<p>Automatische Einladungen sind in diesem Build deaktiviert. Manuelle Verbindung öffnen.</p>"}<button data-action="toggle-manual">${this.showManual ? "Manuelle Verbindung ausblenden" : "Manuelle Verbindung (Fallback)"}</button>${this.showManual ? `<div><h3>Offer/Answer-Links</h3>${slotHtml}</div>` : ""}`
+      : lobby.isAutomaticGuest
+        ? `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>${local.connected ? "Mit dem Host verbunden." : "Direkte Verbindung wird hergestellt …"}</p>${!lobby.answerLink ? '<button data-action="join">Verbindung erneut versuchen</button>' : ""}`
+        : `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>Sitzungskürzel mit dem Host abgleichen.</p><button data-action="join" ${lobby.answerLink ? "disabled" : ""}>Beitreten und Antwort erzeugen</button>${lobby.answerLink ? `<label>Antwortlink · an Host senden<textarea readonly aria-label="Antwortlink">${escapeHtml(lobby.answerLink)}</textarea></label><button data-action="copy-generated-answer">Antwort kopieren</button><p>Der Host fügt diesen Link in seine bestehende Lobby ein.</p>` : ""}`;
     this
       .updateMarkup(`<div class="lobby-card"><header><h1>Warteraum <span>${lobby.code}</span></h1><p>Nur mit vertrauten Mitspielern teilen · Direktverbindung per WebRTC</p></header>
       <div class="lobby-grid"><div><label>Dein Name<input id="player-name" maxlength="24" value="${escapeHtml(this.name)}" /></label>
       ${lobby.isHost ? `<label>Spielmodus<select id="game-mode">${modeOptions}</select></label>${lobby.mode.kind === "tutorial" ? "" : `<label>Seed (leer = zufällig)<input id="game-seed" maxlength="128" value="${escapeHtml(this.seedInput)}"></label>${lobby.mode.kind === "campaign" ? '<button data-action="apply-seed">Seed übernehmen</button>' : renderFreePlayControls(this.freeDraft)}`}<label>Fortschritt von anderem Gerät importieren<textarea id="progress-import" aria-label="Kampagnenfortschritt importieren">${escapeHtml(this.progressImport)}</textarea></label><button data-action="import-progress">Fortschritt importieren</button>` : `<p>Spielmodus: ${escapeHtml(modeChoices.find((item) => item.key === modeKey(lobby.mode))?.label ?? lobby.mode.kind)} · Hostauswahl; nur der Host schaltet Szenarien frei.</p>`}<p class="scenario-intro">${escapeHtml(intro)}</p>
-      ${lobby.isHost ? `<h2>Einladungen</h2>${slotHtml}` : `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>Sitzungskürzel mit dem Host abgleichen.</p><button data-action="join" ${lobby.answerLink ? "disabled" : ""}>Beitreten und Antwort erzeugen</button>${lobby.answerLink ? `<label>Antwortlink · an Host senden<textarea readonly aria-label="Antwortlink">${escapeHtml(lobby.answerLink)}</textarea></label><button data-action="copy-generated-answer">Antwort kopieren</button><p>Der Host fügt diesen Link in seine bestehende Lobby ein.</p>` : ""}`}</div>
+      ${invitations}</div>
       <div><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.contentHash === null || lobby.modeHash === null ? "Inhalte offen" : m.contentHash === lobby.modeHash ? "✓ Inhalte gleich" : "× Inhalte verschieden"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
       <h2>Deine Rolle</h2><div class="lobby-actions">${roles.map((r) => `<button data-action="role-${r.id}" ${!local.connected || lobby.members.some((m, i) => i !== lobby.localSlot && m.role === r.id) ? "disabled" : ""} aria-pressed="${local.role === r.id}">${r.label}</button>`).join("")}</div><div class="lobby-actions"><button data-action="ready" ${!local.role || !local.connected ? "disabled" : ""}>${local.ready ? "Bereits bereit ✓" : "Bereit melden"}</button><button data-action="ping">Verbindung testen</button></div>${lobby.isHost ? `<button data-action="start" ${lobby.canStart() ? "" : "disabled"}>Schicht starten</button>` : ""}</div></div>
       <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht. ${legalLinks}</p></div>`);

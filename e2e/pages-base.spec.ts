@@ -16,6 +16,9 @@ test("built Pages subpath loads assets, legal pages and invite links", async ({
   expect((await request.get(`${base}credits.html`)).ok()).toBe(true);
   await page.getByRole("button", { name: "Lobby erstellen" }).click();
   await page
+    .getByRole("button", { name: "Manuelle Verbindung (Fallback)" })
+    .click();
+  await page
     .getByRole("button", { name: "Einladung erzeugen" })
     .first()
     .click();

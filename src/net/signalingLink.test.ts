@@ -3,7 +3,9 @@ import {
   decodeSignal,
   encodeSignal,
   fragmentFrom,
+  inviteLinkFor,
   MAX_ENCODED,
+  sessionFromInvite,
 } from "./signalingLink";
 
 const offer = {
@@ -30,6 +32,15 @@ describe("signaling links", () => {
     );
     await expect(decodeSignal("invalid")).rejects.toThrow("beschädigt");
     expect(() => fragmentFrom("https://example.com/#other=abc")).toThrow();
+  });
+  it("keeps automatic invites small and rejects malformed session IDs", () => {
+    const session = "a".repeat(32);
+    const link = inviteLinkFor(session, {
+      origin: "https://example.com",
+    } as Location);
+    expect(link).toBe(`https://example.com/#join=${session}`);
+    expect(sessionFromInvite(link)).toBe(session);
+    expect(() => sessionFromInvite("#join=bad")).toThrow();
   });
   it("rejects payloads expanding beyond the limit", async () => {
     const raw = new TextEncoder().encode("x".repeat(200_000));

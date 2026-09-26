@@ -1,6 +1,6 @@
 # Release-Nachweise
 
-Stand: 2026-09-25. Diese Matrix trennt technische Prüfungen von Abnahmen, die Geräte, Netzwerke oder Menschen benötigen.
+Stand: 2026-09-26. Diese Matrix trennt technische Prüfungen von Abnahmen, die Geräte, Netzwerke oder Menschen benötigen. Der Ein-Link-Beitritt mit zwei Gästen, Spielstart und automatischem Gast-Reconnect wurde mit einem lokalen PeerServer im Chromium-Browsertest geprüft. Die Verfügbarkeit des öffentlichen PeerJS-Dienstes und der Betrieb über verschiedene reale Netzwerke bleiben Teil der Geräteabnahme.
 
 GitHub Actions prüft die kurzen Browserfälle als Deploy-Gate. Die vollständige Drei-Tab-Tutorial- und Acht-Fälle-Schicht bleibt in `npm run test:e2e` und wurde lokal bestanden; auf dem gehosteten Runner verloren Gäste unter hoher Last die Verbindung oder der Lauf überschritt sein Testzeitlimit. Diese Einschränkung wird durch die echte Drei-Geräte-Abnahme geprüft.
 

@@ -129,3 +129,22 @@ export function fragmentFrom(input: string): {
 export function clearFragment(): void {
   history.replaceState(history.state, "", location.pathname + location.search);
 }
+
+export function inviteLinkFor(
+  sessionId: string,
+  location = window.location,
+): string {
+  if (!/^[0-9a-f]{32}$/.test(sessionId)) throw new Error("Ungültige Sitzung.");
+  const url = new URL(import.meta.env.BASE_URL, location.origin);
+  url.hash = `join=${sessionId}`;
+  return url.href;
+}
+
+export function sessionFromInvite(input: string): string {
+  const hash = input.trim().startsWith("#")
+    ? input.trim()
+    : new URL(input.trim()).hash;
+  const match = /^#join=([0-9a-f]{32})$/.exec(hash);
+  if (!match) throw new Error("Ungültiger Einladungslink.");
+  return match[1]!;
+}

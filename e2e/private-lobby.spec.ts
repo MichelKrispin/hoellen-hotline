@@ -63,6 +63,9 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await host.keyboard.press("d");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
+  await host
+    .getByRole("button", { name: "Manuelle Verbindung (Fallback)" })
+    .click();
   const guests = [];
   const initialAnswers: string[] = [];
   for (const slot of [1, 2]) {

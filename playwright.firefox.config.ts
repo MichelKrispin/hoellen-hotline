@@ -7,7 +7,7 @@ export default defineConfig({
   use: { baseURL: "http://127.0.0.1:5173", browserName: "firefox" },
   webServer: {
     command: "npm run dev",
-    env: { VITE_STUN_URL: "" },
+    env: { VITE_STUN_URL: "", VITE_SIGNAL_MODE: "manual" },
     url: "http://127.0.0.1:5173",
     reuseExistingServer: !process.env.CI,
   },

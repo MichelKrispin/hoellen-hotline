@@ -15,6 +15,9 @@ test("Chromium host and guest connect with a Firefox guest", async ({
     await host.keyboard.press("d");
     await host.keyboard.press("2");
     await host.getByRole("button", { name: "Lobby erstellen" }).click();
+    await host
+      .getByRole("button", { name: "Manuelle Verbindung (Fallback)" })
+      .click();
     for (const [index, guest] of guests.entries()) {
       const slot = index + 1;
       await host

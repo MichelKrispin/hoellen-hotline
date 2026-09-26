@@ -25,6 +25,9 @@ test("direct local candidates connect even when STUN is unavailable", async ({
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
   await host
+    .getByRole("button", { name: "Manuelle Verbindung (Fallback)" })
+    .click();
+  await host
     .getByRole("button", { name: "Einladung erzeugen" })
     .first()
     .click();

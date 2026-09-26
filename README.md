@@ -4,6 +4,8 @@ Kooperatives Drei-Personen-Spiel im Aufbau. Die Spielregeln stehen in `gameplay.
 
 Veröffentlichte Version: [Höllen-Hotline auf GitHub Pages](https://michelkrispin.github.io/hoellen-hotline/).
 
+Der Host teilt einen Einladungslink mit beiden Gästen; die Verbindung wird über den öffentlichen PeerJS-Signalisierungsdienst automatisch aufgebaut. Falls dieser nicht erreichbar ist, kann der Host in der Lobby „Manuelle Verbindung (Fallback)“ öffnen. Spielzustände werden weiter direkt zwischen den Browsern ausgetauscht.
+
 ## Lokal starten
 
 ```sh
@@ -30,6 +32,7 @@ npm run content:validate
 npm run content:analyze
 npm run build
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npm run test:e2e
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npx playwright test -c playwright.one-link.config.ts
 VITE_BASE=/hoellen-hotline/ npm run build
 ```
 
