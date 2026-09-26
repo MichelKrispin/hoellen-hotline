@@ -4,7 +4,7 @@ Stand: 2026-09-25. Geprüft: `src/content/core/fixture.json`, Porträts und Reak
 
 ## Umfang und Lesbarkeit
 
-- 30 Anrufer-Archetypen mit eigenen Dossiers, Ereignissen, Warnhinweisen, Dialoganfängen und Vektorporträts.
+- 30 Anrufer-Archetypen mit eigenen Dossiers, Ereignissen, Warnhinweisen, Dialoganfängen und rasterbasierten Porträts im SVG-Container.
 - 40 Lebens- und Verhaltens-Tags, 20 Beschwerden, 18 Ausnahmen und 24 Regelklauseln.
 - Neun Standardziele, drei vorübergehend verfügbare Sonderziele und zwölf Störungen. Das Ersatzlayout kann alle Ziele bedienen; jede Störung benennt genau einen passenden Reglerwert als Gegenaktion.
 - 20 Reaktionsgrafiken: zwölf für korrekte Zustellungen, fünf für Störungen und drei allgemeine Ergebnisstempel. Die Grafiken ergänzen sichtbare Texte und Symbole.

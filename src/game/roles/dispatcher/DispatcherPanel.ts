@@ -3,6 +3,7 @@ import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
 import { label, neon, plate } from "../../presentation/art";
+import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
 import {
@@ -43,7 +44,7 @@ export class DispatcherPanel {
   private readonly readyButton = document.createElement("button");
   private readonly commitButton = document.createElement("button");
   private readonly targetLabels: Phaser.GameObjects.Text[] = [];
-  private readonly targetFrames: Phaser.GameObjects.Graphics[] = [];
+  private readonly targetFrames: Phaser.GameObjects.Image[] = [];
   private readonly controlLabels: Phaser.GameObjects.Text[] = [];
   private readonly controlValues: Phaser.GameObjects.Text[] = [];
   private readonly summaryTitle: Phaser.GameObjects.Text;
@@ -124,7 +125,9 @@ export class DispatcherPanel {
       const x = 575 + (i % 3) * 262;
       const y = 386 + Math.floor(i / 3) * 92;
       neon(scene, x, y, 246, 79, colors[i]!);
-      const frame = scene.add.graphics();
+      const frame = placeholder(scene, "neon-frame", x + 5, y + 5, 236, 69)
+        .setTint(C.warning)
+        .setVisible(false);
       const text = label(scene, x + 16, y + 21, "", 23, C.text, 220);
       scene.add
         .zone(x, y, 246, 79)
@@ -178,9 +181,7 @@ export class DispatcherPanel {
     this.commitText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
-    const arm = scene.add.graphics();
-    arm.lineStyle(10, 0xd9b6a0).lineBetween(0, 0, 0, -45);
-    arm.fillStyle(C.error).fillCircle(0, -48, 16);
+    const arm = placeholder(scene, "lever-arm", -30, -110, 60, 110);
     this.leverArm = scene.add.container(1720, 982, [arm]);
     this.feedbackText = label(scene, 587, 985, "", 20, C.text, 780);
     this.unsubscribe = network.subscribe(() => this.render());
@@ -281,14 +282,21 @@ export class DispatcherPanel {
         yoyo: true,
         ease: "Back.easeIn",
       });
-    const sparks = this.scene.add.graphics();
+    const sparks = this.scene.add.container(0, 0);
     if (!prefersReducedFlash())
       for (let i = 0; i < 7; i++) {
-        sparks
-          .lineStyle(3, i % 2 ? C.fire : C.warning)
-          .lineBetween(1680 + i * 9, 926, 1660 + i * 14, 890 - (i % 3) * 17);
+        sparks.add(
+          placeholder(
+            this.scene,
+            "spark",
+            1660 + i * 14,
+            890 - (i % 3) * 17,
+            24,
+            24,
+          ),
+        );
       }
-    sparks.fillStyle(0xa0a4a7, 0.8).fillEllipse(1670, 875, 125, 60);
+    sparks.add(placeholder(this.scene, "smoke", 1605, 840, 125, 60));
     if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
     else
       this.scene.tweens.add({
@@ -313,11 +321,9 @@ export class DispatcherPanel {
     const success =
       outcome.outcome === "correct" || outcome.outcome === "acceptable";
     const panel = this.scene.add.container(555, 238);
-    const backdrop = this.scene.add.graphics();
-    backdrop.fillStyle(0x21141f, 0.97).fillRoundedRect(0, 0, 820, 402, 24);
-    backdrop
-      .lineStyle(10, success ? C.success : C.error)
-      .strokeRoundedRect(6, 6, 808, 390, 20);
+    const backdrop = placeholder(this.scene, "panel-bakelite", 0, 0, 820, 402)
+      .setTint(success ? C.success : C.error)
+      .setAlpha(0.97);
     const title = label(
       this.scene,
       55,
@@ -338,9 +344,7 @@ export class DispatcherPanel {
       690,
     );
     caption.setPosition(62, 132);
-    const soul = this.scene.add.graphics();
-    soul.fillStyle(C.cyan).fillCircle(145, 290, 38);
-    soul.fillStyle(0x1a2834).fillCircle(132, 282, 5).fillCircle(158, 282, 5);
+    const soul = placeholder(this.scene, "soul", 105, 245, 80, 96);
     const skip = label(this.scene, 600, 328, "ÜBERSPRINGEN →", 22);
     skip
       .setInteractive({ useHandCursor: true })
@@ -396,14 +400,7 @@ export class DispatcherPanel {
         button.disabled = true;
       }
       const frame = this.targetFrames[i]!;
-      frame.clear();
-      if (destination?.id === shared.selectedDestination) {
-        const x = 575 + (i % 3) * 262;
-        const y = 386 + Math.floor(i / 3) * 92;
-        frame
-          .lineStyle(6, C.warning)
-          .strokeRoundedRect(x + 5, y + 5, 236, 69, 12);
-      }
+      frame.setVisible(destination?.id === shared.selectedDestination);
     }
     for (let i = 0; i < 6; i++) {
       const control = role.controls[i];

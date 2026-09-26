@@ -1,12 +1,12 @@
 import Phaser from "phaser";
 import type { GameNetwork } from "../../net/gameNetwork";
-import { TOKENS } from "../../ui/tokens";
 import { ReactionScheduler } from "./reactionScheduler";
 import { prefersReducedMotion } from "../../app/options";
+import { placeholder } from "../../assets/placeholders";
 
 export class PresentationSystem {
   private readonly scheduler = new ReactionScheduler();
-  private readonly graphics: Record<string, Phaser.GameObjects.Graphics>;
+  private readonly graphics: Record<string, Phaser.GameObjects.Image>;
   private readonly unsubscribe: () => void;
   private lastReaction = "";
   private lastIncident = "";
@@ -16,28 +16,11 @@ export class PresentationSystem {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
-    const figure = scene.add.graphics();
-    figure.fillStyle(TOKENS.color.fire).fillCircle(76, 760, 24);
-    figure.fillStyle(0x161019).fillCircle(68, 756, 4).fillCircle(84, 756, 4);
-    const plant = scene.add.graphics();
-    plant.lineStyle(7, TOKENS.color.success).lineBetween(1850, 850, 1850, 750);
-    plant
-      .fillStyle(TOKENS.color.success)
-      .fillEllipse(1825, 785, 52, 25)
-      .fillEllipse(1873, 775, 52, 25);
-    const pipes = scene.add.graphics();
-    pipes
-      .lineStyle(12, TOKENS.color.metalEdge)
-      .lineBetween(1405, 275, 1405, 510);
-    pipes.fillStyle(TOKENS.color.fire).fillCircle(1405, 510, 11);
-    const gauge = scene.add.graphics();
-    gauge.lineStyle(6, TOKENS.color.warning).strokeCircle(1830, 720, 32);
-    gauge.lineStyle(4, TOKENS.color.error).lineBetween(1830, 720, 1848, 700);
-    const demons = scene.add.graphics();
-    demons
-      .fillStyle(TOKENS.color.fire)
-      .fillEllipse(250, 412, 20, 9)
-      .fillEllipse(288, 412, 20, 9);
+    const figure = placeholder(scene, "warning-light", 52, 736, 48, 48);
+    const plant = placeholder(scene, "plant", 1795, 740, 110, 120);
+    const pipes = placeholder(scene, "pipe", 1388, 275, 34, 250);
+    const gauge = placeholder(scene, "gauge-face", 1798, 688, 64, 64);
+    const demons = placeholder(scene, "demon-eyes", 235, 400, 68, 24);
     this.graphics = { figure, plant, pipes, gauge, demons };
     for (const graphic of Object.values(this.graphics))
       graphic.setDepth(5).setAlpha(0.72);

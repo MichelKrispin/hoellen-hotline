@@ -7,6 +7,7 @@ import type {
   RuleEntryView,
 } from "../../state/contracts";
 import { label, plate } from "../../presentation/art";
+import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import { searchArchive } from "./archiveSearch";
 import { prefersReducedMotion } from "../../../app/options";
@@ -34,14 +35,14 @@ export class ArchivistPanel {
   private readonly prevPage: Phaser.GameObjects.Text;
   private readonly nextPage: Phaser.GameObjects.Text;
   private readonly resultLabels: Phaser.GameObjects.Text[] = [];
-  private readonly resultCards: Phaser.GameObjects.Graphics[] = [];
+  private readonly resultCards: Phaser.GameObjects.NineSlice[] = [];
   private readonly pinLabels: Phaser.GameObjects.Text[] = [];
   private readonly contentTitle: Phaser.GameObjects.Text;
   private readonly contentText: Phaser.GameObjects.Text;
   private readonly stampLabels: Phaser.GameObjects.Text[] = [];
   private readonly stampStatus: Phaser.GameObjects.Text;
   private readonly approval: Phaser.GameObjects.Text;
-  private readonly drawer: Phaser.GameObjects.Graphics;
+  private readonly drawer: Phaser.GameObjects.Image;
   private readonly unsubscribe: () => void;
   private readonly resize = () => this.positionControls();
   private query = "";
@@ -158,8 +159,7 @@ export class ArchivistPanel {
     this.contentTitle = label(scene, 619, 430, "AKTIVE REGELN", 27, C.ink, 570);
     this.contentText = label(scene, 619, 488, "", 21, C.ink, 565);
     this.contentText.setLineSpacing(5);
-    this.drawer = scene.add.graphics();
-    this.drawer.fillStyle(C.dispatcher).fillRoundedRect(442, 378, 42, 18, 6);
+    this.drawer = placeholder(scene, "button", 442, 378, 42, 18);
     this.pageLabel = label(scene, 1326, 475, "", 18, C.ink);
     this.prevPage = label(scene, 1652, 475, "◀", 20, C.ink);
     this.nextPage = label(scene, 1722, 475, "▶", 20, C.ink);
@@ -310,9 +310,7 @@ export class ArchivistPanel {
   private ejectPaper(): void {
     if (performance.now() - this.lastEjectionAt < 550) return;
     this.lastEjectionAt = performance.now();
-    const scrap = this.scene.add.graphics();
-    scrap.fillStyle(C.paper).fillRoundedRect(1330, 506, 160, 24, 4);
-    scrap.lineStyle(2, C.error).strokeRoundedRect(1330, 506, 160, 24, 4);
+    const scrap = placeholder(this.scene, "fax-slip", 1330, 506, 160, 24);
     this.scene.tweens.add({
       targets: scrap,
       y: -80,

@@ -1,9 +1,6 @@
 import Phaser from "phaser";
 import { button, installDebugNavigation } from "./navigation";
 import { TOKENS } from "../../ui/tokens";
-import agentPortrait from "../../assets/generated/role-agent/clerk@2x.png?url";
-import archivistPortrait from "../../assets/generated/role-agent/map-folder@2x.png?url";
-import dispatcherPortrait from "../../assets/generated/role-agent/biscuit-auditor@2x.png?url";
 import {
   archiveStack,
   label,
@@ -21,18 +18,15 @@ export class Title extends Phaser.Scene {
   constructor() {
     super("Title");
   }
-  preload(): void {
-    this.load.image("title-agent", agentPortrait);
-    this.load.image("title-archivist", archivistPortrait);
-    this.load.image("title-dispatcher", dispatcherPortrait);
-  }
   create(): void {
     this.game.canvas.dataset.scene = "Title";
     this.cameras.main.setBackgroundColor(C.background);
     room(this);
-    this.add.image(359, 674, "title-agent").setDisplaySize(430, 538);
-    this.add.image(954, 665, "title-archivist").setDisplaySize(350, 438);
-    this.add.image(1568, 675, "title-dispatcher").setDisplaySize(430, 538);
+    this.add.image(359, 674, "role-figure-agent").setDisplaySize(430, 538);
+    this.add.image(954, 665, "role-figure-archivist").setDisplaySize(350, 438);
+    this.add
+      .image(1568, 675, "role-figure-dispatcher")
+      .setDisplaySize(430, 538);
     plate(this, 107, 791, 1702, 266, C.wood, C.woodEdge);
     telephone(this, 362, 863, 1.05);
     archiveStack(this, 750, 907, 1.15);

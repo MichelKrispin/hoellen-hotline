@@ -5,6 +5,7 @@ import type { Role } from "../state/contracts";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
 import { preloadAssetGroups } from "../../assets/registry";
+import { placeholder } from "../../assets/placeholders";
 import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
@@ -27,23 +28,13 @@ const C = TOKENS.color;
 function agentDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "LEITUNG  /  ANRUFER", C.agent);
   devil(scene, 263, 639, 1.05, 0xc23b36);
-  const phone = scene.add.graphics();
-  phone.fillStyle(0x17121b).fillRoundedRect(108, 686, 262, 90, 26);
-  phone.lineStyle(8, 0x806260).strokeRoundedRect(108, 686, 262, 90, 26);
-  phone.fillStyle(0x17121b).fillRoundedRect(119, 652, 241, 39, 16);
-  phone.lineStyle(5, C.agent).strokeRoundedRect(119, 652, 241, 39, 16);
-  phone.lineStyle(7, 0x1c151f).strokeEllipse(363, 743, 72, 92);
-  phone.fillStyle(C.fire).fillCircle(316, 731, 9);
+  placeholder(scene, "telephone", 108, 640, 280, 150);
   plate(scene, 95, 735, 395, 137, C.bakelite);
   neon(scene, 124, 765, 330, 67, C.agent);
   if (!live) label(scene, 155, 780, "☎   TELEFON", 30);
   plate(scene, 501, 308, 889, 541, C.metal);
   neon(scene, 528, 337, 834, 209, C.cyan);
-  const g = scene.add.graphics();
-  g.fillStyle(C.cyan, 0.26).fillEllipse(706, 441, 190, 150);
-  g.fillStyle(C.cyan).fillCircle(697, 419, 48);
-  g.fillTriangle(664, 443, 730, 444, 697, 509);
-  g.fillStyle(0x122b37).fillCircle(682, 418, 5).fillCircle(711, 418, 5);
+  placeholder(scene, "soul", 644, 370, 110, 145);
   label(scene, 818, 374, "SEELENKANAL", 24, "#91eafa");
   if (!live) label(scene, 817, 427, "Noch kein Anruf", 41);
   if (!live) label(scene, 548, 573, "GESPRÄCHSOPTIONEN", 25, C.muted);
@@ -65,7 +56,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
 
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "AKTEN  /  REGELWERK", C.archivist);
-  plate(scene, 105, 314, 431, 542, C.wood, C.woodEdge);
+  placeholder(scene, "filing-cabinet", 105, 314, 431, 542);
   for (let i = 0; i < 4; i++) {
     plate(scene, 126, 346 + i * 119, 387, 91, 0x33212b, C.woodEdge, 5);
     label(
@@ -80,12 +71,9 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
       ][i] ?? "",
       25,
     );
-    scene.add
-      .graphics()
-      .fillStyle(C.dispatcher)
-      .fillRoundedRect(442, 378 + i * 119, 42, 18, 6);
+    placeholder(scene, "button", 442, 378 + i * 119, 42, 18);
   }
-  paper(scene, 577, 310, 684, 546);
+  placeholder(scene, "rulebook", 577, 310, 684, 546);
   label(scene, 615, 352, "REGELBUCH", 34, C.ink);
   if (!live) {
     label(scene, 619, 430, "AKTIVE REGELN", 25, C.ink);
@@ -142,21 +130,10 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
       label(scene, x + 24, y + 28, `${symbol}  ${name}`, 29);
     });
   if (!live) {
-    const g = scene.add.graphics();
-    g.lineStyle(14, 0x1b141e).lineBetween(590, 978, 1335, 978);
     for (let i = 0; i < 5; i++) {
       const x = 660 + i * 145;
-      g.fillStyle(0x17121a).fillRoundedRect(x - 21, 868, 42, 111, 12);
-      g.lineStyle(15, 0x716063).lineBetween(
-        x,
-        905,
-        x + (i % 2 ? -29 : 26),
-        818,
-      );
-      g.fillStyle(i % 2 ? C.error : C.dispatcher).fillCircle(
-        x + (i % 2 ? -29 : 26),
-        812,
-        22,
+      placeholder(scene, "lever-arm", x - 42, 808, 84, 170).setFlipX(
+        Boolean(i % 2),
       );
     }
   }

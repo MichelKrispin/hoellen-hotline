@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { textureFor } from "../../../assets/registry";
+import { placeholder } from "../../../assets/placeholders";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
@@ -32,8 +33,8 @@ export class AgentPanel {
   private readonly suggestionAction: Phaser.GameObjects.Text;
   private readonly approval: Phaser.GameObjects.Text;
   private readonly feedback: Phaser.GameObjects.Text;
-  private readonly handset: Phaser.GameObjects.Graphics;
-  private readonly face: Phaser.GameObjects.Graphics;
+  private readonly handset: Phaser.GameObjects.Image;
+  private readonly face: Phaser.GameObjects.Image;
   private readonly mirror = document.createElement("section");
   private readonly mirrorChoices: HTMLButtonElement[] = [];
   private readonly mirrorHints: HTMLButtonElement[] = [];
@@ -150,8 +151,12 @@ export class AgentPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
     this.feedback = label(scene, 1020, 944, "", 22, C.text, 320);
-    this.handset = scene.add.graphics();
-    this.face = scene.add.graphics();
+    this.handset = placeholder(scene, "handset", 350, 636, 80, 45).setVisible(
+      false,
+    );
+    this.face = placeholder(scene, "soul-mouth", 674, 436, 46, 23).setVisible(
+      false,
+    );
     this.setupMirror();
     window.addEventListener("keydown", this.keydown);
     window.addEventListener("pointerdown", this.outsidePointer);
@@ -425,29 +430,14 @@ export class AgentPanel {
     this.mirror.dataset.portraitLoaded = String(hasPortrait);
     this.mirror.dataset.missingAsset =
       portraitId && portrait.missing ? portraitId : "";
-    this.face.clear();
-    if (role.callerMood !== null && !hasPortrait) {
-      this.face
-        .lineStyle(5, 0x122b37)
-        .beginPath()
-        .moveTo(681, 443)
-        .lineTo(697, role.callerMood < 45 ? 438 : 452)
-        .lineTo(713, 443)
-        .strokePath();
-    }
-    this.handset.clear();
+    this.face.setVisible(role.callerMood !== null && !hasPortrait);
+    this.face.setFlipY((role.callerMood ?? 50) < 45);
+    this.handset.setVisible(Boolean(worm));
     if (worm) {
       const offset = prefersReducedMotion()
         ? 0
         : Math.sin(sceneTime(this.scene) / 170) * 10;
-      this.handset
-        .lineStyle(12, C.agent)
-        .beginPath()
-        .moveTo(355, 674)
-        .lineTo(384 + offset, 641)
-        .lineTo(405 - offset, 664)
-        .strokePath();
-      this.handset.fillStyle(C.fire).fillCircle(405 - offset, 664, 8);
+      this.handset.setX(350 + offset);
     }
   }
   destroy(): void {

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { DESIGN, TOKENS } from "../../ui/tokens";
+import { placeholder } from "../../assets/placeholders";
 
 export const SCENES = [
   "Boot",
@@ -20,13 +21,14 @@ export function sceneHeader(
 ): Phaser.GameObjects.Text {
   scene.game.canvas.dataset.scene = scene.scene.key;
   scene.cameras.main.setBackgroundColor(TOKENS.color.background);
-  scene.add.rectangle(
-    DESIGN.width / 2,
-    140,
+  placeholder(
+    scene,
+    "neon-frame",
+    DESIGN.safeX,
+    139,
     DESIGN.width - 2 * DESIGN.safeX,
     2,
-    TOKENS.color.agent,
-  );
+  ).setTint(TOKENS.color.agent);
   scene.add.text(DESIGN.safeX, 100, "HÖLLEN-HOTLINE  /  PROTOTYP", {
     fontFamily: "Georgia, serif",
     fontSize: "28px",
@@ -67,8 +69,15 @@ export function button(
   width = 430,
   height = 82,
 ): void {
-  const rect = scene.add
-    .rectangle(x, y, width, height, color)
+  const rect = placeholder(
+    scene,
+    "button",
+    x - width / 2,
+    y - height / 2,
+    width,
+    height,
+  )
+    .setTint(color)
     .setInteractive({ useHandCursor: true });
   const text = scene.add
     .text(x, y, label, {

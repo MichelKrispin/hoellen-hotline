@@ -27,7 +27,7 @@ Text auf dunklen Flächen ist cremefarben (`#f4e1bd`), auf Papier dunkle Tinte (
 
 ## Wiederverwendbare Materialien
 
-Die Phaser-Stilprobe zeichnet diese Oberflächen in `src/game/presentation/art.ts` als skalierbare Vektoren. Bei späteren Textur-Atlanten gelten folgende 9-Slice-Maße in der 1920×1080-Designfläche:
+Die Phaser-Stilprobe setzt diese Oberflächen in `src/game/presentation/art.ts` aus austauschbaren SVG-Platzhaltern zusammen. Die aktuellen `panel-*`-Texturen verwenden 32 px Rand auf allen Seiten; für spätere Textur-Atlanten sind folgende Materialziele geplant:
 
 | Material            | Rand                                   | Mitte                                          | Einsatz                  |
 | ------------------- | -------------------------------------- | ---------------------------------------------- | ------------------------ |
@@ -41,7 +41,7 @@ Ecken, Nieten, Clips und Lichtreflexe liegen in festen Randsegmenten. Text und H
 
 ## Ebenen und Ansichten
 
-Von hinten nach vorn: 1 Hintergrundhölle mit Stadt und Lava, 2 Brücken und kleine Silhouetten, 3 Raumrohre/Ketten/Warnlichter, 4 rolleneigenes Pult und Figur, 5 Vordergrund mit Papier, Werkzeug und Gags. Die Stilprobe zeichnet die Kulisse als getrennte Phaser-Graphics-Ebenen. Brücken und Raumarmaturen reagieren leicht unterschiedlich auf Zeigerbewegung; bei reduzierter Bewegung bleiben sie stehen. Auf dem Titelbild kennzeichnen Telefon, Aktenstapel und Hebelbank die drei Figuren auch ohne Rollenlabels.
+Von hinten nach vorn: 1 Hintergrundhölle mit Stadt und Lava, 2 Brücken und kleine Silhouetten, 3 Raumrohre/Ketten/Warnlichter, 4 rolleneigenes Pult und Figur, 5 Vordergrund mit Papier, Werkzeug und Gags. Die Kulisse besteht aus getrennten Sprite-Ebenen. Brücken und Raumarmaturen reagieren leicht unterschiedlich auf Zeigerbewegung; bei reduzierter Bewegung bleiben sie stehen. Auf dem Titelbild kennzeichnen Telefon, Aktenstapel und Hebelbank die drei Figuren auch ohne Rollenlabels.
 
 ```text
 Gemeinsam:  [ROLLE] [QUEUE] [ZEIT] [STRESS] [FALL-ID] [FREIGABE]
