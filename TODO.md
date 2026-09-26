@@ -16,7 +16,7 @@ Der Plan ist nicht normativ: Er darf Anforderungen nur zerlegen, nicht still ver
 - Der Host ist Teil des Vertrauensmodells: Seine normale UI ist rollengefiltert, technisch kann er den kanonischen Zustand jedoch einsehen und manipulieren. Schutz gegen einen böswilligen Host ist kein MVP-Ziel.
 - Inhalte, Kampagnen und Maschinenlayouts sind datengetrieben. Spielregeln dürfen nicht hart an einzelne Fälle oder Illustrationen gekoppelt sein.
 - Visuelles Feedback wird zusammen mit jeder Mechanik gebaut, nicht erst am Projektende.
-- Der MVP bleibt vollständig statisch auf GitHub Pages. Privates Matchmaking erfolgt über Offer-/Answer-Links; öffentliches Zufalls-Matchmaking benötigt später einen optionalen Signalisierungsdienst.
+- Der MVP bleibt vollständig statisch auf GitHub Pages. Private Lobbys nutzen einen Einladungslink für beide Gäste und den öffentlichen PeerJS-Dienst nur zur Signalisierung; manuelle Offer-/Answer-Links bleiben als Fallback. Öffentliches Zufalls-Matchmaking benötigt später einen eigenen Room-Service.
 
 ## Zielarchitektur
 

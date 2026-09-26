@@ -4,6 +4,7 @@ test("one guest joins from the host's invite", async ({ browser }) => {
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
+  await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
   await host.keyboard.press("d");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
@@ -25,6 +26,7 @@ test("one invite link connects two guests and starts a shift", async ({
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
+  await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
   await host.keyboard.press("d");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
