@@ -1,5 +1,23 @@
 import { expect, test } from "@playwright/test";
 
+test("one guest joins from the host's invite", async ({ browser }) => {
+  const context = await browser.newContext();
+  const host = await context.newPage();
+  await host.goto("/");
+  await host.keyboard.press("d");
+  await host.keyboard.press("2");
+  await host.getByRole("button", { name: "Lobby erstellen" }).click();
+  const inviteField = host.getByRole("textbox", { name: "Einladungslink" });
+  await expect(inviteField).toHaveValue(/#join=[0-9a-f]{32}$/);
+  const guest = await context.newPage();
+  await guest.goto(await inviteField.inputValue());
+  await expect(guest.locator(".member").nth(1)).toContainText("Verbunden", {
+    timeout: 30_000,
+  });
+  await expect(host.locator(".member").nth(1)).toContainText("Verbunden");
+  await context.close();
+});
+
 test("one invite link connects two guests and starts a shift", async ({
   browser,
 }) => {
