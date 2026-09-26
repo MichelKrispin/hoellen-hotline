@@ -771,7 +771,7 @@
     "scale": "1",
     "assetGroup": "shared",
     "vramBytes": 2304000,
-    "preloadBytes": 145219,
+    "preloadBytes": 466684,
     "animation": {
       "fps": 1,
       "loop": false,

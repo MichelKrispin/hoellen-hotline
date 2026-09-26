@@ -1,6 +1,6 @@
 # Asset-Spezifikation
 
-Die Vektorquellen in `portraits/` und `reactions/` sind die editierbaren 2×-Quellen. `npm run assets:build` rastert sie bei doppelter Laufzeitauflösung und erzeugt PNG, WebP und TexturePacker-kompatible Atlanten in `../generated/`. Die Pipeline benötigt `rsvg-convert` und ImageMagick (`magick`). Generierte Dateien werden eingecheckt, sodass der normale Webbuild diese Werkzeuge nicht benötigt.
+Die 30 Figurenporträts und 17 Szenenreaktionen in `portraits/` und `reactions/` stammen aus dem bereitgestellten Mockup-Sprite-Paket. Ihre SVG-Dateien enthalten transparente PNG-Bilder in 2×-Auflösung; sie sind keine frei skalierbaren Vektorgrafiken. Die drei Statussymbole `ok`, `maybe` und `wrong` bleiben Vektoren. `npm run assets:build` erzeugt daraus PNG, WebP und TexturePacker-kompatible Atlanten in `../generated/`. Die Pipeline benötigt `rsvg-convert` und ImageMagick (`magick`). Generierte Dateien werden eingecheckt, sodass der normale Webbuild diese Werkzeuge nicht benötigt. Die Titelseite lädt drei erzeugte 2×-PNG-Porträts; DOM-Reaktionen nutzen die kompakten WebP-Dateien.
 
 Neue Dateien und Asset-IDs folgen `<domain>.<entity>.<variant>.<state>.<frame>`. Für die bestehenden statischen Porträts ist der letzte Frame implizit `still.0`; die stabilen Content-IDs `asset.core.portrait.<slug>` bleiben als Alias erhalten. Alle Assets brauchen einen numerischen `viewBox`. Innerhalb eines Atlas müssen die Zellen dieselbe Größe haben.
 

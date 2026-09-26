@@ -1,4 +1,4 @@
-const sources = import.meta.glob("./source/reactions/*.svg", {
+const sources = import.meta.glob("./generated/shared/*.webp", {
   eager: true,
   query: "?url",
   import: "default",
@@ -9,7 +9,7 @@ const byId = Object.fromEntries(
     const slug = file
       .split("/")
       .at(-1)!
-      .replace(/\.svg$/, "");
+      .replace(/\.webp$/, "");
     const id = ["ok", "maybe", "wrong"].includes(slug)
       ? `asset.core.${slug}`
       : `asset.core.reaction.${slug}`;

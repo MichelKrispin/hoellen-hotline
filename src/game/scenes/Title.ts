@@ -1,9 +1,11 @@
 import Phaser from "phaser";
 import { button, installDebugNavigation } from "./navigation";
 import { TOKENS } from "../../ui/tokens";
+import agentPortrait from "../../assets/generated/role-agent/clerk@2x.png?url";
+import archivistPortrait from "../../assets/generated/role-agent/map-folder@2x.png?url";
+import dispatcherPortrait from "../../assets/generated/role-agent/biscuit-auditor@2x.png?url";
 import {
   archiveStack,
-  devil,
   label,
   leverConsole,
   neon,
@@ -19,16 +21,21 @@ export class Title extends Phaser.Scene {
   constructor() {
     super("Title");
   }
+  preload(): void {
+    this.load.image("title-agent", agentPortrait);
+    this.load.image("title-archivist", archivistPortrait);
+    this.load.image("title-dispatcher", dispatcherPortrait);
+  }
   create(): void {
     this.game.canvas.dataset.scene = "Title";
     this.cameras.main.setBackgroundColor(C.background);
     room(this);
-    devil(this, 359, 674, 1.24, 0xc23b36);
-    devil(this, 954, 744, 0.64, 0x71517b);
-    devil(this, 1568, 675, 1.4, 0xa64131);
+    this.add.image(359, 674, "title-agent").setDisplaySize(430, 538);
+    this.add.image(954, 665, "title-archivist").setDisplaySize(350, 438);
+    this.add.image(1568, 675, "title-dispatcher").setDisplaySize(430, 538);
     plate(this, 107, 791, 1702, 266, C.wood, C.woodEdge);
     telephone(this, 362, 863, 1.05);
-    archiveStack(this, 949, 907, 1.15);
+    archiveStack(this, 750, 907, 1.15);
     leverConsole(this, 1571, 860, 1.1);
     paper(this, 1082, 793, 238, 166);
     label(this, 1103, 828, "EILT!", 30, C.ink);
@@ -53,9 +60,9 @@ export class Title extends Phaser.Scene {
       .setOrigin(0.5, 0);
     title.setDepth(1);
     this.add
-      .text(960, 375, "BITTE BLEIBEN SIE DRAN …", {
+      .text(960, 361, "BITTE BLEIBEN SIE DRAN …", {
         fontFamily: "Arial, sans-serif",
-        fontSize: "43px",
+        fontSize: "36px",
         fontStyle: "bold",
         color: "#ffe2cf",
       })
@@ -64,7 +71,7 @@ export class Title extends Phaser.Scene {
     button(
       this,
       960,
-      592,
+      430,
       "ZUR LOBBY   →",
       () => this.scene.start("Lobby"),
       C.dispatcher,

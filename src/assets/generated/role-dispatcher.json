@@ -49,7 +49,7 @@
     "scale": "1",
     "assetGroup": "role-dispatcher",
     "vramBytes": 128000,
-    "preloadBytes": 23976,
+    "preloadBytes": 51497,
     "animation": {
       "fps": 1,
       "loop": false,
