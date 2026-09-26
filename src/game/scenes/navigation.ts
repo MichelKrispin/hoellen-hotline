@@ -79,13 +79,21 @@ export function button(
   )
     .setTint(color)
     .setInteractive({ useHandCursor: true });
+  let fontSize = 31;
   const text = scene.add
     .text(x, y, label, {
       fontFamily: "Arial, sans-serif",
-      fontSize: "31px",
+      fontSize: `${fontSize}px`,
       color: "#1b111b",
     })
     .setOrigin(0.5);
+  while (
+    (text.width > width - 28 || text.height > height - 14) &&
+    fontSize > 18
+  ) {
+    fontSize -= 1;
+    text.setFontSize(fontSize);
+  }
   rect.on("pointerover", () => {
     rect.setAlpha(0.8);
     text.setScale(1.02);

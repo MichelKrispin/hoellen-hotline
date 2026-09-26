@@ -83,7 +83,8 @@ export class OptionsOverlay {
   constructor() {
     applyDisplayOptions();
     this.root.className = "display-options";
-    this.button.textContent = "⚙ Optionen (O)";
+    this.button.textContent = "⚙";
+    this.button.title = "Optionen (O)";
     this.button.setAttribute("aria-label", "Darstellungsoptionen öffnen");
     this.button.onclick = () => this.open();
     this.dialog.setAttribute("aria-label", "Darstellungsoptionen");

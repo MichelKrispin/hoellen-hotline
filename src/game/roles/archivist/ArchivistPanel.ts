@@ -6,7 +6,7 @@ import type {
   RoleView,
   RuleEntryView,
 } from "../../state/contracts";
-import { label, plate } from "../../presentation/art";
+import { fitText, label, plate } from "../../presentation/art";
 import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import { searchArchive } from "./archiveSearch";
@@ -409,17 +409,26 @@ export class ArchivistPanel {
           }),
       );
     }
-    this.pageLabel.setText(
+    fitText(
+      this.pageLabel,
       `${this.results.length} Treffer · Seite ${this.page + 1}`,
+      300,
+      28,
+      18,
     );
     for (let i = 0; i < 3; i++) {
       const record = this.results[this.page * 3 + i];
-      this.resultLabels[i]!.setText(
+      fitText(
+        this.resultLabels[i]!,
         record
           ? `${record.id === this.selectedRecordId ? "▸" : "◇"} ${record.aliases[0] ?? record.name}`
           : i === 0 && this.results.length === 0
             ? "Keine passende Akte"
             : "",
+        412,
+        28,
+        21,
+        16,
       );
       if (resultsChanged && record && !prefersReducedMotion()) {
         const card = this.resultCards[i]!;
@@ -457,7 +466,7 @@ export class ArchivistPanel {
       exceptions: "AUSNAHMEN / QUERVERWEISE",
       notes: "GEMEINSAME NOTIZEN",
     }[this.tab];
-    this.contentTitle.setText(title);
+    fitText(this.contentTitle, title, 570, 38, 27, 20);
     const body =
       this.tab === "dossier"
         ? selected
@@ -474,7 +483,7 @@ export class ArchivistPanel {
                 role.ruleEntries,
               )
             : `Agentenhinweise: ${publicView.publishedTags.map((id) => role.tagLabels[id] ?? id).join(" · ") || "–"}\nGepinnte Akten: ${publicView.archivePins.map((id) => role.archiveRecords.find((item) => item.id === id)?.aliases[0] ?? id).join(" · ") || "–"}\nZielbitte: ${publicView.suggestedDestination ?? "–"}\nVorbereitetes Ziel: ${publicView.selectedDestination ?? "–"}`;
-    this.contentText.setText(body);
+    fitText(this.contentText, body, 565, 270, 21, 15);
     const accessibleDetail = `${title}. ${body}`;
     if (this.mirrorDetail.textContent !== accessibleDetail)
       this.mirrorDetail.textContent = accessibleDetail;
@@ -482,7 +491,7 @@ export class ArchivistPanel {
       const recordId = publicView.archivePins[i];
       const record = role.archiveRecords.find((item) => item.id === recordId);
       const name = record?.aliases[0] ?? recordId ?? "frei";
-      this.pinLabels[i]!.setText(`◇ PIN ${i + 1}: ${name}`);
+      fitText(this.pinLabels[i]!, `◇ PIN ${i + 1}: ${name}`, 425, 28, 21, 16);
       this.pinButtons[i]!.textContent =
         `Pin ${i + 1}: ${name}. ${recordId && (!selected || recordId === this.selectedRecordId) ? "Lösen" : recordId ? "Ersetzen" : "Ausgewählte Akte pinnen"}`;
       this.pinButtons[i]!.disabled =

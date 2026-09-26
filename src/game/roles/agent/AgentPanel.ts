@@ -4,7 +4,7 @@ import { placeholder } from "../../../assets/placeholders";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
-import { label, plate } from "../../presentation/art";
+import { fitText, label, plate } from "../../presentation/art";
 import { TOKENS } from "../../../ui/tokens";
 import { prefersReducedMotion } from "../../../app/options";
 
@@ -332,19 +332,36 @@ export class AgentPanel {
     const role = this.current();
     if (!role || !view) return;
     const active = Boolean(view.public.activeCaseId);
-    this.caller.setText(
+    fitText(
+      this.caller,
       role.callerName ?? role.incomingCallerName ?? "Noch kein Anruf",
+      515,
+      42,
+      35,
+      22,
     );
-    this.speech.setText(
+    fitText(
+      this.speech,
       role.dialogueText ??
         (role.incomingCaseId
           ? "Ein Anruf wartet in der Leitung."
           : "Leitung frei."),
+      510,
+      72,
+      27,
+      19,
     );
     this.mood.setText(
       `Stimmung: ${role.callerMood === null ? "–" : role.callerMood >= 70 ? "☺ ruhig" : role.callerMood >= 40 ? "◇ angespannt" : "! gereizt"}`,
     );
-    this.queue.setText(`Queue: ${pressureLabel(view.public.queuePressure)}`);
+    fitText(
+      this.queue,
+      `Queue: ${pressureLabel(view.public.queuePressure)}`,
+      300,
+      30,
+      22,
+      18,
+    );
     this.accept.setText(active ? "● LEITUNG AKTIV" : "☎ ANNEHMEN (A)");
     this.accept.setAlpha(role.incomingCaseId || active ? 1 : 0.45);
     this.acceptButton.disabled = !role.incomingCaseId;
@@ -353,13 +370,18 @@ export class AgentPanel {
       const text = choiceId
         ? `${i + 1}  ${role.dialogueLabels[choiceId] ?? choiceId}`
         : "";
-      this.choices[i]!.setText(text);
+      fitText(this.choices[i]!, text, 735, 33, 24, 17);
       this.mirrorChoices[i]!.textContent =
         text || `Antwort ${i + 1} nicht verfügbar`;
       this.mirrorChoices[i]!.disabled = !choiceId || role.cooldownMs > 0;
     }
-    this.interrupt.setText(
+    fitText(
+      this.interrupt,
       `↯ UNTERBRECHEN (I)${role.cooldownMs ? ` · ${Math.ceil(role.cooldownMs / 1000)} s` : ""}`,
+      385,
+      32,
+      23,
+      18,
     );
     this.interrupt.setAlpha(
       active && role.dialogueOptions.length && !role.cooldownMs ? 1 : 0.45,
@@ -372,13 +394,22 @@ export class AgentPanel {
       this.selectedTag,
     );
     this.tagSelect.disabled = role.discoveredTags.length === 0;
-    this.discovered.setText(
+    fitText(
+      this.discovered,
       `Entdeckt: ${this.selectedTag ? (role.tagLabels[this.selectedTag] ?? this.selectedTag) : "–"}  ↻`,
+      300,
+      46,
+      21,
     );
     for (let i = 0; i < 3; i++) {
       const tag = view.public.publishedTags[i];
-      this.hints[i]!.setText(
+      fitText(
+        this.hints[i]!,
         `◇  ${tag ? (role.tagLabels[tag] ?? tag) : `Hinweis ${i + 1} frei`}`,
+        300,
+        54,
+        24,
+        17,
       );
       this.mirrorHints[i]!.textContent =
         `${tag ? "Hinweis ersetzen" : "Hinweis veröffentlichen"}, Slot ${i + 1}: ${tag ? (role.tagLabels[tag] ?? tag) : "frei"}`;
@@ -394,10 +425,15 @@ export class AgentPanel {
     const selectedName = role.suggestableDestinations.find(
       (item) => item.id === this.selectedDestination,
     )?.name;
-    this.suggestion.setText(
+    fitText(
+      this.suggestion,
       suggested
         ? `→ Zielbitte gesendet: ${role.suggestableDestinations.find((item) => item.id === suggested)?.name ?? suggested}`
         : `→ Zielbitte: ${selectedName ?? "–"}  ↻`,
+      755,
+      38,
+      25,
+      18,
     );
     this.suggestButton.disabled =
       !active || !this.selectedDestination || Boolean(suggested);
@@ -407,17 +443,29 @@ export class AgentPanel {
       role.suggestableDestinations.find(
         (item) => item.id === view.public.selectedDestination,
       )?.name ?? view.public.selectedDestination;
-    this.approval.setText(
+    fitText(
+      this.approval,
       view.public.selectedDestination
         ? `${view.public.approvals.agent ? "✓ Freigegeben" : "◇ Freigeben"}: ${approvalName}`
         : "◇ Freigabe: Ziel fehlt",
+      310,
+      48,
+      22,
+      17,
     );
     this.approval.setAlpha(view.public.selectedDestination ? 1 : 0.5);
     this.approvalButton.textContent = view.public.approvals.agent
       ? "Freigabe widerrufen"
       : "Ausgewähltes Ziel freigeben";
     this.approvalButton.disabled = !active || !view.public.selectedDestination;
-    this.feedback.setText(this.network.error || this.localFeedback);
+    fitText(
+      this.feedback,
+      this.network.error || this.localFeedback,
+      320,
+      50,
+      22,
+      16,
+    );
     const accessibleStatus = `${role.callerName ?? role.incomingCallerName ?? "Kein Anruf"}. ${role.dialogueText ?? ""} Queue ${pressureLabel(view.public.queuePressure)}. Freigabe ${view.public.approvals.agent ? "erteilt" : "offen"}. ${this.network.error || this.localFeedback}`;
     if (this.mirrorStatus.textContent !== accessibleStatus)
       this.mirrorStatus.textContent = accessibleStatus;

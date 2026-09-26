@@ -21,8 +21,28 @@ export function label(
     fontStyle: "bold",
     color,
     wordWrap: width ? { width } : undefined,
-    lineSpacing: 10,
+    lineSpacing: 4,
   });
+}
+
+/** Size dynamic copy to the space available on its panel. */
+export function fitText(
+  text: Phaser.GameObjects.Text,
+  value: string,
+  maxWidth: number,
+  maxHeight: number,
+  preferredSize: number,
+  minSize = 16,
+): Phaser.GameObjects.Text {
+  text.setFontSize(preferredSize);
+  text.setWordWrapWidth(maxWidth, true);
+  text.setText(value);
+  let size = preferredSize;
+  while (size > minSize && text.height > maxHeight) {
+    size -= 1;
+    text.setFontSize(size);
+  }
+  return text;
 }
 
 export function plate(

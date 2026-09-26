@@ -26,6 +26,7 @@ export class GameNetworkOverlay {
   private lastStatus = "";
   private lastTutorialKey = "";
   private lastReactionKey = "";
+  private lastAttention = false;
   readonly audio = new AudioSystem();
   constructor(private readonly network: GameNetwork) {
     this.root.className = "game-network-overlay";
@@ -220,6 +221,7 @@ export class GameNetworkOverlay {
     const reactionKey = reaction
       ? `${reaction.caseId}:${reaction.assetId}`
       : "none";
+    const newReaction = reactionKey !== this.lastReactionKey && !!reaction;
     if (reactionKey !== this.lastReactionKey) {
       force = true;
       if (reaction) this.audio.tone("sfx", activeIncident ? 165 : 330);
@@ -286,6 +288,11 @@ export class GameNetworkOverlay {
       tutorial?.stage === "stations" && !tutorial.stations[this.network.role]
         ? `<label>Stationsfrage<select id="tutorial-answer">${stationChoices}</select></label><button data-action="tutorial-station">Station abschließen</button>`
         : "";
+    if (
+      Boolean(stationControls) !==
+      Boolean(this.root.querySelector("#tutorial-answer"))
+    )
+      force = true;
     const approvalLog =
       this.network.view?.public.approvalLog
         .slice(-3)
@@ -301,6 +308,11 @@ export class GameNetworkOverlay {
             `${modifier.state === "announced" ? "Bald" : "Aktiv"}: ${modifier.text}`,
         )
         .join(" · ") ?? "";
+    const needsAttention = Boolean(
+      view?.public.pauseReason || this.notice || this.network.error,
+    );
+    const newAttention = needsAttention && !this.lastAttention;
+    this.lastAttention = needsAttention;
     if (!force && this.lastStatus === this.network.status) {
       const pauseReason = this.network.view?.public.pauseReason;
       const status = this.root.querySelector<HTMLElement>(
@@ -332,6 +344,9 @@ export class GameNetworkOverlay {
       if (notice) notice.textContent = this.notice || this.network.error;
       const ping = this.root.querySelector<HTMLElement>(".network-ping");
       if (ping) ping.textContent = `Ping: ${this.network.pingMs ?? "–"} ms`;
+      const panel =
+        this.root.querySelector<HTMLDetailsElement>(".network-panel");
+      if (panel && (newAttention || stationControls)) panel.open = true;
       const log = this.root.querySelector<HTMLElement>(".network-approval-log");
       if (log) log.textContent = approvalLog;
       const modifierLine =
@@ -389,7 +404,14 @@ export class GameNetworkOverlay {
       network.status === "connection-lost"
         ? `<small class="network-diagnostic">Content-Hash v${GAMEPLAY_HASH_VERSION}: ${escapeHtml(network.lobby.modeHash ?? "unbekannt")} · Simulation v${SIMULATION_VERSION} · Protokoll v${PROTOCOL_VERSION}</small>`
         : "";
-    this.root.innerHTML = `<div class="network-panel"><strong>${status}</strong><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div>`;
+    const expanded =
+      network.status !== "active" ||
+      newAttention ||
+      Boolean(stationControls) ||
+      (newReaction && Boolean(reactionHtml)) ||
+      (this.root.querySelector<HTMLDetailsElement>(".network-panel")?.open ??
+        false);
+    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span></summary><div class="network-panel-body"><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
   }
   destroy(): void {
     delete document.documentElement.dataset.contentHash;

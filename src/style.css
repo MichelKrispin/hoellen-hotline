@@ -30,6 +30,10 @@ html[data-palette="contrast"] canvas {
     15px Arial,
     sans-serif;
 }
+.display-options > button {
+  width: 42px;
+  height: 42px;
+}
 .display-options > button,
 .display-options dialog button {
   padding: 8px 12px;
@@ -75,12 +79,14 @@ html[data-palette="contrast"] canvas {
   outline: 3px solid #68d8dc;
   outline-offset: 2px;
 }
-.lobby-card,
 .network-panel,
 .agent-accessible-controls,
 .archivist-mirror,
 .dispatcher-accessible-controls {
   font-size: calc(15px * var(--text-scale, 1));
+}
+.lobby-card {
+  font-size: calc(17px * var(--text-scale, 1));
 }
 html[data-reduced-motion="true"] *,
 html[data-reduced-flash="true"] * {
@@ -311,7 +317,7 @@ html[data-reduced-flash="true"] * {
   color: #30232a;
   border: 2px solid #91604a;
   font:
-    14px Arial,
+    calc(15px * var(--text-scale, 1)) Arial,
     sans-serif;
 }
 .lobby-card textarea {
@@ -326,7 +332,7 @@ html[data-reduced-flash="true"] * {
   color: #211423;
   border: 2px solid #ffcc7d;
   font:
-    bold 15px Arial,
+    bold calc(15px * var(--text-scale, 1)) Arial,
     sans-serif;
   cursor: pointer;
 }
@@ -508,13 +514,47 @@ html[data-reduced-flash="true"] * {
 .network-panel {
   max-height: 40vh;
   overflow: auto;
-  padding: 12px 16px;
   background: #261a25ee;
   border: 2px solid #91604a;
   box-shadow: 0 8px 30px #0009;
 }
-.network-panel strong,
-.network-panel span {
+.network-panel-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+.network-panel-summary::-webkit-details-marker {
+  display: none;
+}
+.network-panel-summary::after {
+  content: "▸";
+  flex: 0 0 auto;
+  color: #e9a84c;
+}
+.network-panel[open] > .network-panel-summary::after {
+  transform: rotate(90deg);
+}
+.network-panel-summary strong,
+.network-panel-summary span {
+  display: inline;
+  margin: 0;
+  white-space: nowrap;
+}
+.network-panel-summary strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.network-panel-body {
+  padding: 6px 16px 12px;
+  border-top: 1px solid #6c5153;
+}
+.network-panel-body > span {
   display: block;
   margin: 3px 0;
 }

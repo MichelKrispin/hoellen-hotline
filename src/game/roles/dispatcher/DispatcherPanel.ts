@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
-import { label, neon, plate } from "../../presentation/art";
+import { fitText, label, neon, plate } from "../../presentation/art";
 import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
@@ -388,14 +388,19 @@ export class DispatcherPanel {
       const text = this.targetLabels[i]!;
       const button = this.targetButtons[i]!;
       if (destination) {
-        text.setText(
+        fitText(
+          text,
           `${destination.kind === "special" ? "✶ " : ""}${destination.glyph} ${destination.name}`,
+          220,
+          42,
+          23,
+          16,
         );
         text.setAlpha(1);
         button.textContent = `${destination.kind === "special" ? "Sonderziel" : "Ziel"}: ${destination.name}. ${destination.description}`;
         button.disabled = !shared.activeCaseId;
       } else {
-        text.setText("—").setAlpha(0.35);
+        fitText(text, "—", 220, 42, 23, 16).setAlpha(0.35);
         button.textContent = "Ziel nicht belegt";
         button.disabled = true;
       }
@@ -404,17 +409,27 @@ export class DispatcherPanel {
     }
     for (let i = 0; i < 6; i++) {
       const control = role.controls[i];
-      this.controlLabels[i]!.setText(control?.label ?? "–");
-      this.controlValues[i]!.setText(
+      fitText(this.controlLabels[i]!, control?.label ?? "–", 215, 28, 21, 16);
+      fitText(
+        this.controlValues[i]!,
         control ? `${showValue(control.value)}  ↻` : "",
+        215,
+        32,
+        25,
+        17,
       );
       this.controlButtons[i]!.textContent = control
         ? `${control.label}: ${showValue(control.value)}. Nächsten Wert wählen.`
         : "Regler nicht belegt";
       this.controlButtons[i]!.disabled = !control || !shared.activeCaseId;
     }
-    this.summaryTitle.setText(
+    fitText(
+      this.summaryTitle,
       selected ? `${selected.glyph} ${selected.name}` : "ZIELBANK",
+      278,
+      38,
+      29,
+      20,
     );
     const requirementLines =
       selected?.requirements.map((entry) => {
@@ -424,20 +439,30 @@ export class DispatcherPanel {
         const matches = control?.value === entry.value;
         return `${matches ? "✓" : "◇"} ${entry.label}: ${showValue(entry.value)}`;
       }) ?? [];
-    this.summaryText.setText(
+    fitText(
+      this.summaryText,
       selected
         ? `${selected.description}\n\nTECHNIK\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\nFreigaben: ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}`
         : "Neun Regelziele und drei Sonderrohre.\nZiel wählen, Anlage einstellen, Freigaben prüfen.",
+      278,
+      220,
+      22,
+      15,
     );
     const incident = role.incident;
     const recovered =
       incident &&
       role.controls.find((item) => item.id === incident.recoveryControlId)
         ?.value === incident.recoveryValue;
-    this.incidentText.setText(
+    fitText(
+      this.incidentText,
       incident
         ? `⚠ ${incident.name}: ${incident.diagnosis}\n${recovered ? "↗ GEGENAKTION BESTÄTIGEN" : "Regler korrigieren"}`
         : "✓ Keine aktive Störung",
+      290,
+      56,
+      21,
+      15,
     );
     this.recoveryButton.textContent = incident
       ? `Störung beheben: ${incident.diagnosis}`
@@ -447,16 +472,26 @@ export class DispatcherPanel {
       Boolean(selected) &&
       !incident &&
       requirementLines.every((line) => line.startsWith("✓"));
-    this.prepareText.setText(
+    fitText(
+      this.prepareText,
       role.prepared ? "✓ ANLAGE VORBEREITET" : "ANLAGE VORBEREITEN",
+      300,
+      32,
+      23,
+      17,
     );
     this.prepareText.setAlpha(technicalReady && !role.prepared ? 1 : 0.55);
     this.prepareButton.textContent = role.prepared
       ? "Anlage bereits vorbereitet"
       : "Anlage vorbereiten";
     this.prepareButton.disabled = !technicalReady || role.prepared;
-    this.readyText.setText(
+    fitText(
+      this.readyText,
       shared.approvals.dispatcher ? "✓ BEREIT · WIDERRUFEN" : "BEREIT MELDEN",
+      300,
+      32,
+      23,
+      17,
     );
     this.readyText.setAlpha(role.prepared ? 1 : 0.55);
     this.readyButton.textContent = shared.approvals.dispatcher
@@ -465,12 +500,17 @@ export class DispatcherPanel {
     this.readyButton.disabled = !role.prepared;
     const canCommit =
       role.prepared && Object.values(shared.approvals).every(Boolean);
-    this.commitText.setText(
+    fitText(
+      this.commitText,
       canCommit
         ? this.armed
           ? "↗ JETZT ZUSTELLEN"
           : "↗ HEBEL ENTSICHERN"
         : "↗ HEBEL GESPERRT",
+      300,
+      36,
+      25,
+      18,
     );
     this.commitText.setAlpha(canCommit ? 1 : 0.5);
     this.commitButton.textContent = canCommit
@@ -479,7 +519,14 @@ export class DispatcherPanel {
         : "Hebel entsichern und Zusammenfassung prüfen"
       : "Hebel gesperrt: Freigaben oder Vorbereitung fehlen";
     this.commitButton.disabled = !canCommit;
-    this.feedbackText.setText(this.network.error || this.feedback);
+    fitText(
+      this.feedbackText,
+      this.network.error || this.feedback,
+      780,
+      48,
+      20,
+      15,
+    );
     const status = `${selected ? `Ziel ${selected.name}. ${requirementLines.join(". ")}.` : "Kein Ziel gewählt."} ${incident ? `Störung ${incident.diagnosis}.` : "Keine Störung."} ${role.prepared ? "Anlage vorbereitet." : "Anlage nicht vorbereitet."} ${role.lastOutcome ? `Ergebnis: ${role.lastOutcome.outcome}.` : ""} ${this.network.error || this.feedback}`;
     if (this.mirrorStatus.textContent !== status)
       this.mirrorStatus.textContent = status;
