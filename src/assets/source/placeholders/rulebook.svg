@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 540" width="620" height="540"><path d="M12 47h540q35 0 35 35v418H12Z" fill="#5b3c34" stroke="#ba825b" stroke-width="12"/><path d="M20 55h519v420H20Z" fill="#e6cca0"/><path d="M90 110h415M90 170h415M90 230h415M90 290h415M90 350h415M90 410h360" stroke="#a77e60" stroke-opacity=".55" stroke-width="5"/><rect x="8" y="42" width="20" height="440" fill="#704438"/><circle cx="18" cy="270" r="8" fill="#b85240"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="280" viewBox="0 0 360 280">
+<defs><linearGradient id="book" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d342c"/><stop offset="1" stop-color="#2d1b21"/></linearGradient></defs>
+<path d="M42 45 Q180 14 318 45 L331 229 Q185 260 30 228Z" fill="url(#book)" stroke="#21151a" stroke-width="11"/>
+<path d="M68 66 Q180 42 293 66 L304 205 Q184 228 57 206Z" fill="#8a4b33" stroke="#2a191f" stroke-width="6"/>
+<path d="M180 51 V221" stroke="#25171c" stroke-width="5" opacity=".7"/>
+<path d="M151 84 L180 67 209 84 200 113 180 127 160 113Z" fill="#d34b36" stroke="#21151a" stroke-width="5"/>
+<path d="M180 76 V118 M162 94 H198" stroke="#24181b" stroke-width="5"/>
+<path d="M166 222 L180 265 198 221" fill="#b43c31" stroke="#21151a" stroke-width="4"/>
+</svg>
