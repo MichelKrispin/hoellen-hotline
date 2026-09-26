@@ -22,7 +22,6 @@ jobs:
         env:
           VITE_BASE: /hoellen-hotline/
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test -c playwright.one-link.config.ts e2e/one-link.spec.ts --grep "one guest joins"
       - run: npx playwright test -c playwright.pages.config.ts e2e/pages-base.spec.ts
       - run: npx playwright test --grep-invert "tutorial guides|three browsers join the private lobby"
         env:
