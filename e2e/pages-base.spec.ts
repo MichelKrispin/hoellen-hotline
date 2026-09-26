@@ -7,6 +7,7 @@ test("built Pages subpath loads assets, legal pages and invite links", async ({
   const base = "/hoellen-hotline/";
   await page.goto(base);
   await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await page.keyboard.press("d");
   await page.keyboard.press("2");
   await expect(
     page.getByRole("link", { name: "Datenschutz und Verbindungsdaten" }),

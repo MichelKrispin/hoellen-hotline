@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Debug-Navigation: 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis, 7 Atlas-Prüfung. Alle drei Rollenpulte sind in einer verbundenen Partie bedienbar. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md), die Rollenbedienung in [docs/agent.md](docs/agent.md), [docs/archivist.md](docs/archivist.md) und [docs/dispatcher.md](docs/dispatcher.md).
+Debug-Navigation: Mit `D` ein- und ausschalten; danach 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis, 7 Atlas-Prüfung. Alle drei Rollenpulte sind in einer verbundenen Partie bedienbar. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md), die Rollenbedienung in [docs/agent.md](docs/agent.md), [docs/archivist.md](docs/archivist.md) und [docs/dispatcher.md](docs/dispatcher.md).
 
 Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](docs/content.md) beschrieben.
 

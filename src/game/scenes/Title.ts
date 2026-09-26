@@ -71,7 +71,7 @@ export class Title extends Phaser.Scene {
       433,
       88,
     );
-    label(
+    const debugHint = label(
       this,
       112,
       983,
@@ -79,6 +79,6 @@ export class Title extends Phaser.Scene {
       22,
       C.muted,
     );
-    installDebugNavigation(this);
+    installDebugNavigation(this, debugHint);
   }
 }

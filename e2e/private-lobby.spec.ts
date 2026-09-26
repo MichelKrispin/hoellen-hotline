@@ -60,6 +60,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   const host = await context.newPage();
   await host.goto("/");
   await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await host.keyboard.press("d");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
   const guests = [];

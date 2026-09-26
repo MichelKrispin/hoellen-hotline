@@ -7,6 +7,9 @@ test("scene navigation covers lobby, three roles and results", async ({
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible();
   await expect(canvas).toHaveAttribute("data-scene", "Title");
+  await page.keyboard.press("4");
+  await expect(canvas).toHaveAttribute("data-scene", "Title");
+  await page.keyboard.press("d");
   for (const [key, scene] of [
     ["2", "Lobby"],
     ["3", "Game"],
@@ -24,5 +27,8 @@ test("scene navigation covers lobby, three roles and results", async ({
     if (key === "5")
       await expect(canvas).toHaveAttribute("data-role", "dispatcher");
   }
+  await page.keyboard.press("d");
+  await page.keyboard.press("4");
+  await expect(canvas).toHaveAttribute("data-scene", "Title");
   await expect(page).toHaveURL("/");
 });

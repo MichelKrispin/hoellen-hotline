@@ -6,12 +6,12 @@ export class Results extends Phaser.Scene {
     super("Results");
   }
   create(): void {
-    sceneHeader(
+    const debugHint = sceneHeader(
       this,
       "Abschlussakte",
       "Ergebnisplatzhalter · Wertung und Fehlerchronik folgen in späteren Batches.",
     );
     button(this, 320, 540, "Zurück zum Titel", () => this.scene.start("Title"));
-    installDebugNavigation(this);
+    installDebugNavigation(this, debugHint);
   }
 }

@@ -5,6 +5,7 @@ test("host configures free play and sees registered campaign scenarios", async (
 }) => {
   await page.goto("/");
   await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await page.keyboard.press("d");
   await page.keyboard.press("2");
   await page.getByRole("button", { name: "Lobby erstellen" }).click();
   const mode = page.getByLabel("Spielmodus");
@@ -47,6 +48,7 @@ test("tutorial guides three connected roles into one shared practice case", asyn
   const host = await context.newPage();
   await host.goto("/");
   await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await host.keyboard.press("d");
   await host.keyboard.press("2");
   await host.getByRole("button", { name: "Lobby erstellen" }).click();
   await host.getByLabel("Spielmodus").selectOption("tutorial");
