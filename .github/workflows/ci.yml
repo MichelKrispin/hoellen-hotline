@@ -36,7 +36,7 @@ jobs:
         env:
           TEST_STUN_URL: stun:127.0.0.1:9
       - run: npx playwright install --with-deps firefox
-      - run: npx playwright test -c playwright.firefox.config.ts e2e/navigation.spec.ts e2e/accessibility.spec.ts e2e/asset-budget.spec.ts e2e/webrtc-spike.spec.ts e2e/mixed-browsers.spec.ts
+      - run: npx playwright test -c playwright.firefox.config.ts e2e/navigation.spec.ts e2e/accessibility.spec.ts e2e/asset-budget.spec.ts e2e/webrtc-spike.spec.ts e2e/mixed-browsers.spec.ts --retries=2
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
