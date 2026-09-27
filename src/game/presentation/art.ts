@@ -220,6 +220,7 @@ export function room(scene: Phaser.Scene, offset = 0): void {
     pointerShift = Phaser.Math.Clamp(pointer.x / DESIGN.width - 0.5, -0.5, 0.5);
   };
   const update = (_time: number, delta: number): void => {
+    if (prefersReducedMotion()) return;
     easedShift = Phaser.Math.Linear(
       easedShift,
       pointerShift,
@@ -346,11 +347,11 @@ export function statusBar(
   const queueState = label(scene, 503, 92, "WARTET", 15, C.muted);
   const clock = label(scene, 621, 86, "—:—", 32);
   const caseId = label(scene, 1164, 88, "—", 25, C.text, 159);
-  const stressNames = ["W", "K", "A"];
+  const stressNames = ["WART", "KESSEL", "AUDIT"];
   const stressReadings = stressNames.map((name, index) => {
     const x = 793 + index * 115;
-    label(scene, x, 88, name, 18, C.muted);
-    return label(scene, x + 24, 86, "—", 25);
+    label(scene, x, 88, name, 13, C.muted);
+    return label(scene, x + 69, 85, "—", 24);
   });
   const stressBars = scene.add.graphics();
   const approvalNames = ["AGENT", "ARCHIV", "ROUTE"];

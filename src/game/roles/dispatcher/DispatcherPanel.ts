@@ -38,6 +38,9 @@ function showValue(value: string | number | boolean): string {
 export class DispatcherPanel {
   private readonly mirror = document.createElement("section");
   private readonly mirrorStatus = document.createElement("p");
+  private readonly mirrorSummary = document.createElement("p");
+  private readonly previousSummaryButton = document.createElement("button");
+  private readonly nextSummaryButton = document.createElement("button");
   private readonly targetButtons: HTMLButtonElement[] = [];
   private readonly controlButtons: HTMLButtonElement[] = [];
   private readonly recoveryButton = document.createElement("button");
@@ -123,12 +126,19 @@ export class DispatcherPanel {
       controlGroup.append(button);
     }
     this.recoveryButton.onclick = () => this.recover();
+    this.previousSummaryButton.textContent = "Vorherige Auftragsseite";
+    this.nextSummaryButton.textContent = "Nächste Auftragsseite";
+    this.previousSummaryButton.onclick = () => this.changeSummaryPage(-1);
+    this.nextSummaryButton.onclick = () => this.changeSummaryPage(1);
     this.prepareButton.onclick = () => this.prepare();
     this.readyButton.onclick = () => this.toggleReady();
     this.commitButton.onclick = () => this.commit();
     this.mirror.append(
       targetGroup,
       controlGroup,
+      this.mirrorSummary,
+      this.previousSummaryButton,
+      this.nextSummaryButton,
       this.recoveryButton,
       this.prepareButton,
       this.readyButton,
@@ -620,6 +630,12 @@ export class DispatcherPanel {
     this.nextSummaryPage.setAlpha(
       this.summaryPageIndex === this.summaryPages.length - 1 ? 0.35 : 1,
     );
+    this.mirrorSummary.textContent = `Auftrag Seite ${this.summaryPageIndex + 1} von ${this.summaryPages.length}. ${this.summaryPages[this.summaryPageIndex] ?? ""}`;
+    this.previousSummaryButton.disabled =
+      !hasSummaryPages || this.summaryPageIndex === 0;
+    this.nextSummaryButton.disabled =
+      !hasSummaryPages ||
+      this.summaryPageIndex === this.summaryPages.length - 1;
     const incident = role.incident;
     const recovered =
       incident &&

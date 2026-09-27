@@ -82,6 +82,12 @@ export class OptionsOverlay {
 
   constructor() {
     applyDisplayOptions();
+    window
+      .matchMedia("(prefers-reduced-motion: reduce)")
+      .addEventListener("change", () => {
+        applyDisplayOptions();
+        window.dispatchEvent(new Event("display-options-changed"));
+      });
     this.root.className = "display-options";
     this.button.textContent = "⚙";
     this.button.title = "Optionen (O)";
@@ -137,5 +143,6 @@ export class OptionsOverlay {
       /* Storage is optional. */
     }
     applyDisplayOptions();
+    window.dispatchEvent(new Event("display-options-changed"));
   }
 }

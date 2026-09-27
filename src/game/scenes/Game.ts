@@ -355,7 +355,22 @@ export class Game extends Phaser.Scene {
     if (this.network)
       this.presentation = new PresentationSystem(this, this.network);
     if (this.network) this.shiftMirror = new ShiftMirror(this.network);
+    const updateMotion = (): void => {
+      if (prefersReducedMotion()) {
+        this.tweens.pauseAll();
+        for (const name of [
+          "agent-operator",
+          "archivist-worker",
+          "dispatcher-worker",
+        ])
+          (
+            this.children.getByName(name) as Phaser.GameObjects.Image | null
+          )?.setAngle(0);
+      } else this.tweens.resumeAll();
+    };
+    window.addEventListener("display-options-changed", updateMotion);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      window.removeEventListener("display-options-changed", updateMotion);
       this.shiftMirror?.destroy();
       this.shiftMirror = null;
       this.presentation?.destroy();
