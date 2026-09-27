@@ -90,6 +90,28 @@ test("tutorial guides three connected roles into one shared practice case", asyn
     await page.getByRole("button", { name: "Bereit melden" }).click();
   }
   await host.getByRole("button", { name: "Schicht starten" }).click();
+  for (const [index, page] of pages.entries()) {
+    await expect(page.locator("canvas")).toHaveAttribute(
+      "data-role",
+      ["agent", "archivist", "dispatcher"][index]!,
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+  }
+  await expect(
+    host.getByRole("region", { name: "Agentenpult und Tastatursteuerung" }),
+  ).toBeVisible();
+  await expect(
+    guests[0]!.getByRole("textbox", { name: "Akten durchsuchen" }),
+  ).toBeVisible();
+  await expect(
+    guests[1]!.getByRole("region", {
+      name: "Disponentenpult und Tastatursteuerung",
+    }),
+  ).toBeVisible();
+  const touchTarget = await host
+    .getByRole("button", { name: "Anruf annehmen" })
+    .boundingBox();
+  expect(touchTarget?.height).toBeGreaterThanOrEqual(44);
   const stationTasks = host.getByRole("list", { name: "Tutorialaufgaben" });
   await expect(stationTasks.getByRole("listitem")).toHaveCount(3);
   await expect(

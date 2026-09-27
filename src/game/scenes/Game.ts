@@ -301,6 +301,7 @@ export class Game extends Phaser.Scene {
     preloadAssetGroups(this, ["shared", `role-${this.role}`]);
   }
   create(): void {
+    document.body.classList.add("role-game");
     this.game.canvas.dataset.scene = "Game";
     this.game.canvas.dataset.role = this.role;
     this.cameras.main.setBackgroundColor(C.background);
@@ -370,6 +371,7 @@ export class Game extends Phaser.Scene {
     };
     window.addEventListener("display-options-changed", updateMotion);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      document.body.classList.remove("role-game");
       window.removeEventListener("display-options-changed", updateMotion);
       this.shiftMirror?.destroy();
       this.shiftMirror = null;

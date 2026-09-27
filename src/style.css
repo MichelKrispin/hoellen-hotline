@@ -307,6 +307,102 @@ html[data-reduced-flash="true"] * {
 .dispatcher-accessible-controls button:disabled {
   opacity: 0.55;
 }
+
+@media (max-width: 750px) {
+  body.role-game {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+    background: #21151a;
+  }
+  .role-game #app {
+    height: min(58vw, 245px);
+    min-height: 195px;
+    align-items: flex-start;
+  }
+  .role-game .agent-accessible-controls,
+  .role-game .archivist-mirror,
+  .role-game .dispatcher-accessible-controls {
+    position: relative;
+    inset: auto;
+    display: block;
+    box-sizing: border-box;
+    width: calc(100% - 24px);
+    height: auto;
+    max-height: none;
+    margin: 12px;
+    overflow: visible;
+    clip-path: none;
+    padding: 16px;
+    border: 4px solid var(--material-metal-edge);
+    border-radius: 12px;
+    background: var(--material-metal-dark);
+    color: #f4e1bd;
+    font:
+      16px/1.45 Arial,
+      sans-serif;
+  }
+  .role-game .agent-accessible-controls::before,
+  .role-game .archivist-mirror::before,
+  .role-game .dispatcher-accessible-controls::before {
+    display: block;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border: 2px solid var(--material-metal-edge);
+    background: var(--material-bakelite);
+    color: #fff1c9;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .role-game .agent-accessible-controls::before {
+    content: "☎ TELEFONPLATZ";
+  }
+  .role-game .archivist-mirror::before {
+    content: "▤ AKTEN UND REGELN";
+  }
+  .role-game .dispatcher-accessible-controls::before {
+    content: "↗ MASCHINENKONSOLE";
+  }
+  .role-game .archivist-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 30%);
+    gap: 8px;
+    padding: 0 12px;
+  }
+  .role-game .archive-search,
+  .role-game .archive-filter {
+    position: static;
+    width: 100% !important;
+    height: 48px !important;
+    min-width: 0;
+    font-size: 16px;
+  }
+  .role-game .archivist-mirror {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0 0 12px;
+  }
+  .role-game .agent-accessible-controls button,
+  .role-game .agent-accessible-controls select,
+  .role-game .archivist-mirror button,
+  .role-game .dispatcher-accessible-controls button {
+    min-height: 48px;
+    font-size: calc(16px * var(--text-scale, 1));
+  }
+  .role-game .dispatcher-targets,
+  .role-game .dispatcher-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 8px 0 16px;
+  }
+  .role-game .dispatcher-targets button,
+  .role-game .dispatcher-controls button {
+    height: 100%;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
 .lobby-overlay {
   position: fixed;
   inset: 4% 5%;

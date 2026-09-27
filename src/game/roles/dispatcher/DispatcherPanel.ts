@@ -110,6 +110,7 @@ export class DispatcherPanel {
     });
     this.mirrorStatus.setAttribute("role", "status");
     const targetGroup = document.createElement("div");
+    targetGroup.className = "dispatcher-targets";
     targetGroup.setAttribute("aria-label", "Zielbank");
     for (let i = 0; i < 12; i++) {
       const button = document.createElement("button");
@@ -118,6 +119,7 @@ export class DispatcherPanel {
       targetGroup.append(button);
     }
     const controlGroup = document.createElement("div");
+    controlGroup.className = "dispatcher-controls";
     controlGroup.setAttribute("aria-label", "Maschinenregler");
     for (let i = 0; i < 6; i++) {
       const button = document.createElement("button");
