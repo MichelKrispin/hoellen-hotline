@@ -112,13 +112,22 @@ html[data-reduced-flash="true"] * {
   max-height: calc(100vh - 16px);
   overflow: auto;
   clip-path: none;
-  padding: 12px;
+  padding: 16px;
   color: #f4e1bd;
-  background: #261a25;
-  border: 3px solid #e9a84c;
-  box-shadow: 0 12px 40px #000b;
+  background: repeating-linear-gradient(
+    0deg,
+    #32202a 0 36px,
+    #281923 37px 40px
+  );
+  border: 5px solid #a8543b;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 4px #1b1219,
+    0 16px 42px #000d,
+    inset 0 0 0 2px #d48559;
   font:
-    15px Arial,
+    15px "Trebuchet MS",
+    "DejaVu Sans",
     sans-serif;
 }
 .agent-accessible-controls button,
@@ -126,12 +135,30 @@ html[data-reduced-flash="true"] * {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  margin: 4px 0;
-  padding: 7px;
-  background: #e9c99a;
+  margin: 7px 0;
+  padding: 9px 11px;
+  background: linear-gradient(#f9e6bd, #ddb88a);
   color: #241620;
   border: 2px solid #91604a;
+  border-radius: 4px;
+  box-shadow:
+    0 3px #291820,
+    inset 0 1px #fff4d4;
   font: inherit;
+}
+.agent-accessible-controls button {
+  font-weight: 800;
+  cursor: pointer;
+}
+.agent-accessible-controls button:first-child,
+.agent-accessible-controls button:nth-last-child(2) {
+  border-color: #ffc393;
+  background: linear-gradient(#ff7045, #d6382c);
+  color: #fff1d9;
+  text-shadow: 0 1px #672022;
+}
+.agent-accessible-controls button:hover:not(:disabled) {
+  filter: brightness(1.1);
 }
 .agent-accessible-controls button:focus-visible,
 .agent-accessible-controls select:focus-visible {
@@ -1381,12 +1408,26 @@ html[data-palette="contrast"] .lobby-setup .scenario-intro {
   }
   .mobile-title button {
     width: 100%;
-    min-height: 48px;
-    border: 2px solid #ffce83;
-    border-radius: 5px;
-    background: #edae5b;
-    color: #25141a;
+    min-height: 54px;
+    border: 3px solid #f3422d;
+    border-radius: 16px;
+    background: #18090e;
+    color: #ffe2d0;
+    font-family: "Trebuchet MS", "DejaVu Sans", Arial, sans-serif;
+    font-size: 20px;
     font-weight: 800;
+    text-shadow: 0 0 8px #ff4b36;
+    box-shadow:
+      0 0 14px #f3422d8c,
+      inset 0 0 10px #a8242280;
+  }
+  .mobile-title button:hover {
+    border-color: #ffae69;
+    color: #fff5e8;
+    text-shadow: 0 0 13px #ff7958;
+    box-shadow:
+      0 0 27px #f3422dc2,
+      inset 0 0 18px #ff56344d;
   }
   .mobile-title button:focus-visible {
     outline: 3px solid #70e9ee;

@@ -100,7 +100,7 @@ export function button(
   let fontSize = 31;
   const text = scene.add
     .text(x, y, label, {
-      fontFamily: "Arial, sans-serif",
+      fontFamily: '"Trebuchet MS", "DejaVu Sans", sans-serif',
       fontSize: `${fontSize}px`,
       fontStyle: "bold",
       color: "#1b111b",

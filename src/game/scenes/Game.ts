@@ -11,6 +11,7 @@ import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
 import { PresentationSystem } from "../presentation/PresentationSystem";
 import { ShiftMirror } from "../../ui/shiftMirror";
+import { prefersReducedMotion } from "../../app/options";
 import {
   devil,
   gauge,
@@ -27,31 +28,65 @@ const C = TOKENS.color;
 
 function agentDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "LEITUNG  /  ANRUFER", C.agent);
-  devil(scene, 263, 639, 1.05, 0xc23b36);
-  placeholder(scene, "telephone", 108, 640, 280, 150);
-  plate(scene, 95, 735, 395, 137, C.bakelite);
-  neon(scene, 124, 765, 330, 67, C.agent);
-  if (!live) label(scene, 155, 780, "☎   TELEFON", 30);
+  plate(scene, 95, 317, 395, 416, C.wood);
+  plate(scene, 111, 334, 363, 39, C.bakelite);
+  label(scene, 129, 341, "AGENT  /  TELEFONZENTRALE", 19, "#ffc69c");
+  const operator = scene.add
+    .image(292, 548, "agent-operator")
+    .setDisplaySize(320, 355);
+  if (!prefersReducedMotion()) {
+    scene.tweens.add({
+      targets: operator,
+      y: 544,
+      duration: 2500,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+  }
+  plate(scene, 95, 742, 395, 232, C.bakelite);
+  neon(scene, 119, 759, 346, 72, C.agent);
+  plate(scene, 119, 839, 346, 62, C.wood);
+  if (!live)
+    label(scene, 151, 778, "☎  ANNEHMEN (A)", 27).setFontFamily(
+      '"Trebuchet MS", "DejaVu Sans", sans-serif',
+    );
+  if (!live) {
+    label(scene, 137, 850, "↯  UNTERBRECHEN (I)", 22);
+    label(scene, 130, 923, "STIMMUNG   —", 21, "#ffc69c");
+  }
   plate(scene, 501, 308, 889, 541, C.metal);
   neon(scene, 528, 337, 834, 209, C.cyan);
-  placeholder(scene, "soul", 644, 370, 110, 145);
+  plate(scene, 637, 366, 152, 160, C.bakelite);
+  if (!live) scene.add.image(713, 446, "agent-caller").setDisplaySize(122, 143);
   label(scene, 818, 374, "SEELENKANAL", 24, "#91eafa");
   if (!live) label(scene, 817, 427, "Noch kein Anruf", 41);
-  if (!live) label(scene, 548, 573, "GESPRÄCHSOPTIONEN", 25, C.muted);
+  plate(scene, 527, 545, 835, 285, C.bakelite);
+  label(scene, 552, 552, "GESPRÄCHSOPTIONEN", 22, "#ffc69c");
   if (!live)
-    for (let i = 0; i < 3; i++) {
-      paper(scene, 541, 621 + i * 69, 790, 56);
-      label(scene, 570, 633 + i * 69, `${i + 1}   —`, 25, C.ink);
-    }
-  paper(scene, 1416, 330, 367, 471);
-  label(scene, 1453, 366, "GETEILTE HINWEISE", 27, C.ink);
+    for (let i = 0; i < 5; i++)
+      plate(scene, 541, 582 + i * 48, 790, 42, C.paper);
+  if (!live) {
+    plate(scene, 527, 844, 835, 150, C.wood);
+    label(scene, 548, 856, "ZIELBITTE  /  DISPOSITION", 20, "#ffc69c");
+    plate(scene, 543, 901, 581, 55, C.paper);
+    label(scene, 558, 912, "→ Zielbitte: —", 23, C.ink);
+    plate(scene, 1135, 901, 207, 55, C.bakelite);
+    label(scene, 1153, 914, "BITTE SENDEN", 21);
+  }
+  plate(scene, 1402, 317, 394, 553, C.wood);
+  paper(scene, 1416, 330, 367, 528);
+  label(scene, 1450, 365, "GETEILTE HINWEISE", 25, C.ink);
   if (!live)
     for (let i = 0; i < 3; i++)
-      label(scene, 1450, 446 + i * 83, `◇  HINWEIS ${i + 1}`, 24, C.ink);
+      label(scene, 1450, 446 + i * 82, `◇  HINWEIS ${i + 1}`, 24, C.ink);
   if (!live) {
-    gauge(scene, 1638, 853, 69, 0.25);
-    label(scene, 1500, 941, "LEITUNGSDRUCK", 24);
+    label(scene, 1450, 697, "Entdeckt: —", 21, C.ink);
+    label(scene, 1450, 777, "◇  Freigabe: Ziel fehlt", 21, C.ink);
   }
+  plate(scene, 1402, 883, 394, 111, C.bakelite);
+  label(scene, 1427, 901, "LEITUNGSDRUCK", 19, "#ffc69c");
+  if (!live) label(scene, 1428, 938, "◇  Ruhig", 24);
 }
 
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {

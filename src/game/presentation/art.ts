@@ -121,24 +121,26 @@ export function gauge(
 
 export function room(scene: Phaser.Scene, offset = 0): void {
   placeholder(scene, "hellscape-backdrop", 0, 0, DESIGN.width, 780);
-  placeholder(
+  const city = placeholder(
     scene,
     "hellscape-city",
-    -(offset % 80),
+    -40 - (offset % 32),
     310,
     DESIGN.width + 80,
     470,
   );
-  const bridge = placeholder(scene, "bridge", 0, 480, DESIGN.width, 320);
-  const fixtures = scene.add.container(0, 0);
+  const bridge = placeholder(scene, "bridge", -24, 480, DESIGN.width + 48, 320);
+  const pipes = scene.add.container(0, 0);
   for (let i = 0; i < 7; i++)
-    fixtures.add(placeholder(scene, "pipe", i * 320 - 65, 260, 96, 600));
+    pipes.add(placeholder(scene, "pipe", i * 320 - 65, 260, 96, 600));
+  const chains = scene.add.container(0, 0);
   for (let i = 0; i < 11; i++)
-    fixtures.add(
+    chains.add(
       placeholder(scene, "chain", i * 199 + (offset % 45), 0, 50, 220),
     );
+  const embers = scene.add.container(0, 0);
   for (let i = 0; i < 30; i++)
-    fixtures.add(
+    embers.add(
       placeholder(
         scene,
         "ember",
@@ -149,12 +151,33 @@ export function room(scene: Phaser.Scene, offset = 0): void {
       ),
     );
   placeholder(scene, "desk-wood", 0, 870, DESIGN.width, 210);
-  if (!prefersReducedMotion())
-    scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
-      const shift = pointer.x / DESIGN.width - 0.5;
-      bridge.x = -shift * 10;
-      fixtures.x = -shift * 22;
-    });
+  if (prefersReducedMotion()) return;
+
+  let pointerShift = 0;
+  let easedShift = 0;
+  const onPointerMove = (pointer: Phaser.Input.Pointer): void => {
+    pointerShift = Phaser.Math.Clamp(pointer.x / DESIGN.width - 0.5, -0.5, 0.5);
+  };
+  const update = (_time: number, delta: number): void => {
+    easedShift = Phaser.Math.Linear(
+      easedShift,
+      pointerShift,
+      Math.min(1, delta / 180),
+    );
+    const drift = Math.sin(scene.time.now / 4200);
+    city.x = -40 - (offset % 32) - easedShift * 12 + drift * 2;
+    bridge.x = -24 - easedShift * 19;
+    pipes.x = -easedShift * 26;
+    chains.x = -easedShift * 38 + drift * 3;
+    embers.x = -easedShift * 47 + drift * 5;
+    embers.y = Math.sin(scene.time.now / 1700) * 5;
+  };
+  scene.input.on("pointermove", onPointerMove);
+  scene.events.on(Phaser.Scenes.Events.UPDATE, update);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    scene.input.off("pointermove", onPointerMove);
+    scene.events.off(Phaser.Scenes.Events.UPDATE, update);
+  });
 }
 
 export function telephone(

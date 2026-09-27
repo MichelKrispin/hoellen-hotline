@@ -20,6 +20,7 @@ function pressureLabel(value: number): string {
 
 export class AgentPanel {
   private readonly portrait: Phaser.GameObjects.Image;
+  private readonly callerSprite: Phaser.GameObjects.Image;
   private readonly caller: Phaser.GameObjects.Text;
   private readonly speech: Phaser.GameObjects.Text;
   private readonly mood: Phaser.GameObjects.Text;
@@ -27,6 +28,7 @@ export class AgentPanel {
   private readonly accept: Phaser.GameObjects.Text;
   private readonly interrupt: Phaser.GameObjects.Text;
   private readonly choices: Phaser.GameObjects.Text[] = [];
+  private readonly choicePlates: Phaser.GameObjects.NineSlice[] = [];
   private readonly hints: Phaser.GameObjects.Text[] = [];
   private readonly discovered: Phaser.GameObjects.Text;
   private readonly suggestion: Phaser.GameObjects.Text;
@@ -80,47 +82,75 @@ export class AgentPanel {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
+    this.callerSprite = scene.add
+      .image(713, 446, "agent-caller")
+      .setDisplaySize(122, 143);
     const initialPortrait = textureFor(scene, "asset.core.portrait.clerk");
     this.portrait = scene.add.image(
-      697,
-      440,
+      713,
+      446,
       initialPortrait.key,
       initialPortrait.frame,
     );
-    this.portrait.setDisplaySize(166, 208).setVisible(false);
+    this.portrait.setDisplaySize(122, 153).setVisible(false);
     this.caller = label(scene, 817, 416, "Noch kein Anruf", 35, C.text, 515);
     this.speech = label(scene, 817, 466, "Leitung frei.", 27, "#91eafa", 510);
-    this.mood = label(scene, 122, 843, "Stimmung: –", 22);
-    this.queue = label(scene, 1450, 405, "◇ Ruhig", 22, C.ink);
-    this.accept = label(scene, 151, 779, "☎   ANNEHMEN (A)", 27);
+    this.mood = label(scene, 130, 923, "STIMMUNG  —", 21, "#ffc69c");
+    this.queue = label(scene, 1428, 938, "◇ Ruhig", 24);
+    this.accept = label(scene, 151, 779, "☎   ANNEHMEN (A)", 27).setFontFamily(
+      '"Trebuchet MS", "DejaVu Sans", sans-serif',
+    );
+    scene.add
+      .zone(119, 759, 346, 72)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.acceptCase());
     this.accept
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.acceptCase());
-    this.interrupt = label(scene, 122, 888, "↯ UNTERBRECHEN (I)", 23);
+    this.interrupt = label(
+      scene,
+      135,
+      852,
+      "↯ UNTERBRECHEN (I)",
+      22,
+    ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
+    scene.add
+      .zone(119, 840, 346, 62)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.interruptCall());
     this.interrupt
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.interruptCall());
     for (let i = 0; i < 5; i++) {
-      const y = 563 + i * 55;
-      plate(scene, 541, y, 790, 49, C.paper, 0x9d7155, 8);
-      const choice = label(scene, 568, y + 8, "", 24, C.ink, 735);
+      const y = 582 + i * 48;
+      const card = plate(scene, 541, y, 790, 42, C.paper, 0x9d7155, 8);
+      this.choicePlates.push(card);
+      const choice = label(scene, 568, y + 6, "", 23, C.ink, 735).setFontFamily(
+        '"Trebuchet MS", "DejaVu Sans", sans-serif',
+      );
       scene.add
-        .zone(541, y, 790, 49)
+        .zone(541, y, 790, 42)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.choose(i));
       this.choices.push(choice);
     }
+    plate(scene, 527, 844, 835, 150, C.wood);
+    label(scene, 548, 856, "ZIELBITTE  /  DISPOSITION", 20, "#ffc69c");
+    plate(scene, 543, 901, 581, 55, C.paper);
+    plate(scene, 1135, 901, 207, 55, C.bakelite);
     for (let i = 0; i < 3; i++) {
       const hint = label(
         scene,
         1450,
-        446 + i * 83,
+        446 + i * 82,
         `◇  HINWEIS ${i + 1}`,
         24,
         C.ink,
         300,
-      );
+      ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
       hint
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.publish(i));
@@ -129,28 +159,56 @@ export class AgentPanel {
     this.discovered = label(
       scene,
       1450,
-      694,
+      697,
       "Entdeckte Hinweise: –",
       21,
       C.ink,
       300,
-    );
+    ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     this.discovered
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.cycleTag());
-    this.suggestion = label(scene, 546, 884, "→ Zielbitte: –", 25, C.text, 755);
+    this.suggestion = label(
+      scene,
+      558,
+      912,
+      "→ Zielbitte: –",
+      23,
+      C.ink,
+      550,
+    ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     this.suggestion
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.cycleDestination());
-    this.suggestionAction = label(scene, 1152, 884, "BITTE SENDEN", 24, C.text);
+    this.suggestionAction = label(
+      scene,
+      1151,
+      913,
+      "BITTE SENDEN",
+      22,
+      C.text,
+    ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
+    scene.add
+      .zone(1135, 901, 207, 55)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.sendSuggestion());
     this.suggestionAction
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.sendSuggestion());
-    this.approval = label(scene, 1450, 749, "◇ Freigabe offen", 22, C.ink, 310);
+    this.approval = label(
+      scene,
+      1450,
+      777,
+      "◇ Freigabe offen",
+      22,
+      C.ink,
+      310,
+    ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     this.approval
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
-    this.feedback = label(scene, 1020, 944, "", 22, C.text, 320);
+    this.feedback = label(scene, 559, 965, "", 18, C.text, 740);
     this.handset = placeholder(scene, "handset", 350, 636, 80, 45).setVisible(
       false,
     );
@@ -352,14 +410,14 @@ export class AgentPanel {
       19,
     );
     this.mood.setText(
-      `Stimmung: ${role.callerMood === null ? "–" : role.callerMood >= 70 ? "☺ ruhig" : role.callerMood >= 40 ? "◇ angespannt" : "! gereizt"}`,
+      `STIMMUNG  ${role.callerMood === null ? "—" : role.callerMood >= 70 ? "☺ ruhig" : role.callerMood >= 40 ? "◇ angespannt" : "! gereizt"}`,
     );
     fitText(
       this.queue,
-      `Queue: ${pressureLabel(view.public.queuePressure)}`,
+      pressureLabel(view.public.queuePressure),
       300,
       30,
-      22,
+      24,
       18,
     );
     this.accept.setText(active ? "● LEITUNG AKTIV" : "☎ ANNEHMEN (A)");
@@ -370,7 +428,8 @@ export class AgentPanel {
       const text = choiceId
         ? `${i + 1}  ${role.dialogueLabels[choiceId] ?? choiceId}`
         : "";
-      fitText(this.choices[i]!, text, 735, 33, 24, 17);
+      fitText(this.choices[i]!, text, 735, 31, 23, 17);
+      this.choicePlates[i]!.setAlpha(choiceId && !role.cooldownMs ? 1 : 0.56);
       this.mirrorChoices[i]!.textContent =
         text || `Antwort ${i + 1} nicht verfügbar`;
       this.mirrorChoices[i]!.disabled = !choiceId || role.cooldownMs > 0;
@@ -378,9 +437,9 @@ export class AgentPanel {
     fitText(
       this.interrupt,
       `↯ UNTERBRECHEN (I)${role.cooldownMs ? ` · ${Math.ceil(role.cooldownMs / 1000)} s` : ""}`,
-      385,
+      310,
       32,
-      23,
+      22,
       18,
     );
     this.interrupt.setAlpha(
@@ -430,9 +489,9 @@ export class AgentPanel {
       suggested
         ? `→ Zielbitte gesendet: ${role.suggestableDestinations.find((item) => item.id === suggested)?.name ?? suggested}`
         : `→ Zielbitte: ${selectedName ?? "–"}  ↻`,
-      755,
+      550,
       38,
-      25,
+      23,
       18,
     );
     this.suggestButton.disabled =
@@ -461,9 +520,9 @@ export class AgentPanel {
     fitText(
       this.feedback,
       this.network.error || this.localFeedback,
-      320,
-      50,
-      22,
+      740,
+      28,
+      18,
       16,
     );
     const accessibleStatus = `${role.callerName ?? role.incomingCallerName ?? "Kein Anruf"}. ${role.dialogueText ?? ""} Queue ${pressureLabel(view.public.queuePressure)}. Freigabe ${view.public.approvals.agent ? "erteilt" : "offen"}. ${this.network.error || this.localFeedback}`;
@@ -475,6 +534,7 @@ export class AgentPanel {
     const hasPortrait = Boolean(portraitId && !portrait.missing);
     if (portraitId) this.portrait.setTexture(portrait.key, portrait.frame);
     this.portrait.setVisible(Boolean(portraitId));
+    this.callerSprite.setVisible(!portraitId);
     this.mirror.dataset.portraitLoaded = String(hasPortrait);
     this.mirror.dataset.missingAsset =
       portraitId && portrait.missing ? portraitId : "";
