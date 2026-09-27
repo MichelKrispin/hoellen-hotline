@@ -50,6 +50,8 @@ export class ArchivistPanel {
   private readonly previousContentPage: Phaser.GameObjects.Text;
   private readonly nextContentPage: Phaser.GameObjects.Text;
   private readonly stampLabels: Phaser.GameObjects.Text[] = [];
+  private readonly stampImprint: Phaser.GameObjects.Text;
+  private readonly stampImprintFrame: Phaser.GameObjects.Graphics;
   private readonly stampStatus: Phaser.GameObjects.Text;
   private readonly approval: Phaser.GameObjects.Text;
   private readonly drawer: Phaser.GameObjects.Image;
@@ -69,6 +71,7 @@ export class ArchivistPanel {
   private results: ArchiveRecordView[] = [];
   private renderedResults = "";
   private feedback = "";
+  private lastStamp: (typeof STAMPS)[number] | null = null;
   private lastCommand = "";
   private pendingUntil = 0;
   private lastEjectionAt = 0;
@@ -266,6 +269,13 @@ export class ArchivistPanel {
       this.stampLabels.push(text);
     }
     this.stampStatus = label(scene, 575, 798, "Noch kein Stempel.", 21, C.ink);
+    this.stampImprintFrame = scene.add.graphics();
+    this.stampImprintFrame
+      .lineStyle(4, 0x8e3d31)
+      .strokeRoundedRect(1047, 675, 144, 88, 7);
+    this.stampImprint = label(scene, 1057, 689, "", 18, "#813529", 126);
+    this.stampImprint.setVisible(false);
+    this.stampImprintFrame.setVisible(false);
     this.approval = label(scene, 1270, 916, "◇ Freigabe offen", 22);
     this.approval
       .setInteractive({ useHandCursor: true })
@@ -297,10 +307,10 @@ export class ArchivistPanel {
   private caseId(): CaseId | null {
     return this.network.view?.public.activeCaseId ?? null;
   }
-  private submit(command: Parameters<GameNetwork["submit"]>[0]): void {
+  private submit(command: Parameters<GameNetwork["submit"]>[0]): boolean {
     const key = JSON.stringify(command);
     if (this.lastCommand === key && performance.now() < this.pendingUntil)
-      return;
+      return false;
     const error = this.network.submit(command);
     this.feedback = error ?? "Anweisung übermittelt.";
     if (!error) {
@@ -308,6 +318,7 @@ export class ArchivistPanel {
       this.pendingUntil = performance.now() + 450;
     }
     this.render();
+    return !error;
   }
   private selectTab(tab: Tab): void {
     this.tab = tab;
@@ -381,11 +392,16 @@ export class ArchivistPanel {
   private stamp(value: (typeof STAMPS)[number], index: number): void {
     const id = this.caseId();
     if (!id) return;
-    this.submit({ kind: "STAMP", caseId: id, stamp: value });
+    if (!this.submit({ kind: "STAMP", caseId: id, stamp: value })) return;
+    if (prefersReducedMotion()) return;
+    const stamp = this.stampLabels[index]!;
+    this.scene.tweens.killTweensOf(stamp);
     this.scene.tweens.add({
-      targets: this.stampLabels[index],
+      targets: stamp,
+      x: 1057,
+      y: 700,
       scaleY: 0.68,
-      duration: 110,
+      duration: 150,
       yoyo: true,
       ease: "Back.easeOut",
     });
@@ -673,9 +689,28 @@ export class ArchivistPanel {
       30,
       21,
     );
+    if (this.lastStamp !== role.stamp) {
+      this.lastStamp = role.stamp;
+      this.stampImprint.setAlpha(prefersReducedMotion() ? 1 : 0);
+      if (role.stamp && !prefersReducedMotion())
+        this.scene.tweens.add({
+          targets: this.stampImprint,
+          alpha: 1,
+          duration: 160,
+        });
+    }
+    const stampIndex = role.stamp ? STAMPS.indexOf(role.stamp) : -1;
+    this.stampImprint.setVisible(stampIndex >= 0);
+    this.stampImprintFrame.setVisible(stampIndex >= 0);
+    if (stampIndex >= 0)
+      fitText(this.stampImprint, STAMP_LABELS[stampIndex]!, 126, 60, 18, 14);
     for (const [index, stamp] of STAMPS.entries()) {
       this.stampLabels[index]!.setAlpha(role.stamp === stamp ? 1 : 0.76);
       this.stampButtons[index]!.disabled = !publicView.activeCaseId;
+      this.stampButtons[index]!.setAttribute(
+        "aria-pressed",
+        String(role.stamp === stamp),
+      );
     }
     fitText(
       this.approval,
