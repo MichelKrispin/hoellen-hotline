@@ -31,6 +31,7 @@ export class AgentPanel {
   private readonly choices: Phaser.GameObjects.Text[] = [];
   private readonly choicePlates: Phaser.GameObjects.NineSlice[] = [];
   private readonly hints: Phaser.GameObjects.Text[] = [];
+  private readonly publishedTags: (string | undefined)[] = [];
   private readonly discovered: Phaser.GameObjects.Text;
   private readonly suggestion: Phaser.GameObjects.Text;
   private readonly suggestionAction: Phaser.GameObjects.Text;
@@ -129,14 +130,38 @@ export class AgentPanel {
       const y = 582 + i * 48;
       const card = plate(scene, 541, y, 790, 42, C.paper, 0x9d7155, 8);
       this.choicePlates.push(card);
-      const choice = label(scene, 568, y + 6, "", 23, C.ink, 735).setFontFamily(
+      const number = label(scene, 558, y + 5, String(i + 1), 25, C.ink, 30);
+      const choice = label(scene, 601, y + 6, "", 23, C.ink, 713).setFontFamily(
         '"Trebuchet MS", "DejaVu Sans", sans-serif',
       );
       scene.add
         .zone(541, y, 790, 42)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
-        .on("pointerdown", () => this.choose(i));
+        .on("pointerover", () => {
+          if (!prefersReducedMotion()) {
+            card.setY(y - 3);
+            number.setY(y + 2);
+            choice.setY(y + 3);
+          }
+        })
+        .on("pointerout", () => {
+          card.setY(y);
+          number.setY(y + 5);
+          choice.setY(y + 6);
+        })
+        .on("pointerdown", () => {
+          card.setY(y + 2);
+          number.setY(y + 7);
+          choice.setY(y + 8);
+          this.choose(i);
+          scene.time.delayedCall(120, () => {
+            if (!card.active) return;
+            card.setY(y);
+            number.setY(y + 5);
+            choice.setY(y + 6);
+          });
+        });
       this.choices.push(choice);
     }
     plate(scene, 527, 844, 835, 150, C.wood);
@@ -435,13 +460,12 @@ export class AgentPanel {
     this.acceptButton.disabled = !role.incomingCaseId;
     for (let i = 0; i < 5; i++) {
       const choiceId = role.dialogueOptions[i];
-      const text = choiceId
-        ? `${i + 1}  ${role.dialogueLabels[choiceId] ?? choiceId}`
-        : "";
-      fitText(this.choices[i]!, text, 735, 31, 23, 17);
+      const text = choiceId ? (role.dialogueLabels[choiceId] ?? choiceId) : "";
+      fitText(this.choices[i]!, text, 713, 31, 23, 17);
       this.choicePlates[i]!.setAlpha(choiceId && !role.cooldownMs ? 1 : 0.56);
-      this.mirrorChoices[i]!.textContent =
-        text || `Antwort ${i + 1} nicht verfügbar`;
+      this.mirrorChoices[i]!.textContent = text
+        ? `Antwort ${i + 1}: ${text}`
+        : `Antwort ${i + 1} nicht verfügbar`;
       this.mirrorChoices[i]!.disabled = !choiceId || role.cooldownMs > 0;
     }
     fitText(
@@ -472,6 +496,22 @@ export class AgentPanel {
     );
     for (let i = 0; i < 3; i++) {
       const tag = view.public.publishedTags[i];
+      if (
+        this.publishedTags[i] !== tag &&
+        this.publishedTags[i] !== undefined &&
+        !prefersReducedMotion()
+      ) {
+        const slip = this.hints[i]!;
+        this.scene.tweens.killTweensOf(slip);
+        slip.setAlpha(0.2).setY(433 + i * 82);
+        this.scene.tweens.add({
+          targets: slip,
+          alpha: 1,
+          y: 446 + i * 82,
+          duration: 180,
+        });
+      }
+      this.publishedTags[i] = tag;
       fitText(
         this.hints[i]!,
         `◇  ${tag ? (role.tagLabels[tag] ?? tag) : `Hinweis ${i + 1} frei`}`,
