@@ -8,6 +8,7 @@ import { AudioSystem, type AudioBus } from "../audio/AudioSystem";
 import { GAMEPLAY_HASH_VERSION } from "../content/schemas";
 import { PROTOCOL_VERSION } from "../net/protocol";
 import type { PublicShiftView } from "../game/state/contracts";
+import { nextStep } from "./nextStep";
 
 const escapeHtml = (value: string): string =>
   value.replace(
@@ -17,6 +18,17 @@ const escapeHtml = (value: string): string =>
         c
       ]!,
   );
+
+function destinationLabel(id: string | null): string {
+  if (!id) return "kein Ziel";
+  for (const campaign of CAMPAIGN_CATALOG) {
+    const destination = campaign.packs
+      .flatMap((pack) => pack.destinations)
+      .find((entry) => entry.id === id);
+    if (destination) return campaign.translations[destination.nameKey] ?? id;
+  }
+  return id;
+}
 
 function tutorialChecklist(view: PublicShiftView): string {
   const tutorial = view.tutorial;
@@ -186,7 +198,21 @@ export class GameNetworkOverlay {
     const score = report.score;
     const goodShift =
       report.endReason === "completed" && score.resolvedIncorrectly === 0;
-    this.reportRoot.innerHTML = `<div class="shift-report-paper ${goodShift ? "report-good" : "report-troubled"}"><button data-action="close-report" aria-label="Abschlussakte schließen">×</button><h1>Abschlussakte</h1><p class="report-verdict">${goodShift ? "✓ Dienstbeurteilung: Tadellos absurd" : "⚠ Dienstbeurteilung: Kessel glüht"}</p><p>Schichtzeit: ${Math.floor(report.elapsedMs / 60_000)} min ${Math.floor((report.elapsedMs % 60_000) / 1000)} s · Mittlere Fallzeit: ${Math.round(report.averageCaseMs / 1000)} s</p><div class="report-score"><span>✓ Korrekt ${score.resolvedCorrectly}</span><span>◇ Vertretbar ${score.resolvedAcceptably}</span><span>× Falsch ${score.resolvedIncorrectly}</span><span>⚠ Katastrophal ${score.catastrophicErrors}</span></div><h2>Fallchronik</h2><ol>${report.cases.map((item) => `<li class="${item.outcome === "wrong" || item.outcome === "catastrophic" ? "report-error" : ""}">${escapeHtml(item.id)} · ${escapeHtml(item.outcome ?? "abgebrochen")} · ${escapeHtml(item.selectedDestination ?? "kein Ziel")} ${item.outcome === "wrong" || item.outcome === "catastrophic" ? `→ ${escapeHtml(item.trueDestination)}` : ""}</li>`).join("")}</ol><p class="report-seed">Seed: ${escapeHtml(report.seed)}<br>Content-Hash v${GAMEPLAY_HASH_VERSION}: ${escapeHtml(report.contentHash)}<br>Simulation v${SIMULATION_VERSION} · Protokoll v${PROTOCOL_VERSION}</p></div>`;
+    const caseHistory = report.cases
+      .map((item) => {
+        const failed =
+          item.outcome === "wrong" || item.outcome === "catastrophic";
+        const verdicts = {
+          correct: "Korrekt",
+          acceptable: "Vertretbar",
+          wrong: "Falsch",
+          catastrophic: "Katastrophal",
+        };
+        const verdict = item.outcome ? verdicts[item.outcome] : "Abgebrochen";
+        return `<li class="${failed ? "report-error" : ""}">${escapeHtml(item.id)} · ${verdict} · ${escapeHtml(destinationLabel(item.selectedDestination))}${failed ? ` · Gültige Wahl: ${escapeHtml(destinationLabel(item.trueDestination))}` : ""}</li>`;
+      })
+      .join("");
+    this.reportRoot.innerHTML = `<div class="shift-report-paper ${goodShift ? "report-good" : "report-troubled"}"><button data-action="close-report" aria-label="Abschlussakte schließen">×</button><h1>Abschlussakte</h1><p class="report-verdict">${goodShift ? "✓ Dienstbeurteilung: Tadellos absurd" : "⚠ Dienstbeurteilung: Kessel glüht"}</p><p>Schichtzeit: ${Math.floor(report.elapsedMs / 60_000)} min ${Math.floor((report.elapsedMs % 60_000) / 1000)} s · Mittlere Fallzeit: ${Math.round(report.averageCaseMs / 1000)} s</p><div class="report-score"><span>✓ Korrekt ${score.resolvedCorrectly}</span><span>◇ Vertretbar ${score.resolvedAcceptably}</span><span>× Falsch ${score.resolvedIncorrectly}</span><span>⚠ Katastrophal ${score.catastrophicErrors}</span></div><h2>Fallchronik</h2><ol>${caseHistory}</ol><p class="report-seed">Seed: ${escapeHtml(report.seed)}<br>Content-Hash v${GAMEPLAY_HASH_VERSION}: ${escapeHtml(report.contentHash)}<br>Simulation v${SIMULATION_VERSION} · Protokoll v${PROTOCOL_VERSION}</p></div>`;
     if (this.network.lobby.mode.kind === "freePlay") {
       const mode = this.network.lobby.mode;
       const preset = FREE_PLAY_PRESETS[mode.preset];
@@ -241,6 +267,7 @@ export class GameNetworkOverlay {
   private render(force = false): void {
     this.renderReport();
     const view = this.network.view;
+    const step = view ? nextStep(view) : "";
     document.documentElement.dataset.contentHash =
       view?.public.report?.contentHash ?? this.network.lobby.modeHash ?? "";
     const tutorial = view?.public.tutorial;
@@ -409,6 +436,10 @@ export class GameNetworkOverlay {
       if (notice) notice.textContent = this.notice || this.network.error;
       const ping = this.root.querySelector<HTMLElement>(".network-ping");
       if (ping) ping.textContent = `Ping: ${this.network.pingMs ?? "–"} ms`;
+      const stepLine =
+        this.root.querySelector<HTMLElement>(".network-next-step");
+      if (stepLine && stepLine.textContent !== step)
+        stepLine.textContent = step;
       const panel =
         this.root.querySelector<HTMLDetailsElement>(".network-panel");
       if (panel && (newAttention || stationControls)) panel.open = true;
@@ -488,7 +519,7 @@ export class GameNetworkOverlay {
       (newReaction && Boolean(reactionHtml)) ||
       (this.root.querySelector<HTMLDetailsElement>(".network-panel")?.open ??
         false);
-    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${tutorial ? "Tutorial · " : ""}${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span></summary><div class="network-panel-body">${tutorial ? `<strong class="tutorial-progress" aria-label="Tutorialfortschritt">${escapeHtml(tutorialProgress)}</strong><span class="network-tutorial" aria-label="Tutorialschritt" aria-live="polite">${escapeHtml(tutorialHint)}</span>${stationControls}${checklist}` : ""}<span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
+    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${tutorial ? "Tutorial · " : ""}${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span><span class="network-next-step" aria-label="Nächster Schritt">${escapeHtml(step)}</span></summary><div class="network-panel-body">${tutorial ? `<strong class="tutorial-progress" aria-label="Tutorialfortschritt">${escapeHtml(tutorialProgress)}</strong><span class="network-tutorial" aria-label="Tutorialschritt" aria-live="polite">${escapeHtml(tutorialHint)}</span>${stationControls}${checklist}` : ""}<span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
     this.lastChecklist = checklist;
   }
   destroy(): void {

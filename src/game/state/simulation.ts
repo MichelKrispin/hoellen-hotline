@@ -866,6 +866,7 @@ export function reduceInput(
                 )
               )
                 return reject("Unavailable destination");
+              if (item.selectedDestination === command.destinationId) break;
               item.selectedDestination = command.destinationId as never;
               for (const affected of [
                 "agent",

@@ -38,6 +38,17 @@ export function projectView(
   const deliveredTo = destinations.find(
     (item) => item.id === lastResolved?.selectedDestination,
   );
+  const destinationName = (id: string | null): string => {
+    const destination = destinations.find((item) => item.id === id);
+    return destination ? translate(destination.nameKey) : (id ?? "unbekannt");
+  };
+  const routeSummary = lastResolved?.outcome
+    ? lastResolved.outcome === "correct"
+      ? `Korrekt zugestellt: ${destinationName(lastResolved.selectedDestination)}.`
+      : lastResolved.outcome === "acceptable"
+        ? `Vertretbar zugestellt: ${destinationName(lastResolved.selectedDestination)}.`
+        : `Fehlleitung nach ${destinationName(lastResolved.selectedDestination)}. Eine gültige Wahl: ${destinationName(lastResolved.trueDestination)}.`
+    : "";
   const reactionId =
     deliveredTo && lastResolved?.outcome
       ? deliveredTo.reactions[
@@ -111,7 +122,7 @@ export function projectView(
         ? {
             caseId: lastResolved.id,
             assetId: reaction.asset,
-            caption: translate(reaction.captionKey),
+            caption: `${translate(reaction.captionKey)} ${routeSummary}`,
           }
         : null,
     report:

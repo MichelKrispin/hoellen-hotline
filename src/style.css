@@ -554,10 +554,10 @@ html[data-reduced-flash="true"] * {
   box-shadow: 0 8px 30px #0009;
 }
 .network-panel-summary {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 3px 12px;
   min-height: 42px;
   box-sizing: border-box;
   padding: 8px 12px;
@@ -569,7 +569,8 @@ html[data-reduced-flash="true"] * {
 }
 .network-panel-summary::after {
   content: "▸";
-  flex: 0 0 auto;
+  grid-column: 3;
+  grid-row: 1;
   color: #e9a84c;
 }
 .network-panel[open] > .network-panel-summary::after {
@@ -584,6 +585,17 @@ html[data-reduced-flash="true"] * {
 .network-panel-summary strong {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.network-panel-summary .network-next-step {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  color: #ffe0ac;
+  font-size: 0.92em;
+  line-height: 1.25;
+  white-space: normal;
+}
+.network-next-step:empty {
+  display: none;
 }
 .network-panel-body {
   padding: 6px 16px 12px;

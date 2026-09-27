@@ -278,12 +278,27 @@ describe("deterministic simulation", () => {
     act(dispatcher, { kind: "PREPARE", caseId });
     for (const playerId of [agent, archivist, dispatcher])
       act(playerId, { kind: "APPROVE", caseId, approved: true });
+    act(dispatcher, {
+      kind: "SELECT_DESTINATION",
+      caseId,
+      destinationId: item.trueDestination,
+    });
+    expect(state.cases[0]!.prepared).toBe(true);
+    expect(state.cases[0]!.approvals).toEqual({
+      agent: true,
+      archivist: true,
+      dispatcher: true,
+    });
     act(dispatcher, { kind: "ROUTE_COMMIT", caseId });
     expect(state.phase).toBe("results");
     expect(state.endReason).toBe("completed");
     expect(
       projectView(state, "agent", tutorialPackages).public.report?.cases,
     ).toHaveLength(1);
+    expect(
+      projectView(state, "agent", tutorialPackages).public.lastReaction
+        ?.caption,
+    ).toContain("Korrekt zugestellt:");
   });
   it("freezes shift time and dialogue cooldowns during host and disconnect pauses", async () => {
     const hash = (await loadContent(packages)).gameplayHash;

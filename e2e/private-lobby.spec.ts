@@ -126,6 +126,9 @@ test("three browsers join the private lobby and choose distinct roles", async ({
       page.getByRole("region", { name: "Netzwerkstatus" }),
     ).toContainText(/Revision: [0-9]+/);
   }
+  await expect(host.getByLabel("Nächster Schritt")).toHaveText(
+    "Nächsten Anruf annehmen",
+  );
   const agentControls = host.getByRole("region", {
     name: "Agentenpult und Tastatursteuerung",
   });
@@ -298,6 +301,12 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   await machine
     .getByRole("button", { name: "Bereitschaft melden" })
     .press("Enter");
+  await expect(
+    machine.getByRole("button", {
+      name: "Hebel entsichern und Zusammenfassung prüfen",
+    }),
+  ).toBeEnabled();
+  await archiveTarget.press("Enter");
   await expect(
     machine.getByRole("button", {
       name: "Hebel entsichern und Zusammenfassung prüfen",
