@@ -24,8 +24,8 @@ export class PresentationSystem {
     this.graphics = { figure, plant, pipes, gauge, demons };
     for (const graphic of Object.values(this.graphics))
       graphic.setDepth(5).setAlpha(0.72);
+    if (network.role !== "agent") pipes.setVisible(false);
     if (network.role === "archivist") {
-      pipes.setVisible(false);
       demons.setVisible(false);
     }
     this.unsubscribe = network.subscribe(() => this.update());
@@ -46,14 +46,17 @@ export class PresentationSystem {
       this.scene.time.delayedCall(400, () => graphic.setAlpha(0.72));
       return;
     }
+    const scaleX = graphic.scaleX;
+    const scaleY = graphic.scaleY;
     this.scene.tweens.add({
       targets: graphic,
       alpha: 1,
-      scale: 1.08,
+      scaleX: scaleX * 1.08,
+      scaleY: scaleY * 1.08,
       duration: 190,
       yoyo: true,
       repeat: 1,
-      onComplete: () => graphic.setScale(1).setAlpha(0.72),
+      onComplete: () => graphic.setScale(scaleX, scaleY).setAlpha(0.72),
     });
   }
 

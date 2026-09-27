@@ -85,12 +85,13 @@ export function scalablePlate(
   y: number,
   w: number,
   h: number,
-  material: "panel-paper" | "panel-wood" | "panel-bakelite",
+  material: "panel-paper" | "panel-wood" | "panel-bakelite" | "panel-metal",
 ): Phaser.GameObjects.Graphics {
   const colors = {
     "panel-paper": [0xb89361, 0xf2dab0],
     "panel-wood": [0x4b2d28, 0x5d362b],
     "panel-bakelite": [0x211d2a, 0x302733],
+    "panel-metal": [0x302733, 0x3b303c],
   } as const;
   const [frame, face] = colors[material];
   const inset = h < 100 ? 8 : 20;
@@ -107,6 +108,22 @@ export function scalablePlate(
   for (const screwX of [15, w - 15])
     for (const screwY of [15, h - 15])
       graphics.fillStyle(0x171216).fillCircle(screwX, screwY, 5);
+  return graphics;
+}
+
+export function controlSurface(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  color: number,
+): Phaser.GameObjects.Graphics {
+  const graphics = scene.add.graphics();
+  graphics.fillStyle(0x1e1925).fillRoundedRect(x, y, w, h, 12);
+  graphics
+    .lineStyle(4, color)
+    .strokeRoundedRect(x + 2, y + 2, w - 4, h - 4, 11);
   return graphics;
 }
 

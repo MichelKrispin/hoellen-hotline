@@ -13,6 +13,7 @@ import { PresentationSystem } from "../presentation/PresentationSystem";
 import { ShiftMirror } from "../../ui/shiftMirror";
 import { prefersReducedMotion } from "../../app/options";
 import {
+  controlSurface,
   devil,
   gauge,
   label,
@@ -153,7 +154,7 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
 function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "ZIELBANK  /  ROUTING", C.dispatcher);
   devil(scene, 296, 661, 1.24, 0xa64131);
-  plate(scene, 546, 322, 842, 549, C.metal);
+  scalablePlate(scene, 546, 322, 842, 680, "panel-metal");
   if (!live) label(scene, 595, 351, "ZIEL WÄHLEN", 28);
   const rows: [string, number, string][] = [
     ["ZORN", C.error, "♨"],
@@ -167,7 +168,7 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
     rows.forEach(([name, color, symbol], i) => {
       const x = 575 + (i % 2) * 389;
       const y = 401 + Math.floor(i / 2) * 139;
-      neon(scene, x, y, 344, 106, color);
+      controlSurface(scene, x, y, 344, 106, color);
       label(scene, x + 24, y + 28, `${symbol}  ${name}`, 29);
     });
   if (!live) {
@@ -178,13 +179,13 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
       );
     }
   }
-  paper(scene, 1430, 340, 344, 331);
+  scalablePlate(scene, 1416, 340, 372, 331, "panel-paper");
   if (!live) {
-    label(scene, 1470, 381, "ROUTE", 32, C.ink);
-    label(scene, 1470, 467, "Noch kein Ziel", 26, C.ink, 270);
+    label(scene, 1450, 381, "ROUTE", 32, C.ink);
+    label(scene, 1450, 467, "Noch kein Ziel", 26, C.ink, 310);
     gauge(scene, 1604, 782, 87, 0.52);
     label(scene, 1480, 898, "KESSELDRUCK", 26);
-    neon(scene, 1432, 932, 342, 79, C.error);
+    controlSurface(scene, 1432, 932, 342, 79, C.error);
     label(scene, 1451, 951, "↗  ZUSTELLEN", 29);
   }
 }

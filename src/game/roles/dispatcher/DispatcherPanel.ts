@@ -2,8 +2,8 @@ import Phaser from "phaser";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
-import { fitText, label, neon, plate } from "../../presentation/art";
-import { placeholder, shapePlaceholderKey } from "../../../assets/placeholders";
+import { controlSurface, fitText, label } from "../../presentation/art";
+import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
 import {
@@ -44,11 +44,14 @@ export class DispatcherPanel {
   private readonly readyButton = document.createElement("button");
   private readonly commitButton = document.createElement("button");
   private readonly targetLabels: Phaser.GameObjects.Text[] = [];
-  private readonly targetFrames: Phaser.GameObjects.Image[] = [];
+  private readonly targetFrames: Phaser.GameObjects.Graphics[] = [];
   private readonly controlLabels: Phaser.GameObjects.Text[] = [];
   private readonly controlValues: Phaser.GameObjects.Text[] = [];
   private readonly summaryTitle: Phaser.GameObjects.Text;
   private readonly summaryText: Phaser.GameObjects.Text;
+  private readonly summaryPageLabel: Phaser.GameObjects.Text;
+  private readonly previousSummaryPage: Phaser.GameObjects.Text;
+  private readonly nextSummaryPage: Phaser.GameObjects.Text;
   private readonly incidentText: Phaser.GameObjects.Text;
   private readonly prepareText: Phaser.GameObjects.Text;
   private readonly readyText: Phaser.GameObjects.Text;
@@ -62,6 +65,9 @@ export class DispatcherPanel {
   private armed = false;
   private armSignature = "";
   private feedback = "";
+  private summarySource = "";
+  private summaryPages: string[] = [""];
+  private summaryPageIndex = 0;
   private lastCommand = "";
   private pendingUntil = 0;
   private readonly outsidePointer = (event: PointerEvent): void => {
@@ -124,12 +130,11 @@ export class DispatcherPanel {
     for (let i = 0; i < 12; i++) {
       const x = 575 + (i % 3) * 262;
       const y = 386 + Math.floor(i / 3) * 92;
-      neon(scene, x, y, 246, 79, colors[i]!);
+      controlSurface(scene, x, y, 246, 79, colors[i]!);
       const frame = scene.add
-        .image(x + 5, y + 5, shapePlaceholderKey("neon-frame"))
-        .setOrigin(0)
-        .setDisplaySize(236, 69)
-        .setTint(C.warning)
+        .graphics()
+        .lineStyle(3, C.warning)
+        .strokeRoundedRect(x + 8, y + 8, 230, 63, 8)
         .setVisible(false);
       const text = label(scene, x + 16, y + 21, "", 23, C.text, 220);
       scene.add
@@ -143,7 +148,7 @@ export class DispatcherPanel {
     for (let i = 0; i < 6; i++) {
       const x = 575 + (i % 3) * 262;
       const y = 778 + Math.floor(i / 3) * 102;
-      plate(scene, x, y, 246, 90, C.metal, C.metalEdge, 10);
+      controlSurface(scene, x, y, 246, 90, C.metalEdge);
       const name = label(scene, x + 18, y + 12, "", 21, C.text, 215);
       const value = label(scene, x + 18, y + 48, "", 25, C.text, 215);
       scene.add
@@ -154,45 +159,104 @@ export class DispatcherPanel {
       this.controlLabels.push(name);
       this.controlValues.push(value);
     }
-    this.summaryTitle = label(scene, 1466, 378, "ZIELBANK", 29, C.ink);
+    this.summaryTitle = label(scene, 1450, 378, "ZIELBANK", 29, C.ink);
     this.summaryText = label(
       scene,
-      1466,
+      1450,
       428,
       "Ziel vorwählen.",
-      22,
+      20,
       C.ink,
-      278,
+      318,
     );
     this.summaryText.setLineSpacing(4);
-    this.incidentText = label(scene, 1460, 690, "", 21, C.text, 290);
+    this.previousSummaryPage = label(scene, 1450, 628, "◀", 19, C.ink)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.changeSummaryPage(-1));
+    this.summaryPageLabel = label(scene, 1585, 628, "", 18, C.ink);
+    this.nextSummaryPage = label(scene, 1731, 628, "▶", 19, C.ink)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.changeSummaryPage(1));
+    controlSurface(scene, 1416, 680, 372, 71, C.metalEdge);
+    this.incidentText = label(scene, 1432, 688, "", 18, C.text, 340);
     this.incidentText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
-    neon(scene, 1437, 756, 333, 59, C.warning);
+    scene.add
+      .zone(1416, 680, 372, 71)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.recover());
+    controlSurface(scene, 1437, 756, 333, 59, C.warning);
     this.prepareText = label(scene, 1453, 769, "ANLAGE VORBEREITEN", 23);
     this.prepareText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
-    neon(scene, 1437, 828, 333, 59, C.success);
+    scene.add
+      .zone(1437, 756, 333, 59)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.prepare());
+    controlSurface(scene, 1437, 828, 333, 59, C.success);
     this.readyText = label(scene, 1453, 841, "BEREIT MELDEN", 23);
     this.readyText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
-    neon(scene, 1432, 916, 342, 88, C.error);
+    scene.add
+      .zone(1437, 828, 333, 59)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.toggleReady());
+    controlSurface(scene, 1432, 916, 342, 88, C.error);
     this.commitText = label(scene, 1451, 941, "↗ HEBEL SPERRE", 25);
     this.commitText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
+    scene.add
+      .zone(1432, 916, 342, 88)
+      .setOrigin(0)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.commit());
     const arm = placeholder(scene, "lever-arm", -30, -110, 60, 110);
-    this.leverArm = scene.add.container(1720, 982, [arm]);
-    this.feedbackText = label(scene, 587, 985, "", 20, C.text, 780);
+    this.leverArm = scene.add.container(1830, 982, [arm]);
+    this.feedbackText = label(scene, 587, 1008, "", 20, C.text, 780);
     this.unsubscribe = network.subscribe(() => this.render());
   }
 
   private current(): DispatcherView | null {
     const role = this.network.view?.role;
     return role?.role === "dispatcher" ? role : null;
+  }
+  private changeSummaryPage(delta: number): void {
+    this.summaryPageIndex = Math.max(
+      0,
+      Math.min(this.summaryPages.length - 1, this.summaryPageIndex + delta),
+    );
+    this.render();
+  }
+  private paginateSummary(body: string): string[] {
+    const pages: string[] = [];
+    let page = "";
+    for (const paragraph of body.split("\n")) {
+      const words = paragraph.split(/\s+/).filter(Boolean);
+      if (!words.length) {
+        if (page) page += "\n";
+        continue;
+      }
+      let first = true;
+      for (const word of words) {
+        const separator = first ? (page ? "\n" : "") : " ";
+        const candidate = page + separator + word;
+        this.summaryText.setText(candidate);
+        if (page && this.summaryText.height > 190) {
+          pages.push(page);
+          page = word;
+        } else page = candidate;
+        first = false;
+      }
+    }
+    pages.push(page);
+    return pages;
   }
   private caseId(): CaseId | null {
     return this.network.view?.public.activeCaseId ?? null;
@@ -292,14 +356,14 @@ export class DispatcherPanel {
           placeholder(
             this.scene,
             "spark",
-            1660 + i * 14,
+            1790 + i * 12,
             890 - (i % 3) * 17,
             24,
             24,
           ),
         );
       }
-    sparks.add(placeholder(this.scene, "smoke", 1605, 840, 125, 60));
+    sparks.add(placeholder(this.scene, "smoke", 1780, 840, 110, 60));
     if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
     else
       this.scene.tweens.add({
@@ -397,13 +461,13 @@ export class DispatcherPanel {
           220,
           42,
           23,
-          16,
+          18,
         );
         text.setAlpha(1);
         button.textContent = `${destination.kind === "special" ? "Sonderziel" : "Ziel"}: ${destination.name}. ${destination.description}`;
         button.disabled = !shared.activeCaseId;
       } else {
-        fitText(text, "—", 220, 42, 23, 16).setAlpha(0.35);
+        fitText(text, "—", 220, 42, 23, 18).setAlpha(0.35);
         button.textContent = "Ziel nicht belegt";
         button.disabled = true;
       }
@@ -412,14 +476,14 @@ export class DispatcherPanel {
     }
     for (let i = 0; i < 6; i++) {
       const control = role.controls[i];
-      fitText(this.controlLabels[i]!, control?.label ?? "–", 215, 28, 21, 16);
+      fitText(this.controlLabels[i]!, control?.label ?? "–", 215, 28, 21, 18);
       fitText(
         this.controlValues[i]!,
         control ? `${showValue(control.value)}  ↻` : "",
         215,
         32,
         25,
-        17,
+        20,
       );
       this.controlButtons[i]!.textContent = control
         ? `${control.label}: ${showValue(control.value)}. Nächsten Wert wählen.`
@@ -429,10 +493,10 @@ export class DispatcherPanel {
     fitText(
       this.summaryTitle,
       selected ? `${selected.glyph} ${selected.name}` : "ZIELBANK",
-      278,
+      318,
       38,
       29,
-      20,
+      22,
     );
     const requirementLines =
       selected?.requirements.map((entry) => {
@@ -442,15 +506,26 @@ export class DispatcherPanel {
         const matches = control?.value === entry.value;
         return `${matches ? "✓" : "◇"} ${entry.label}: ${showValue(entry.value)}`;
       }) ?? [];
-    fitText(
-      this.summaryText,
-      selected
-        ? `${selected.description}\n\nTECHNIK\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\nFreigaben: ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}`
-        : "Neun Regelziele und drei Sonderrohre.\nZiel wählen, Anlage einstellen, Freigaben prüfen.",
-      278,
-      220,
-      22,
-      15,
+    const summary = selected
+      ? `${selected.description}\n\nTECHNIK\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\nFreigaben: ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}`
+      : "Neun Regelziele und drei Sonderrohre.\nZiel wählen, Anlage einstellen, Freigaben prüfen.";
+    if (this.summarySource !== summary) {
+      this.summarySource = summary;
+      this.summaryPages = this.paginateSummary(summary);
+      this.summaryPageIndex = 0;
+    }
+    this.summaryText.setText(this.summaryPages[this.summaryPageIndex] ?? "");
+    const hasSummaryPages = this.summaryPages.length > 1;
+    this.summaryPageLabel.setText(
+      hasSummaryPages
+        ? `Seite ${this.summaryPageIndex + 1} / ${this.summaryPages.length}`
+        : "",
+    );
+    this.previousSummaryPage.setVisible(hasSummaryPages);
+    this.nextSummaryPage.setVisible(hasSummaryPages);
+    this.previousSummaryPage.setAlpha(this.summaryPageIndex === 0 ? 0.35 : 1);
+    this.nextSummaryPage.setAlpha(
+      this.summaryPageIndex === this.summaryPages.length - 1 ? 0.35 : 1,
     );
     const incident = role.incident;
     const recovered =
@@ -460,12 +535,14 @@ export class DispatcherPanel {
     fitText(
       this.incidentText,
       incident
-        ? `⚠ ${incident.name}: ${incident.diagnosis}\n${recovered ? "↗ GEGENAKTION BESTÄTIGEN" : "Regler korrigieren"}`
+        ? recovered
+          ? `⚠ ${incident.name}\n↗ STÖRUNG BEHEBEN`
+          : `⚠ ${incident.name}: ${incident.diagnosis}`
         : "✓ Keine aktive Störung",
-      290,
-      56,
-      21,
-      15,
+      340,
+      54,
+      19,
+      17,
     );
     this.recoveryButton.textContent = incident
       ? `Störung beheben: ${incident.diagnosis}`
@@ -526,9 +603,9 @@ export class DispatcherPanel {
       this.feedbackText,
       this.network.error || this.feedback,
       780,
-      48,
+      42,
       20,
-      15,
+      18,
     );
     const status = `${selected ? `Ziel ${selected.name}. ${requirementLines.join(". ")}.` : "Kein Ziel gewählt."} ${incident ? `Störung ${incident.diagnosis}.` : "Keine Störung."} ${role.prepared ? "Anlage vorbereitet." : "Anlage nicht vorbereitet."} ${role.lastOutcome ? `Ergebnis: ${role.lastOutcome.outcome}.` : ""} ${this.network.error || this.feedback}`;
     if (this.mirrorStatus.textContent !== status)

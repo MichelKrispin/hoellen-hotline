@@ -266,6 +266,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     reconnectGuest.getByRole("region", { name: "Netzwerkstatus" }),
   ).toContainText("● Verbunden", { timeout: 20_000 });
   const dispatcher = guests[1]!;
+  await dispatcher.setViewportSize({ width: 1920, height: 1080 });
   const machine = dispatcher.getByRole("region", {
     name: "Disponentenpult und Tastatursteuerung",
   });
@@ -302,11 +303,18 @@ test("three browsers join the private lobby and choose distinct roles", async ({
       name: "Hebel entsichern und Zusammenfassung prüfen",
     }),
   ).toBeEnabled();
-  if (process.env.CAPTURE_AGENT === "1") {
+  if (
+    process.env.CAPTURE_AGENT === "1" ||
+    process.env.CAPTURE_DISPATCHER === "1"
+  ) {
     await dispatcher.locator("canvas").click({ position: { x: 700, y: 100 } });
     await dispatcher.screenshot({
       path: testInfo.outputPath("dispatcher-desk.png"),
     });
+  }
+  if (process.env.CAPTURE_DISPATCHER === "1") {
+    await context.close();
+    return;
   }
   await machine
     .getByRole("button", {
