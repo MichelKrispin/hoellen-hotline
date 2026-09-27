@@ -1,10 +1,18 @@
 import Phaser from "phaser";
 
-const urls = import.meta.glob("./source/placeholders/*.svg", {
+const urls = import.meta.glob("./source/placeholders/*.png", {
   eager: true,
   query: "?url",
   import: "default",
 }) as Record<string, string>;
+const shapeUrls = import.meta.glob(
+  [
+    "./source/placeholders/panel-*.svg",
+    "./source/placeholders/neon-frame.svg",
+    "./source/placeholders/room-sign.svg",
+  ],
+  { eager: true, query: "?url", import: "default" },
+) as Record<string, string>;
 
 export type PlaceholderName =
   | "hellscape-backdrop"
@@ -46,13 +54,28 @@ export function placeholderKey(name: PlaceholderName): string {
   return `placeholder:${name}`;
 }
 
+export function shapePlaceholderKey(name: PlaceholderName): string {
+  return `placeholder:shape:${name}`;
+}
+
 export function preloadPlaceholders(scene: Phaser.Scene): void {
   for (const [path, url] of Object.entries(urls)) {
     const name = path
       .split("/")
       .at(-1)!
-      .replace(/\.svg$/, "") as PlaceholderName;
+      .replace(/\.png$/, "") as PlaceholderName;
     scene.load.image(placeholderKey(name), url);
+  }
+  for (const name of [
+    "panel-metal",
+    "panel-wood",
+    "panel-bakelite",
+    "panel-paper",
+    "neon-frame",
+    "room-sign",
+  ] as const) {
+    const url = shapeUrls[`./source/placeholders/${name}.svg`];
+    if (url) scene.load.image(shapePlaceholderKey(name), url);
   }
 }
 

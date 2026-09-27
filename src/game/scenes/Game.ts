@@ -109,6 +109,11 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     placeholder(scene, "button", 442, 378 + i * 119, 42, 18);
   }
   placeholder(scene, "rulebook", 577, 310, 684, 546);
+  const readingPage = scene.add.graphics();
+  readingPage.fillStyle(0xe9c99a, 0.96);
+  readingPage.fillRoundedRect(604, 337, 582, 484, 18);
+  readingPage.lineStyle(4, 0x6d342c, 0.9);
+  readingPage.strokeRoundedRect(604, 337, 582, 484, 18);
   label(scene, 615, 352, "REGELBUCH", 34, C.ink);
   if (!live) {
     label(scene, 619, 430, "AKTIVE REGELN", 25, C.ink);

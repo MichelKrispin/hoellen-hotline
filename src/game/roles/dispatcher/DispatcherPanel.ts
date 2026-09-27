@@ -3,7 +3,7 @@ import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
 import { fitText, label, neon, plate } from "../../presentation/art";
-import { placeholder } from "../../../assets/placeholders";
+import { placeholder, shapePlaceholderKey } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
 import {
@@ -125,7 +125,10 @@ export class DispatcherPanel {
       const x = 575 + (i % 3) * 262;
       const y = 386 + Math.floor(i / 3) * 92;
       neon(scene, x, y, 246, 79, colors[i]!);
-      const frame = placeholder(scene, "neon-frame", x + 5, y + 5, 236, 69)
+      const frame = scene.add
+        .image(x + 5, y + 5, shapePlaceholderKey("neon-frame"))
+        .setOrigin(0)
+        .setDisplaySize(236, 69)
         .setTint(C.warning)
         .setVisible(false);
       const text = label(scene, x + 16, y + 21, "", 23, C.text, 220);

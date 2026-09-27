@@ -2,7 +2,11 @@ import Phaser from "phaser";
 import { DESIGN, TOKENS } from "../../ui/tokens";
 import type { PublicShiftView, Role } from "../state/contracts";
 import { prefersReducedMotion } from "../../app/options";
-import { placeholder, placeholderKey } from "../../assets/placeholders";
+import {
+  placeholder,
+  placeholderKey,
+  shapePlaceholderKey,
+} from "../../assets/placeholders";
 
 const C = TOKENS.color;
 
@@ -65,8 +69,12 @@ export function plate(
         : fill === C.bakelite
           ? "panel-bakelite"
           : "panel-metal";
+  // The painted frame needs room for its corners. Thin controls use the
+  // simpler material so their labels retain a clear surface.
+  const key =
+    h < 160 ? shapePlaceholderKey(material) : placeholderKey(material);
   return scene.add
-    .nineslice(x, y, placeholderKey(material), undefined, w, h, 32, 32, 32, 32)
+    .nineslice(x, y, key, undefined, w, h, 32, 32, 32, 32)
     .setOrigin(0);
 }
 
@@ -88,7 +96,11 @@ export function neon(
   h: number,
   color: number,
 ): void {
-  placeholder(scene, "neon-frame", x, y, w, h).setTint(color);
+  scene.add
+    .image(x, y, shapePlaceholderKey("neon-frame"))
+    .setOrigin(0)
+    .setDisplaySize(w, h)
+    .setTint(color);
 }
 
 export function gauge(
@@ -334,6 +346,10 @@ export function roomSign(
   title: string,
   accent: number,
 ): void {
-  placeholder(scene, "room-sign", 520, 193, 880, 85).setTint(accent);
+  scene.add
+    .image(520, 193, shapePlaceholderKey("room-sign"))
+    .setOrigin(0)
+    .setDisplaySize(880, 85)
+    .setTint(accent);
   label(scene, 560, 210, title, 40);
 }

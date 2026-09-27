@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { DESIGN, TOKENS } from "../../ui/tokens";
-import { placeholder } from "../../assets/placeholders";
+import { shapePlaceholderKey } from "../../assets/placeholders";
 
 export const SCENES = [
   "Boot",
@@ -21,14 +21,11 @@ export function sceneHeader(
 ): Phaser.GameObjects.Text {
   scene.game.canvas.dataset.scene = scene.scene.key;
   scene.cameras.main.setBackgroundColor(TOKENS.color.background);
-  placeholder(
-    scene,
-    "neon-frame",
-    DESIGN.safeX,
-    139,
-    DESIGN.width - 2 * DESIGN.safeX,
-    2,
-  ).setTint(TOKENS.color.agent);
+  scene.add
+    .image(DESIGN.safeX, 139, shapePlaceholderKey("neon-frame"))
+    .setOrigin(0)
+    .setDisplaySize(DESIGN.width - 2 * DESIGN.safeX, 2)
+    .setTint(TOKENS.color.agent);
   scene.add.text(DESIGN.safeX, 100, "HÖLLEN-HOTLINE  /  PROTOTYP", {
     fontFamily: "Georgia, serif",
     fontSize: "28px",
