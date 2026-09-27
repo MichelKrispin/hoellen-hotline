@@ -246,7 +246,13 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
       const x = 555 + (i % 3) * 233;
       const y = 575 + Math.floor(i / 3) * 102;
       controlSurface(scene, x, y, 219, 88, C.metalEdge);
-      label(scene, x + 17, y + 20, `◉  REGLER ${i + 1}`, 20);
+      label(
+        scene,
+        x + 17,
+        y + 20,
+        `${["◉", "↕", "▣"][i % 3]}  REGLER ${i + 1}`,
+        20,
+      );
     }
   }
   scalablePlate(scene, 1297, 718, 506, 282, "panel-metal");

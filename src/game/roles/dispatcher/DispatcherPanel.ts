@@ -49,6 +49,8 @@ export class DispatcherPanel {
   private readonly targetFrames: Phaser.GameObjects.Graphics[] = [];
   private readonly controlLabels: Phaser.GameObjects.Text[] = [];
   private readonly controlValues: Phaser.GameObjects.Text[] = [];
+  private readonly controlRanges: Phaser.GameObjects.Text[] = [];
+  private readonly controlFaces: Phaser.GameObjects.Graphics[] = [];
   private readonly summaryTitle: Phaser.GameObjects.Text;
   private readonly summaryText: Phaser.GameObjects.Text;
   private readonly summaryPageLabel: Phaser.GameObjects.Text;
@@ -157,7 +159,9 @@ export class DispatcherPanel {
       const y = 575 + Math.floor(i / 3) * 102;
       controlSurface(scene, x, y, 219, 88, C.metalEdge);
       const name = label(scene, x + 15, y + 10, "", 20, C.text, 190);
-      const value = label(scene, x + 15, y + 45, "", 23, C.text, 190);
+      const value = label(scene, x + 15, y + 45, "", 23, C.text, 130);
+      const face = scene.add.graphics();
+      const range = label(scene, x + 151, y + 70, "", 13, C.muted, 58);
       scene.add
         .zone(x, y, 219, 88)
         .setOrigin(0)
@@ -165,6 +169,8 @@ export class DispatcherPanel {
         .on("pointerdown", () => this.cycleControl(i));
       this.controlLabels.push(name);
       this.controlValues.push(value);
+      this.controlFaces.push(face);
+      this.controlRanges.push(range);
     }
     this.summaryTitle = label(scene, 575, 351, "MASCHINENAUFTRAG", 27, C.ink);
     this.summaryText = label(
@@ -306,6 +312,40 @@ export class DispatcherPanel {
       controlId: control.id,
       value: next,
     });
+  }
+  private drawControlFace(
+    index: number,
+    control: DispatcherView["controls"][number] | undefined,
+  ): void {
+    const face = this.controlFaces[index]!;
+    face.clear();
+    if (!control) return;
+    const x = 555 + (index % 3) * 233 + 180;
+    const y = 575 + Math.floor(index / 3) * 102 + 53;
+    const position = Math.max(
+      0,
+      control.values.findIndex((value) => value === control.value),
+    );
+    const fraction =
+      control.values.length > 1 ? position / (control.values.length - 1) : 0;
+    face.lineStyle(3, C.metalEdge);
+    if (control.kind === "dial") {
+      face.fillStyle(C.bakelite).fillCircle(x, y, 19);
+      face.strokeCircle(x, y, 19);
+      const angle = Math.PI * (0.75 + fraction * 1.5);
+      face
+        .lineStyle(4, C.warning)
+        .lineBetween(x, y, x + Math.cos(angle) * 15, y + Math.sin(angle) * 15);
+    } else if (control.kind === "toggle") {
+      face.fillStyle(C.bakelite).fillRoundedRect(x - 13, y - 22, 26, 44, 11);
+      face.strokeRoundedRect(x - 13, y - 22, 26, 44, 11);
+      face.fillStyle(C.warning).fillCircle(x, y + (fraction ? -10 : 10), 8);
+    } else {
+      face.lineBetween(x - 20, y, x + 20, y);
+      face
+        .fillStyle(C.warning)
+        .fillRoundedRect(x - 22 + fraction * 36, y - 10, 9, 20, 3);
+    }
   }
   private recover(): void {
     const id = this.caseId();
@@ -494,13 +534,19 @@ export class DispatcherPanel {
       fitText(
         this.controlValues[i]!,
         control ? `${showValue(control.value)}  ↻` : "",
-        190,
+        130,
         32,
         23,
-        18,
+        15,
+      );
+      this.drawControlFace(i, control);
+      this.controlRanges[i]!.setText(
+        control
+          ? `${control.values.findIndex((value) => value === control.value) + 1}/${control.values.length}`
+          : "",
       );
       this.controlButtons[i]!.textContent = control
-        ? `${control.label}: ${showValue(control.value)}. Nächsten Wert wählen.`
+        ? `${control.label}: ${showValue(control.value)}. Wert ${control.values.findIndex((value) => value === control.value) + 1} von ${control.values.length}. Nächsten Wert wählen.`
         : "Regler nicht belegt";
       this.controlButtons[i]!.disabled = !control || !shared.activeCaseId;
     }
