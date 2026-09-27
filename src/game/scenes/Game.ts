@@ -234,7 +234,11 @@ export class Game extends Phaser.Scene {
     if (this.role === "agent") agentDesk(this, Boolean(this.network));
     if (this.role === "archivist") archiveDesk(this, Boolean(this.network));
     if (this.role === "dispatcher") dispatcherDesk(this, Boolean(this.network));
-    button(
+    const shiftEnded = (): boolean =>
+      this.network?.status === "ended" ||
+      this.network?.status === "host-aborted" ||
+      this.network?.status === "guest-aborted";
+    const exitButton = button(
       this,
       1671,
       218,
@@ -244,13 +248,18 @@ export class Game extends Phaser.Scene {
           ? "PARTIE VERLASSEN"
           : "ERGEBNIS  →",
       () => {
-        if (this.network?.isHost) this.network.submit({ kind: "ABANDON" });
-        else this.scene.start("Results");
+        if (!this.network) this.scene.start("Results");
+        else if (this.network.isHost && !shiftEnded())
+          this.network.submit({ kind: "ABANDON" });
+        else this.scene.start("Title");
       },
       C.dispatcher,
       260,
       64,
     );
+    const unsubscribeExit = this.network?.subscribe(() => {
+      if (shiftEnded()) exitButton.setText("ZUM TITEL");
+    });
     if (this.network) this.overlay = new GameNetworkOverlay(this.network);
     if (this.network && this.role === "agent")
       this.agentPanel = new AgentPanel(this, this.network);
@@ -271,6 +280,7 @@ export class Game extends Phaser.Scene {
       this.presentation?.destroy();
       this.presentation = null;
       unsubscribeHud?.();
+      unsubscribeExit?.();
       this.dispatcherPanel?.destroy();
       this.dispatcherPanel = null;
       this.archivistPanel?.destroy();

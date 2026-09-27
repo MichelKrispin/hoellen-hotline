@@ -65,7 +65,7 @@ export function button(
   color: number = TOKENS.color.agent,
   width = 430,
   height = 82,
-): void {
+): Phaser.GameObjects.Text {
   const rect = scene.add.graphics();
   const draw = (hovered: boolean): void => {
     rect.clear();
@@ -119,6 +119,7 @@ export function button(
     text.setScale(1);
   });
   rect.on("pointerdown", action);
+  return text;
 }
 
 export function installDebugNavigation(

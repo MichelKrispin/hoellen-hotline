@@ -231,7 +231,7 @@ export class GameNetwork {
     return true;
   }
   receive(slot: 0 | 1 | 2, raw: string): void {
-    if (this.blockedSlots.has(slot)) return;
+    if (terminal(this.status) || this.blockedSlots.has(slot)) return;
     const previous = this.receiveChain.get(slot) ?? Promise.resolve();
     const next = previous
       .then(() => this.handle(slot, raw))
@@ -239,6 +239,7 @@ export class GameNetwork {
     this.receiveChain.set(slot, next);
   }
   private async handle(slot: 0 | 1 | 2, raw: string): Promise<void> {
+    if (terminal(this.status)) return;
     const envelope = decodeEnvelope(raw);
     if (envelope.sessionId !== this.lobby.sessionId)
       throw new Error("Fremde Session.");
@@ -508,6 +509,7 @@ export class GameNetwork {
     });
   }
   connectionOpened(slot: 0 | 1 | 2): void {
+    if (terminal(this.status)) return;
     this.blockedSlots.delete(slot);
     this.sendSeq.set(slot, 0);
     this.recvSeq.set(slot, 0);

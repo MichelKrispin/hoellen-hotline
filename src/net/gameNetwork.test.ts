@@ -65,6 +65,34 @@ afterEach(() => {
 });
 
 describe("host simulation over role-filtered channels", () => {
+  it("keeps a finished guest finished after a late reconnect and snapshot", async () => {
+    const guest = GameNetwork.guest(fakeLobby(false, 1, {}), "agent");
+    const host = await GameNetwork.host(
+      fakeLobby(true, 0, {
+        1: channel((raw) => guest.receive(0, raw)),
+      }),
+      "archivist",
+    );
+    live.push(host, guest);
+    host.startHost();
+    await vi.waitFor(() => expect(guest.view?.public.phase).toBe("shift"));
+    expect(host.submit({ kind: "ABANDON" })).toBeNull();
+    await vi.waitFor(() => expect(guest.status).toBe("host-aborted"));
+    const finalRevision = guest.view?.public.revision;
+
+    guest.connectionOpened(0);
+    expect(guest.status).toBe("host-aborted");
+    await (
+      host as unknown as { sendSnapshot(slot: 1 | 2): Promise<void> }
+    ).sendSnapshot(1);
+    await (
+      guest as unknown as { receiveChain: Map<number, Promise<void>> }
+    ).receiveChain.get(0);
+
+    expect(guest.status).toBe("host-aborted");
+    expect(guest.view?.public.revision).toBe(finalRevision);
+  });
+
   it("pauses a hidden host and resumes its own pause on return", async () => {
     let visible = true;
     const callbacks: Array<() => void> = [];
