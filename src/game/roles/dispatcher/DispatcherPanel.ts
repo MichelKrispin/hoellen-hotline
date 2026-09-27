@@ -3,6 +3,7 @@ import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
 import { controlSurface, fitText, label } from "../../presentation/art";
+import { bakeliteControl } from "../../presentation/uiPrimitives";
 import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
@@ -16,7 +17,7 @@ const C = TOKENS.color;
 const colors = [
   C.error,
   C.dispatcher,
-  C.cyan,
+  0x9a8cc8,
   C.success,
   C.archivist,
   0xd773c7,
@@ -44,6 +45,7 @@ export class DispatcherPanel {
   private readonly readyButton = document.createElement("button");
   private readonly commitButton = document.createElement("button");
   private readonly targetLabels: Phaser.GameObjects.Text[] = [];
+  private readonly targetSurfaces: Phaser.GameObjects.NineSlice[] = [];
   private readonly targetFrames: Phaser.GameObjects.Graphics[] = [];
   private readonly controlLabels: Phaser.GameObjects.Text[] = [];
   private readonly controlValues: Phaser.GameObjects.Text[] = [];
@@ -130,13 +132,18 @@ export class DispatcherPanel {
     for (let i = 0; i < 12; i++) {
       const x = 1313 + (i % 2) * 237;
       const y = 380 + Math.floor(i / 2) * 53;
-      controlSurface(scene, x, y, 225, 51, colors[i]!);
+      const surface = bakeliteControl(scene, x, y, 225, 51);
+      this.targetSurfaces.push(surface);
+      scene.add
+        .graphics()
+        .fillStyle(colors[i]!)
+        .fillCircle(x + 17, y + 26, 6);
       const frame = scene.add
         .graphics()
         .lineStyle(3, C.warning)
         .strokeRoundedRect(x + 5, y + 5, 215, 41, 7)
         .setVisible(false);
-      const text = label(scene, x + 12, y + 10, "", 19, C.text, 201);
+      const text = label(scene, x + 31, y + 10, "", 19, C.text, 181);
       scene.add
         .zone(x, y, 225, 51)
         .setOrigin(0)
@@ -457,8 +464,8 @@ export class DispatcherPanel {
       if (destination) {
         fitText(
           text,
-          `${destination.kind === "special" ? "✶ " : ""}${destination.glyph} ${destination.name}`,
-          201,
+          `${destination.id === shared.selectedDestination ? "▶ " : ""}${destination.glyph} ${destination.name}`,
+          181,
           31,
           19,
           15,
@@ -466,10 +473,17 @@ export class DispatcherPanel {
         text.setAlpha(1);
         button.textContent = `${destination.kind === "special" ? "Sonderziel" : "Ziel"}: ${destination.name}. ${destination.description}`;
         button.disabled = !shared.activeCaseId;
+        button.setAttribute(
+          "aria-pressed",
+          String(destination.id === shared.selectedDestination),
+        );
+        this.targetSurfaces[i]!.setAlpha(1);
       } else {
-        fitText(text, "—", 201, 31, 19, 15).setAlpha(0.35);
+        fitText(text, "—", 181, 31, 19, 15).setAlpha(0.35);
         button.textContent = "Ziel nicht belegt";
         button.disabled = true;
+        button.setAttribute("aria-pressed", "false");
+        this.targetSurfaces[i]!.setAlpha(0.5);
       }
       const frame = this.targetFrames[i]!;
       frame.setVisible(destination?.id === shared.selectedDestination);

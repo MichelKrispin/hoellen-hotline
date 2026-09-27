@@ -227,15 +227,19 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
     ["LUST", 0xd773c7, "♥"],
     ["VÖLLEREI", C.dispatcher, "✦"],
     ["HABGIER", C.success, "◆"],
-    ["NEID", C.cyan, "◉"],
+    ["NEID", 0x9a8cc8, "◉"],
     ["TRÄGHEIT", 0x7aa6e6, "☾"],
   ];
   if (!live)
     rows.forEach(([name, color, symbol], i) => {
       const x = 1313 + (i % 2) * 237;
       const y = 380 + Math.floor(i / 2) * 53;
-      controlSurface(scene, x, y, 225, 51, color);
-      label(scene, x + 14, y + 12, `${symbol}  ${name}`, 20);
+      bakeliteControl(scene, x, y, 225, 51);
+      scene.add
+        .graphics()
+        .fillStyle(color)
+        .fillCircle(x + 17, y + 26, 6);
+      label(scene, x + 31, y + 12, `${symbol}  ${name}`, 19);
     });
   if (!live) {
     for (let i = 0; i < 6; i++) {
