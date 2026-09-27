@@ -97,7 +97,7 @@ export class ArchivistPanel {
     this.root.className = "archivist-controls";
     this.root.setAttribute("aria-label", "Archivarbeitsplatz");
     this.search.className = "archive-search";
-    this.search.placeholder = "Name, Alias, Beruf, Ereignis oder Tag";
+    this.search.placeholder = "Name, Alias oder Tag";
     this.search.setAttribute("aria-label", "Akten durchsuchen");
     this.search.oninput = () => {
       this.query = this.search.value;
@@ -112,7 +112,7 @@ export class ArchivistPanel {
       this.render(true);
     };
     this.mirror.className = "archivist-mirror";
-    this.mirrorResults.setAttribute("role", "status");
+    this.mirrorResults.setAttribute("aria-live", "polite");
     this.mirror.addEventListener("pointerdown", (event) =>
       event.stopPropagation(),
     );
@@ -227,9 +227,9 @@ export class ArchivistPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeContentPage(1));
     this.drawer = placeholder(scene, "button", 445, 489, 34, 17);
-    this.pageLabel = label(scene, 130, 492, "", 18, C.text);
-    this.prevPage = label(scene, 412, 492, "◀", 20);
-    this.nextPage = label(scene, 458, 492, "▶", 20);
+    this.pageLabel = label(scene, 130, 519, "", 18, C.text);
+    this.prevPage = label(scene, 412, 519, "◀", 20);
+    this.nextPage = label(scene, 458, 519, "▶", 20);
     this.prevPage
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changePage(-1));
@@ -237,7 +237,7 @@ export class ArchivistPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changePage(1));
     for (let i = 0; i < 3; i++) {
-      const y = 532 + i * 57;
+      const y = 552 + i * 57;
       this.resultCards.push(
         plate(scene, 124, y, 360, 49, C.paper, 0x9d7155, 6),
       );
@@ -566,19 +566,19 @@ export class ArchivistPanel {
         const text = this.resultLabels[i]!;
         this.scene.tweens.killTweensOf(card);
         this.scene.tweens.killTweensOf(text);
-        card.setAlpha(0.25).setY(10);
-        text.setAlpha(0.25).setY(532 + i * 57 + 20);
+        card.setAlpha(0.25).setY(552 + i * 57 + 10);
+        text.setAlpha(0.25).setY(552 + i * 57 + 20);
         this.scene.tweens.add({
           targets: card,
           alpha: 1,
-          y: 0,
+          y: 552 + i * 57,
           duration: 180,
           delay: i * 55,
         });
         this.scene.tweens.add({
           targets: text,
           alpha: 1,
-          y: 532 + i * 57 + 10,
+          y: 552 + i * 57 + 10,
           duration: 180,
           delay: i * 55,
         });
@@ -678,7 +678,7 @@ export class ArchivistPanel {
     this.nextContentButton.disabled =
       !hasContentPages ||
       this.contentPageIndex === this.contentPages.length - 1;
-    const accessibleDetail = `${title}. ${body}`;
+    const accessibleDetail = `${selected ? `${selected.name}. ${this.detail(selected, role)}. ` : ""}${title}. ${this.contentPages[this.contentPageIndex] ?? ""}`;
     if (this.mirrorDetail.textContent !== accessibleDetail)
       this.mirrorDetail.textContent = accessibleDetail;
     for (let i = 0; i < 2; i++) {

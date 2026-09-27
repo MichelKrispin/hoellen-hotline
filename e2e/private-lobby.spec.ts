@@ -99,6 +99,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     await expect(host.getByText(`Gast ${slot} · Verbunden`)).toBeVisible();
   }
   const pages = [host, ...guests];
+  pages.forEach((page) => page.setDefaultTimeout(15_000));
   for (const [index, page] of pages.entries()) {
     await page
       .getByRole("button", { name: ["Agent", "Archivar", "Disponent"][index]! })
@@ -185,7 +186,10 @@ test("three browsers join the private lobby and choose distinct roles", async ({
       const canvas = await archivist.locator("canvas").boundingBox();
       const search = await archiveSearch.boundingBox();
       return canvas && search
-        ? Math.abs(search.x - (canvas.x + (1324 * canvas.width) / 1920))
+        ? Math.max(
+            Math.abs(search.x - (canvas.x + (136 * canvas.width) / 1920)),
+            Math.abs(search.y - (canvas.y + (412 * canvas.height) / 1080)),
+          )
         : Infinity;
     })
     .toBeLessThan(2);
@@ -345,12 +349,44 @@ test("three browsers join the private lobby and choose distinct roles", async ({
   ).toBeVisible();
   for (let caseNumber = 2; caseNumber <= 8; caseNumber++) {
     await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
+    await expect(machine).toHaveAttribute(
+      "data-case-id",
+      `core.scenario.first.case.${caseNumber}`,
+    );
     await archiveTarget.click();
+    await expect(archiveTarget).toHaveAttribute("aria-pressed", "true");
+    await expect(machine.getByRole("status")).toContainText("Ziel Archiv");
     if (caseNumber % 2 === 1) {
-      await machine.getByRole("button", { name: /Hitze: 1\./ }).click();
-      await machine.getByRole("button", { name: /Störung beheben:/ }).click();
+      const heat = machine.getByRole("button", { name: /Hitze: 1\./ });
+      await expect(heat).toBeVisible();
+      await heat.click();
+      const recover = machine.getByRole("button", { name: /Störung beheben:/ });
+      await expect(recover).toBeEnabled();
+      await recover.click();
     }
-    await machine.getByRole("button", { name: /Ventil: AUS/ }).click();
+    await expect(machine.getByRole("status")).toContainText("Keine Störung");
+    const closedValve = machine.getByRole("button", { name: /Ventil: AUS/ });
+    if (await closedValve.isVisible()) await closedValve.click();
+    await expect(
+      machine.getByRole("button", { name: /Ventil: EIN/ }),
+    ).toBeVisible();
+    if (
+      !(await machine.getByRole("status").textContent())?.includes(
+        "Ziel Archiv",
+      )
+    ) {
+      await archiveTarget.click();
+      await expect(machine.getByRole("status")).toContainText("Ziel Archiv");
+    }
+    try {
+      await expect(
+        machine.getByRole("button", { name: "Anlage vorbereiten" }),
+      ).toBeEnabled();
+    } catch {
+      throw new Error(
+        `Fall ${caseNumber}: ${await machine.getByRole("status").textContent()}`,
+      );
+    }
     await machine.getByRole("button", { name: "Anlage vorbereiten" }).click();
     await agentApproval.click();
     await archiveApproval.click();

@@ -78,8 +78,8 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   plate(scene, 608, 360, 190, 175, C.bakelite);
   if (!live) scene.add.image(703, 446, "agent-caller").setDisplaySize(152, 163);
   label(scene, 818, 374, "SEELENKANAL", 24, "#91eafa");
-  paperSurface(scene, 817, 496, 348, 37, "card");
-  if (!live) label(scene, 837, 500, "FALL  —", 19, C.ink);
+  paperSurface(scene, 817, 508, 348, 37, "card");
+  if (!live) label(scene, 837, 512, "FALL  —", 19, C.ink);
   if (!live) label(scene, 817, 427, "Noch kein Anruf", 41);
   scalablePlate(scene, 527, 545, 835, 285, "panel-paper");
   physicalLabel(scene, 549, 550, 346, 30, "GESPRÄCHS-SKRIPT", {
@@ -100,7 +100,11 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   }
   plate(scene, 1402, 317, 394, 553, C.wood);
   paperSurface(scene, 1416, 330, 367, 528, "clipboard");
-  label(scene, 1450, 365, "GETEILTE HINWEISE", 25, C.ink);
+  physicalLabel(scene, 1431, 353, 338, 45, "GETEILTE HINWEISE", {
+    material: "paper",
+    fontSize: 23,
+    paddingY: 8,
+  });
   for (let i = 0; i < 3; i++)
     paperSurface(scene, 1431, 424 + i * 82, 338, 71, "note");
   if (!live)
@@ -132,11 +136,11 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   });
   if (!live)
     for (let i = 0; i < 3; i++) {
-      paperSurface(scene, 124, 540 + i * 56, 360, 49, "card");
+      paperSurface(scene, 124, 552 + i * 57, 360, 49, "card");
       label(
         scene,
         142,
-        551 + i * 56,
+        563 + i * 57,
         i === 0 ? "Keine Akte geöffnet" : "—",
         20,
         C.ink,

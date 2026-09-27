@@ -357,7 +357,7 @@ export function statusBar(
   const approvalNames = ["AGENT", "ARCHIV", "ROUTE"];
   const approvals = approvalNames.map((name, index) => {
     const x = 1361 + index * 147;
-    return label(scene, x, 87, `○ ${name}`, 19, C.text, 139);
+    return label(scene, x, 88, `○ ${name} OFFEN`, 16, C.text, 140);
   });
   const others = (Object.keys(names) as Role[]).filter((item) => item !== role);
   const colleagues = label(
@@ -402,7 +402,7 @@ export function statusBar(
       ];
       states.forEach((approved, index) =>
         approvals[index]!.setText(
-          `${approved ? "✓" : "○"} ${approvalNames[index]}`,
+          `${approved ? "✓" : "○"} ${approvalNames[index]} ${approved ? "OK" : "OFFEN"}`,
         ),
       );
       colleagues.setText(

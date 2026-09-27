@@ -582,7 +582,7 @@ html[data-reduced-flash="true"] * {
     sans-serif;
 }
 .game-network-overlay.tutorial-overlay {
-  top: 2%;
+  top: 18vh;
   bottom: auto;
   width: min(430px, 96vw);
 }
@@ -1742,4 +1742,50 @@ html[data-palette="contrast"] .lobby-setup .scenario-intro {
 }
 .lobby-card--welcome > .lobby-links {
   margin-top: 12px !important;
+}
+
+body.role-game .game-network-overlay,
+body.role-game .game-network-overlay.tutorial-overlay {
+  top: 18vh;
+  bottom: auto;
+  width: min(320px, calc(100vw - 16px));
+}
+
+@media (max-width: 750px) {
+  body.role-game #app {
+    height: min(58vw, 245px);
+    min-height: 0;
+  }
+  body.role-game .game-network-overlay,
+  body.role-game .game-network-overlay.tutorial-overlay {
+    position: relative;
+    inset: auto;
+    width: calc(100% - 24px);
+    margin: 8px 12px;
+  }
+  body.role-game .agent-accessible-controls,
+  body.role-game .archivist-mirror,
+  body.role-game .dispatcher-accessible-controls {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: calc(100% - 24px) !important;
+    height: auto !important;
+    margin: 12px;
+    overflow: visible;
+  }
+  body.role-game .archive-search,
+  body.role-game .archive-filter {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: 48px !important;
+  }
+  body.role-game .archivist-mirror {
+    width: 100% !important;
+    margin: 0 0 12px;
+  }
 }

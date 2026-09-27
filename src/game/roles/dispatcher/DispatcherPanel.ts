@@ -533,6 +533,7 @@ export class DispatcherPanel {
     const role = this.current();
     const shared = this.network.view?.public;
     if (!role || !shared) return;
+    this.mirror.dataset.caseId = shared.activeCaseId ?? "";
     const selected = role.destinations.find(
       (item) => item.id === shared.selectedDestination,
     );
@@ -616,8 +617,16 @@ export class DispatcherPanel {
         const matches = control?.value === entry.value;
         return `${matches ? "✓" : "◇"} ${entry.label}: ${showValue(entry.value)}`;
       }) ?? [];
+    const unmetRequirements =
+      selected?.requirements
+        .filter(
+          (entry) =>
+            role.controls.find((control) => control.id === entry.controlId)
+              ?.value !== entry.value,
+        )
+        .map((entry) => entry.label) ?? [];
     const summary = selected
-      ? `${selected.description}\n\nEINSTELLUNG\n${role.controls.map((control) => `${control.label}: ${showValue(control.value)}`).join("\n")}\n\nVORGABEN\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\nFreigaben: ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}`
+      ? `VORGABEN ${requirementLines.length - unmetRequirements.length}/${requirementLines.length} · FREIGABEN ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}\n${unmetRequirements.length ? `FEHLT: ${unmetRequirements.join(", ")}` : "✓ Alle technischen Vorgaben erfüllt"}\n${selected.description}\n\nEINSTELLUNG\n${role.controls.map((control) => `${control.label}: ${showValue(control.value)}`).join("\n")}\n\nVORGABEN IM DETAIL\n${requirementLines.join("\n") || "Keine Vorgaben"}`
       : "Neun Regelziele und drei Sonderrohre.\nZiel wählen, Anlage einstellen, Freigaben prüfen.";
     if (this.summarySource !== summary) {
       this.summarySource = summary;
@@ -713,6 +722,7 @@ export class DispatcherPanel {
       role.prepared && Object.values(shared.approvals).every(Boolean);
     const missing = [
       ...(!selected ? ["Ziel"] : []),
+      ...unmetRequirements,
       ...(incident ? ["Störung"] : []),
       ...(!role.prepared ? ["Vorbereitung"] : []),
       ...(!shared.approvals.agent ? ["Agent"] : []),

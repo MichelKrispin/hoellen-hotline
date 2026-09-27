@@ -50,7 +50,10 @@ export class AgentPanel {
   private readonly suggestButton = document.createElement("button");
   private readonly approvalButton = document.createElement("button");
   private readonly mirrorStatus = document.createElement("p");
+  private readonly mirrorTranscript = document.createElement("ol");
   private readonly unsubscribe: () => void;
+  private transcriptCase: CaseId | null = null;
+  private lastDialogueText: string | null = null;
   private selectedTag: string | null = null;
   private selectedDestination: string | null = null;
   private pendingUntil = 0;
@@ -100,8 +103,8 @@ export class AgentPanel {
     );
     this.portrait.setDisplaySize(152, 163).setVisible(false);
     this.caller = label(scene, 817, 416, "Noch kein Anruf", 35, C.text, 515);
-    this.callerCase = label(scene, 837, 500, "FALL  —", 19, C.ink, 305);
-    this.speech = label(scene, 817, 466, "Leitung frei.", 27, "#91eafa", 510);
+    this.callerCase = label(scene, 837, 512, "FALL  —", 19, C.ink, 305);
+    this.speech = label(scene, 817, 457, "Leitung frei.", 25, "#91eafa", 510);
     this.mood = label(scene, 130, 923, "STIMMUNG  —", 21, "#ffc69c");
     this.queue = label(scene, 1428, 938, "◇ Ruhig", 24);
     this.accept = label(scene, 151, 779, "☎   ANNEHMEN (A)", 27).setFontFamily(
@@ -259,9 +262,11 @@ export class AgentPanel {
       this.mirror.dataset.open = "true";
     });
     this.mirrorStatus.setAttribute("role", "status");
+    this.mirrorTranscript.setAttribute("aria-label", "Gesprächsverlauf");
+    this.mirrorTranscript.hidden = true;
     this.acceptButton.textContent = "Anruf annehmen";
     this.acceptButton.onclick = () => this.acceptCase();
-    this.mirror.append(this.acceptButton);
+    this.mirror.append(this.acceptButton, this.mirrorTranscript);
     for (let i = 0; i < 5; i++) {
       const button = document.createElement("button");
       button.onclick = () => this.choose(i);
@@ -421,6 +426,23 @@ export class AgentPanel {
     const role = this.current();
     if (!role || !view) return;
     const active = Boolean(view.public.activeCaseId);
+    if (this.transcriptCase !== view.public.activeCaseId) {
+      this.transcriptCase = view.public.activeCaseId;
+      this.lastDialogueText = null;
+      this.mirrorTranscript.replaceChildren();
+      this.mirrorTranscript.hidden = true;
+    }
+    if (
+      active &&
+      role.dialogueText &&
+      role.dialogueText !== this.lastDialogueText
+    ) {
+      this.lastDialogueText = role.dialogueText;
+      const entry = document.createElement("li");
+      entry.textContent = role.dialogueText;
+      this.mirrorTranscript.append(entry);
+      this.mirrorTranscript.hidden = false;
+    }
     fitText(
       this.caller,
       role.callerName ?? role.incomingCallerName ?? "Noch kein Anruf",
@@ -444,8 +466,8 @@ export class AgentPanel {
           ? "Ein Anruf wartet in der Leitung."
           : "Leitung frei."),
       510,
-      72,
-      27,
+      42,
+      25,
       19,
     );
     this.mood.setText(

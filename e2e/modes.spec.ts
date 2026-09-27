@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
 
 test("host configures free play and sees registered campaign scenarios", async ({
   page,
@@ -146,6 +147,52 @@ test("tutorial guides three connected roles into one shared practice case", asyn
       .getByRole("listitem")
       .filter({ hasText: "Anruf · Agent" }),
   ).toHaveClass(/is-done/);
+  if (process.env.CAPTURE_UI === "1") {
+    await guests[0]!
+      .locator(".archivist-mirror")
+      .getByRole("button", { name: /Der Formularbeamte/ })
+      .first()
+      .click();
+    await guests[1]!
+      .getByRole("region", { name: "Disponentenpult und Tastatursteuerung" })
+      .getByRole("button", { name: /Ziel: Archiv\./ })
+      .click();
+    await mkdir("docs/ui-acceptance/screenshots", { recursive: true });
+    for (const [index, page] of pages.entries()) {
+      const role = ["agent", "archivist", "dispatcher"][index]!;
+      await page.evaluate(() => {
+        (document.activeElement as HTMLElement | null)?.blur();
+        for (const mirror of Array.from(
+          document.querySelectorAll<HTMLElement>(
+            ".agent-accessible-controls, .archivist-mirror, .dispatcher-accessible-controls",
+          ),
+        ))
+          delete mirror.dataset.open;
+        const panel =
+          document.querySelector<HTMLDetailsElement>(".network-panel");
+        if (panel) panel.open = false;
+      });
+      for (const [width, height] of [
+        [1280, 720],
+        [1672, 941],
+        [2560, 1440],
+      ] as const) {
+        await page.setViewportSize({ width, height });
+        await page.screenshot({
+          path: `docs/ui-acceptance/screenshots/${role}-${width}x${height}.jpg`,
+          type: "jpeg",
+          quality: 82,
+        });
+      }
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.screenshot({
+        path: `docs/ui-acceptance/screenshots/${role}-390x844.jpg`,
+        type: "jpeg",
+        quality: 82,
+        fullPage: true,
+      });
+    }
+  }
   for (const page of pages)
     await expect(page.getByLabel("Tutorialschritt")).not.toContainText(
       "Station abgeschlossen",
