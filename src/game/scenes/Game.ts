@@ -46,7 +46,8 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   });
   const operator = scene.add
     .image(292, 548, "agent-operator")
-    .setDisplaySize(320, 355);
+    .setDisplaySize(320, 355)
+    .setName("agent-operator");
   if (!prefersReducedMotion()) {
     scene.tweens.add({
       targets: operator,
@@ -173,7 +174,7 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 1280, 595, "◇  Fall prüfen", 22, C.ink);
     label(scene, 1280, 655, "◇  Ausnahme prüfen", 22, C.ink);
   }
-  if (!live) devil(scene, 1770, 858, 0.3, 0x70517b);
+  devil(scene, 475, 807, 0.32, 0x70517b).setName("archivist-worker");
   plate(scene, 109, 829, 390, 137, C.wood);
   if (!live) label(scene, 127, 848, "◇  PIN 1     ◇  PIN 2", 20);
   plate(scene, 1240, 875, 555, 112, C.bakelite);
@@ -198,7 +199,7 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
 
 function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "ZIELBANK  /  ROUTING", C.dispatcher);
-  devil(scene, 296, 661, 1.24, 0xa64131);
+  devil(scene, 296, 661, 1.24, 0xa64131).setName("dispatcher-worker");
   metalHousing(scene, 520, 310, 765, 690);
   scalablePlate(scene, 545, 332, 715, 180, "panel-paper");
   if (!live) {

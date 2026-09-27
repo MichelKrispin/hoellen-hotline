@@ -55,6 +55,7 @@ export class ArchivistPanel {
   private readonly stampStatus: Phaser.GameObjects.Text;
   private readonly approval: Phaser.GameObjects.Text;
   private readonly drawer: Phaser.GameObjects.Image;
+  private readonly figure: Phaser.GameObjects.Image | null;
   private readonly unsubscribe: () => void;
   private readonly resize = () => this.positionControls();
   private readonly canvasResize = new ResizeObserver(() =>
@@ -90,6 +91,9 @@ export class ArchivistPanel {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
+    this.figure = scene.children.getByName(
+      "archivist-worker",
+    ) as Phaser.GameObjects.Image | null;
     this.root.className = "archivist-controls";
     this.root.setAttribute("aria-label", "Archivarbeitsplatz");
     this.search.className = "archive-search";
@@ -405,6 +409,13 @@ export class ArchivistPanel {
       yoyo: true,
       ease: "Back.easeOut",
     });
+    if (this.figure)
+      this.scene.tweens.add({
+        targets: this.figure,
+        angle: -7,
+        duration: 150,
+        yoyo: true,
+      });
   }
   private toggleApproval(): void {
     const id = this.caseId();

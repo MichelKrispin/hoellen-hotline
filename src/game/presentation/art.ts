@@ -296,7 +296,7 @@ export function devil(
   scale: number,
   color: number,
   idle = true,
-): void {
+): Phaser.GameObjects.Image {
   const role =
     color === 0x70517b
       ? "archivist"
@@ -315,6 +315,7 @@ export function devil(
       repeat: -1,
       ease: "Sine.easeInOut",
     });
+  return figure;
 }
 
 export function statusBar(

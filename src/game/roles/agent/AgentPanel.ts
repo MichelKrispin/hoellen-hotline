@@ -39,6 +39,7 @@ export class AgentPanel {
   private readonly feedback: Phaser.GameObjects.Text;
   private readonly handset: Phaser.GameObjects.Image;
   private readonly face: Phaser.GameObjects.Image;
+  private readonly operator: Phaser.GameObjects.Image | null;
   private readonly mirror = document.createElement("section");
   private readonly mirrorChoices: HTMLButtonElement[] = [];
   private readonly mirrorHints: HTMLButtonElement[] = [];
@@ -84,6 +85,9 @@ export class AgentPanel {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
+    this.operator = scene.children.getByName(
+      "agent-operator",
+    ) as Phaser.GameObjects.Image | null;
     this.callerSprite = scene.add
       .image(703, 446, "agent-caller")
       .setDisplaySize(152, 163);
@@ -579,6 +583,7 @@ export class AgentPanel {
     if (this.mirrorStatus.textContent !== accessibleStatus)
       this.mirrorStatus.textContent = accessibleStatus;
     const worm = role.callerMood !== null && role.callerMood < 45;
+    this.operator?.setAngle(worm && !prefersReducedMotion() ? -3 : 0);
     const portraitId = role.callerPortrait ?? role.incomingCallerPortrait;
     const portrait = textureFor(this.scene, portraitId ?? "");
     const hasPortrait = Boolean(portraitId && !portrait.missing);

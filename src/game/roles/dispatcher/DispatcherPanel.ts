@@ -65,6 +65,7 @@ export class DispatcherPanel {
   private readonly guardTrack: Phaser.GameObjects.Graphics;
   private readonly feedbackText: Phaser.GameObjects.Text;
   private readonly leverArm: Phaser.GameObjects.Container;
+  private readonly figure: Phaser.GameObjects.Image | null;
   private readonly unsubscribe: () => void;
   private vignette: Phaser.GameObjects.Container | null = null;
   private vignetteTimer: Phaser.Time.TimerEvent | null = null;
@@ -93,6 +94,9 @@ export class DispatcherPanel {
     private readonly network: GameNetwork,
     private readonly audio: AudioSystem,
   ) {
+    this.figure = scene.children.getByName(
+      "dispatcher-worker",
+    ) as Phaser.GameObjects.Image | null;
     this.mirror.className = "dispatcher-accessible-controls";
     this.mirror.setAttribute(
       "aria-label",
@@ -417,6 +421,13 @@ export class DispatcherPanel {
         duration: 130,
         yoyo: true,
         ease: "Back.easeIn",
+      });
+    if (!calm && this.figure)
+      this.scene.tweens.add({
+        targets: this.figure,
+        angle: 4,
+        duration: 130,
+        yoyo: true,
       });
     const sparks = this.scene.add.container(0, 0);
     if (!prefersReducedFlash())
