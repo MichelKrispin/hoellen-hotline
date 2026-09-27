@@ -147,6 +147,10 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   }
   scalablePlate(scene, 1240, 310, 555, 550, "panel-wood");
   scalablePlate(scene, 1258, 327, 520, 509, "panel-paper");
+  const binding = scene.add.graphics();
+  binding.fillStyle(0x7d5540).fillRoundedRect(1267, 347, 12, 466, 5);
+  for (const bookY of [375, 555, 735])
+    binding.fillStyle(0x30232a).fillCircle(1273, bookY, 5);
   label(scene, 1280, 344, "REGELBUCH", 28, C.ink);
   for (let i = 0; i < 4; i++) {
     physicalLabel(

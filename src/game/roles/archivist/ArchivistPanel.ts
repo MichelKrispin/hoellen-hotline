@@ -30,6 +30,9 @@ export class ArchivistPanel {
   private readonly nextButton = document.createElement("button");
   private readonly pinButtons: HTMLButtonElement[] = [];
   private readonly stampButtons: HTMLButtonElement[] = [];
+  private readonly tabButtons: HTMLButtonElement[] = [];
+  private readonly previousContentButton = document.createElement("button");
+  private readonly nextContentButton = document.createElement("button");
   private readonly approvalButton = document.createElement("button");
   private readonly pageLabel: Phaser.GameObjects.Text;
   private readonly prevPage: Phaser.GameObjects.Text;
@@ -43,6 +46,7 @@ export class ArchivistPanel {
   private readonly contentTitle: Phaser.GameObjects.Text;
   private readonly contentText: Phaser.GameObjects.Text;
   private readonly contentPage: Phaser.GameObjects.Text;
+  private readonly tabMarker: Phaser.GameObjects.Graphics;
   private readonly previousContentPage: Phaser.GameObjects.Text;
   private readonly nextContentPage: Phaser.GameObjects.Text;
   private readonly stampLabels: Phaser.GameObjects.Text[] = [];
@@ -131,8 +135,14 @@ export class ArchivistPanel {
       const button = document.createElement("button");
       button.textContent = title;
       button.onclick = () => this.selectTab(tab);
+      this.tabButtons.push(button);
       this.mirror.append(button);
     }
+    this.previousContentButton.textContent = "Vorherige Regelbuchseite";
+    this.nextContentButton.textContent = "Nächste Regelbuchseite";
+    this.previousContentButton.onclick = () => this.changeContentPage(-1);
+    this.nextContentButton.onclick = () => this.changeContentPage(1);
+    this.mirror.append(this.previousContentButton, this.nextContentButton);
     for (let i = 0; i < 2; i++) {
       const button = document.createElement("button");
       button.onclick = () => this.pin(i);
@@ -190,6 +200,7 @@ export class ArchivistPanel {
       125,
     ).setVisible(false);
     label(scene, 1072, 612, "BILD-AKTE", 15, C.ink);
+    this.tabMarker = scene.add.graphics();
     this.contentTitle = label(
       scene,
       1280,
@@ -580,12 +591,29 @@ export class ArchivistPanel {
       exceptions: "AUSNAHMEN / QUERVERWEISE",
       notes: "GEMEINSAME NOTIZEN",
     }[this.tab];
+    const activeTab = (
+      ["dossier", "rules", "exceptions", "notes"] as const
+    ).indexOf(this.tab);
+    this.tabMarker.clear();
+    this.tabMarker
+      .fillStyle(0x30232a)
+      .fillTriangle(
+        1317 + activeTab * 128,
+        427,
+        1337 + activeTab * 128,
+        427,
+        1327 + activeTab * 128,
+        436,
+      );
+    this.tabButtons.forEach((button, index) =>
+      button.setAttribute("aria-pressed", String(index === activeTab)),
+    );
     fitText(this.contentTitle, title, 465, 38, 24, 19);
     const body =
       this.tab === "dossier"
         ? selected
           ? this.detail(selected, role)
-          : "Wähle rechts eine Akte zum Vergleich.\nGleiche Alias, Ereignis und Tags mit dem Gespräch ab."
+          : "Wähle links eine Akte zum Vergleich.\nGleiche Alias, Ereignis und Tags mit dem Gespräch ab."
         : this.tab === "rules"
           ? this.ruleDetail(
               role.ruleEntries.filter((item) => item.kind === "rule"),
@@ -618,6 +646,11 @@ export class ArchivistPanel {
     this.nextContentPage.setAlpha(
       this.contentPageIndex === this.contentPages.length - 1 ? 0.35 : 1,
     );
+    this.previousContentButton.disabled =
+      !hasContentPages || this.contentPageIndex === 0;
+    this.nextContentButton.disabled =
+      !hasContentPages ||
+      this.contentPageIndex === this.contentPages.length - 1;
     const accessibleDetail = `${title}. ${body}`;
     if (this.mirrorDetail.textContent !== accessibleDetail)
       this.mirrorDetail.textContent = accessibleDetail;
