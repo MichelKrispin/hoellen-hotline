@@ -39,6 +39,7 @@ export class ArchivistPanel {
   private readonly pinLabels: Phaser.GameObjects.Text[] = [];
   private readonly dossierTitle: Phaser.GameObjects.Text;
   private readonly dossierText: Phaser.GameObjects.Text;
+  private readonly dossierPortrait: Phaser.GameObjects.Image;
   private readonly contentTitle: Phaser.GameObjects.Text;
   private readonly contentText: Phaser.GameObjects.Text;
   private readonly contentPage: Phaser.GameObjects.Text;
@@ -100,6 +101,7 @@ export class ArchivistPanel {
       this.render(true);
     };
     this.mirror.className = "archivist-mirror";
+    this.mirrorResults.setAttribute("role", "status");
     this.mirror.addEventListener("pointerdown", (event) =>
       event.stopPropagation(),
     );
@@ -175,10 +177,19 @@ export class ArchivistPanel {
       "Keine Akte geöffnet",
       29,
       C.ink,
-      585,
+      470,
     );
-    this.dossierText = label(scene, 575, 462, "", 21, C.ink, 580);
+    this.dossierText = label(scene, 575, 462, "", 21, C.ink, 475);
     this.dossierText.setLineSpacing(6);
+    this.dossierPortrait = placeholder(
+      scene,
+      "soul",
+      1075,
+      468,
+      100,
+      125,
+    ).setVisible(false);
+    label(scene, 1072, 612, "BILD-AKTE", 15, C.ink);
     this.contentTitle = label(
       scene,
       1280,
@@ -381,6 +392,7 @@ export class ArchivistPanel {
   private ejectPaper(): void {
     if (performance.now() - this.lastEjectionAt < 550) return;
     this.lastEjectionAt = performance.now();
+    if (prefersReducedMotion()) return;
     const scrap = placeholder(this.scene, "fax-slip", 150, 538, 160, 24);
     this.scene.tweens.add({
       targets: scrap,
@@ -399,14 +411,12 @@ export class ArchivistPanel {
   }
   private detail(record: ArchiveRecordView, role: ArchivistView): string {
     return [
-      record.name,
       `Alias: ${record.aliases.join(", ") || "–"}`,
-      `Beruf: ${record.occupation || "–"}`,
-      `Ereignis: ${record.events.join(" · ") || "–"}`,
-      `Tags: ${record.tags.map((id) => role.tagLabels[id] ?? id).join(" · ")}`,
-      `Beschwerde: ${record.complaints.join(" · ") || "–"}`,
-      `Akte: ${record.dossier}`,
-      `Unstimmigkeit: ${record.warnings.join(" · ") || "keine vermerkt"}`,
+      `BERUF / EREIGNIS\n${record.occupation || "–"} · ${record.events.join(" · ") || "–"}`,
+      `RELEVANTE TAGS\n${record.tags.map((id) => role.tagLabels[id] ?? id).join(" · ") || "–"}`,
+      `BESCHWERDE\n${record.complaints.join(" · ") || "–"}`,
+      `UNSTIMMIGKEITEN\n${record.warnings.join(" · ") || "keine vermerkt"}`,
+      `AKTENVERMERK\n${record.dossier}`,
     ].join("\n");
   }
   private ruleDetail(entries: RuleEntryView[], all: RuleEntryView[]): string {
@@ -457,6 +467,7 @@ export class ArchivistPanel {
       this.query,
       this.tagFilter,
       this.page,
+      this.selectedRecordId,
       this.results.map((item) => item.id),
     ]);
     if (
@@ -469,15 +480,23 @@ export class ArchivistPanel {
     const resultsChanged = signature !== this.renderedResults;
     if (resultsChanged) {
       this.renderedResults = signature;
+      const empty = document.createElement("p");
+      empty.textContent = "Keine passende Akte";
       this.mirrorResults.replaceChildren(
-        ...this.results
-          .slice(this.page * 3, this.page * 3 + 3)
-          .map((record) => {
-            const button = document.createElement("button");
-            button.textContent = `${record.name} · ${record.aliases[0] ?? record.occupation}`;
-            button.onclick = () => this.selectRecordById(record.id);
-            return button;
-          }),
+        ...(this.results.length
+          ? this.results
+              .slice(this.page * 3, this.page * 3 + 3)
+              .map((record) => {
+                const button = document.createElement("button");
+                button.textContent = `${record.name} · ${record.aliases[0] ?? record.occupation}`;
+                button.setAttribute(
+                  "aria-pressed",
+                  String(record.id === this.selectedRecordId),
+                );
+                button.onclick = () => this.selectRecordById(record.id);
+                return button;
+              })
+          : [empty]),
       );
     }
     fitText(
@@ -489,6 +508,9 @@ export class ArchivistPanel {
     );
     for (let i = 0; i < 3; i++) {
       const record = this.results[this.page * 3 + i];
+      const selectedCard = record?.id === this.selectedRecordId;
+      this.resultCards[i]!.setX(selectedCard ? 132 : 124);
+      this.resultLabels[i]!.setX(selectedCard ? 148 : 140);
       fitText(
         this.resultLabels[i]!,
         record
@@ -536,7 +558,7 @@ export class ArchivistPanel {
       selected
         ? `${selected.name}  /  ${selected.aliases[0] ?? "–"}`
         : "Keine Akte geöffnet",
-      585,
+      470,
       42,
       29,
       21,
@@ -546,11 +568,12 @@ export class ArchivistPanel {
       selected
         ? this.detail(selected, role)
         : "Karte im linken Schubfach wählen.\nAlias, Ereignis und Beschwerde mit dem Gespräch abgleichen.",
-      580,
+      475,
       310,
       21,
-      16,
+      15,
     );
+    this.dossierPortrait.setVisible(Boolean(selected));
     const title = {
       dossier: "AKTE / VERGLEICH",
       rules: "TAGESKLAUSELN",
