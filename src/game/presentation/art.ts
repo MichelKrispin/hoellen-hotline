@@ -327,24 +327,35 @@ export function statusBar(
     archivist: "ARCHIV",
     dispatcher: "DISPOSITION",
   };
-  const colors: Record<Role, number> = {
-    agent: C.agent,
-    archivist: C.archivist,
-    dispatcher: C.dispatcher,
-  };
-  neon(scene, 105, 57, 300, 71, colors[role]);
-  label(scene, 135, 73, names[role], 37);
-  const items = [
-    ["☰  WARTESCHLANGE", "—"],
-    ["◷  SCHICHT", "—:—"],
-    ["♨  TEAMSTRESS", "—"],
-    ["◇  FALL-ID", "—"],
-    ["✓  FREIGABE", "WARTET"],
+  plate(scene, 104, 50, 305, 90, C.bakelite);
+  label(scene, 124, 57, "SCHICHTPLATZ", 17, C.muted);
+  label(scene, 124, 87, names[role], 33);
+  const windows = [
+    { x: 424, w: 164, title: "☰ QUEUE" },
+    { x: 598, w: 170, title: "◷ SCHICHT" },
+    { x: 778, w: 363, title: "♨ ANLAGE / STRESS" },
+    { x: 1151, w: 184, title: "◇ FALL-ID" },
+    { x: 1345, w: 468, title: "✓ FREIGABEN" },
   ];
-  const values = items.map(([title, value], i) => {
-    const x = 447 + i * 272;
-    label(scene, x, 53, title ?? "", 21, C.muted);
-    return label(scene, x, 87, value ?? "", 31);
+  for (const item of windows) {
+    plate(scene, item.x, 49, item.w, 91, C.bakelite);
+    label(scene, item.x + 13, 54, item.title, 17, C.muted);
+  }
+  const queue = label(scene, 446, 83, "—", 37);
+  const queueState = label(scene, 503, 92, "WARTET", 15, C.muted);
+  const clock = label(scene, 621, 86, "—:—", 32);
+  const caseId = label(scene, 1164, 88, "—", 25, C.text, 159);
+  const stressNames = ["W", "K", "A"];
+  const stressReadings = stressNames.map((name, index) => {
+    const x = 793 + index * 115;
+    label(scene, x, 88, name, 18, C.muted);
+    return label(scene, x + 24, 86, "—", 25);
+  });
+  const stressBars = scene.add.graphics();
+  const approvalNames = ["AGENT", "ARCHIV", "ROUTE"];
+  const approvals = approvalNames.map((name, index) => {
+    const x = 1361 + index * 147;
+    return label(scene, x, 87, `○ ${name}`, 19, C.text, 139);
   });
   const others = (Object.keys(names) as Role[]).filter((item) => item !== role);
   const colleagues = label(
@@ -357,24 +368,40 @@ export function statusBar(
   );
   return {
     update(view) {
-      values[0]!.setText(String(view.queueLength));
+      queue.setText(String(view.queueLength).padStart(2, "0"));
+      queueState.setText(view.queueLength > 0 ? "WARTEN" : "FREI");
       const seconds = Math.floor(view.elapsedMs / 1000);
-      values[1]!.setText(
+      clock.setText(
         `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`,
       );
-      values[2]!
-        .setText(
-          `W${view.queuePressure} K${view.boilerPressure} A${view.auditRisk}`,
-        )
-        .setFontSize(25);
-      values[3]!.setText(view.activeCaseId?.split(".").at(-1) ?? "—");
-      const approved = Object.values(view.approvals).filter(Boolean).length;
-      values[4]!.setText(
-        view.phase === "results"
-          ? "ENDE"
-          : approved === 3
-            ? "3/3 BEREIT"
-            : `${approved}/3 FREIGABEN`,
+      const levels = [view.queuePressure, view.boilerPressure, view.auditRisk];
+      stressBars.clear();
+      levels.forEach((value, index) => {
+        stressReadings[index]!.setText(String(value));
+        const x = 793 + index * 115;
+        stressBars.fillStyle(0x171216).fillRoundedRect(x, 119, 98, 9, 4);
+        stressBars
+          .fillStyle(
+            value >= 75 ? C.error : value >= 50 ? C.warning : C.success,
+          )
+          .fillRoundedRect(
+            x + 2,
+            121,
+            Math.max(2, Math.min(94, value * 0.94)),
+            5,
+            2,
+          );
+      });
+      caseId.setText(view.activeCaseId?.split(".").at(-1) ?? "—");
+      const states = [
+        view.approvals.agent,
+        view.approvals.archivist,
+        view.approvals.dispatcher,
+      ];
+      states.forEach((approved, index) =>
+        approvals[index]!.setText(
+          `${approved ? "✓" : "○"} ${approvalNames[index]}`,
+        ),
       );
       colleagues.setText(
         others
