@@ -39,17 +39,26 @@ export class ArchivistPanel {
   private readonly pinLabels: Phaser.GameObjects.Text[] = [];
   private readonly contentTitle: Phaser.GameObjects.Text;
   private readonly contentText: Phaser.GameObjects.Text;
+  private readonly contentPage: Phaser.GameObjects.Text;
+  private readonly previousContentPage: Phaser.GameObjects.Text;
+  private readonly nextContentPage: Phaser.GameObjects.Text;
   private readonly stampLabels: Phaser.GameObjects.Text[] = [];
   private readonly stampStatus: Phaser.GameObjects.Text;
   private readonly approval: Phaser.GameObjects.Text;
   private readonly drawer: Phaser.GameObjects.Image;
   private readonly unsubscribe: () => void;
   private readonly resize = () => this.positionControls();
+  private readonly canvasResize = new ResizeObserver(() =>
+    this.positionControls(),
+  );
   private query = "";
   private tagFilter: string | null = null;
   private page = 0;
   private selectedRecordId: string | null = null;
   private tab: Tab = "rules";
+  private contentPageIndex = 0;
+  private contentSource = "";
+  private contentPages: string[] = [""];
   private results: ArchiveRecordView[] = [];
   private renderedResults = "";
   private feedback = "";
@@ -142,6 +151,7 @@ export class ArchivistPanel {
     this.root.append(this.search, this.filter, this.mirror);
     document.body.append(this.root);
     window.addEventListener("resize", this.resize);
+    this.canvasResize.observe(scene.game.canvas);
     window.addEventListener("pointerdown", this.outsidePointer);
     this.positionControls();
 
@@ -156,9 +166,16 @@ export class ArchivistPanel {
           ),
         );
     }
-    this.contentTitle = label(scene, 619, 430, "AKTIVE REGELN", 27, C.ink, 570);
-    this.contentText = label(scene, 619, 488, "", 21, C.ink, 565);
+    this.contentTitle = label(scene, 619, 430, "AKTIVE REGELN", 27, C.ink, 610);
+    this.contentText = label(scene, 619, 488, "", 21, C.ink, 610);
     this.contentText.setLineSpacing(5);
+    this.previousContentPage = label(scene, 620, 781, "◀", 20, C.ink)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.changeContentPage(-1));
+    this.contentPage = label(scene, 1010, 781, "", 18, C.ink);
+    this.nextContentPage = label(scene, 1195, 781, "▶", 20, C.ink)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => this.changeContentPage(1));
     this.drawer = placeholder(scene, "button", 442, 378, 42, 18);
     this.pageLabel = label(scene, 1326, 475, "", 18, C.ink);
     this.prevPage = label(scene, 1652, 475, "◀", 20, C.ink);
@@ -186,7 +203,7 @@ export class ArchivistPanel {
       const text = label(
         scene,
         1332,
-        640 + i * 36,
+        640 + i * 34,
         `◇ PIN ${i + 1}: frei`,
         21,
         C.ink,
@@ -205,8 +222,8 @@ export class ArchivistPanel {
         .on("pointerdown", () => this.stamp(stamp, index));
       this.stampLabels.push(text);
     }
-    this.stampStatus = label(scene, 619, 823, "Noch kein Stempel.", 22, C.ink);
-    this.approval = label(scene, 619, 785, "◇ Freigabe offen", 22, C.ink);
+    this.stampStatus = label(scene, 1319, 753, "Noch kein Stempel.", 21, C.ink);
+    this.approval = label(scene, 1333, 801, "◇ Freigabe offen", 22);
     this.approval
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
@@ -251,6 +268,7 @@ export class ArchivistPanel {
   }
   private selectTab(tab: Tab): void {
     this.tab = tab;
+    this.contentPageIndex = 0;
     this.render();
   }
   private selectRecord(index: number): void {
@@ -261,7 +279,40 @@ export class ArchivistPanel {
   private selectRecordById(recordId: string): void {
     this.selectedRecordId = recordId;
     this.tab = "dossier";
+    this.contentPageIndex = 0;
     this.render();
+  }
+  private changeContentPage(delta: number): void {
+    this.contentPageIndex = Math.max(
+      0,
+      Math.min(this.contentPages.length - 1, this.contentPageIndex + delta),
+    );
+    this.render();
+  }
+  private paginateContent(body: string): string[] {
+    const pages: string[] = [];
+    let page = "";
+    // Phaser measures the wrapped text with the same font used on the page.
+    for (const paragraph of body.split("\n")) {
+      const words = paragraph.split(/\s+/).filter(Boolean);
+      if (!words.length) {
+        if (page) page += "\n";
+        continue;
+      }
+      let first = true;
+      for (const word of words) {
+        const separator = first ? (page ? "\n" : "") : " ";
+        const candidate = page + separator + word;
+        this.contentText.setText(candidate);
+        if (page && this.contentText.height > 278) {
+          pages.push(page);
+          page = word;
+        } else page = candidate;
+        first = false;
+      }
+    }
+    pages.push(page);
+    return pages;
   }
   private changePage(delta: number): void {
     this.page = Math.max(
@@ -466,7 +517,7 @@ export class ArchivistPanel {
       exceptions: "AUSNAHMEN / QUERVERWEISE",
       notes: "GEMEINSAME NOTIZEN",
     }[this.tab];
-    fitText(this.contentTitle, title, 570, 38, 27, 20);
+    fitText(this.contentTitle, title, 610, 38, 27, 20);
     const body =
       this.tab === "dossier"
         ? selected
@@ -483,7 +534,27 @@ export class ArchivistPanel {
                 role.ruleEntries,
               )
             : `Agentenhinweise: ${publicView.publishedTags.map((id) => role.tagLabels[id] ?? id).join(" · ") || "–"}\nGepinnte Akten: ${publicView.archivePins.map((id) => role.archiveRecords.find((item) => item.id === id)?.aliases[0] ?? id).join(" · ") || "–"}\nZielbitte: ${publicView.suggestedDestination ?? "–"}\nVorbereitetes Ziel: ${publicView.selectedDestination ?? "–"}`;
-    fitText(this.contentText, body, 565, 270, 21, 15);
+    if (this.contentSource !== body) {
+      this.contentSource = body;
+      this.contentPages = this.paginateContent(body);
+      this.contentPageIndex = Math.min(
+        this.contentPageIndex,
+        this.contentPages.length - 1,
+      );
+    }
+    this.contentText.setText(this.contentPages[this.contentPageIndex] ?? "");
+    const hasContentPages = this.contentPages.length > 1;
+    this.contentPage.setText(
+      hasContentPages
+        ? `Seite ${this.contentPageIndex + 1} / ${this.contentPages.length}`
+        : "",
+    );
+    this.previousContentPage.setVisible(hasContentPages);
+    this.nextContentPage.setVisible(hasContentPages);
+    this.previousContentPage.setAlpha(this.contentPageIndex === 0 ? 0.35 : 1);
+    this.nextContentPage.setAlpha(
+      this.contentPageIndex === this.contentPages.length - 1 ? 0.35 : 1,
+    );
     const accessibleDetail = `${title}. ${body}`;
     if (this.mirrorDetail.textContent !== accessibleDetail)
       this.mirrorDetail.textContent = accessibleDetail;
@@ -499,19 +570,27 @@ export class ArchivistPanel {
         (!selected && !recordId) ||
         i > publicView.archivePins.length;
     }
-    this.stampStatus.setText(
+    fitText(
+      this.stampStatus,
       `Stempel: ${role.stamp ? STAMP_LABELS[STAMPS.indexOf(role.stamp)] : "–"}`,
+      445,
+      30,
+      21,
     );
     for (const [index, stamp] of STAMPS.entries()) {
       this.stampLabels[index]!.setAlpha(role.stamp === stamp ? 1 : 0.76);
       this.stampButtons[index]!.disabled = !publicView.activeCaseId;
     }
-    this.approval.setText(
+    fitText(
+      this.approval,
       publicView.selectedDestination
         ? publicView.approvals.archivist
           ? "✓ FREIGABE WIDERRUFEN"
           : "◇ ZIEL FREIGEBEN"
         : "◇ ZIEL NOCH OFFEN",
+      414,
+      34,
+      22,
     );
     this.approvalButton.textContent = publicView.approvals.archivist
       ? "Freigabe widerrufen"
@@ -524,6 +603,7 @@ export class ArchivistPanel {
   destroy(): void {
     this.unsubscribe();
     window.removeEventListener("resize", this.resize);
+    this.canvasResize.disconnect();
     window.removeEventListener("pointerdown", this.outsidePointer);
     this.root.remove();
   }

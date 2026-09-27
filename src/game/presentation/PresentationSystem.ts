@@ -24,6 +24,10 @@ export class PresentationSystem {
     this.graphics = { figure, plant, pipes, gauge, demons };
     for (const graphic of Object.values(this.graphics))
       graphic.setDepth(5).setAlpha(0.72);
+    if (network.role === "archivist") {
+      pipes.setVisible(false);
+      demons.setVisible(false);
+    }
     this.unsubscribe = network.subscribe(() => this.update());
     this.update();
   }

@@ -997,6 +997,11 @@ button:disabled {
   color: var(--panel-ink);
   scrollbar-color: #bc7951 #251820;
 }
+@media (min-width: 1000px) {
+  .archive-network-overlay:not(.tutorial-overlay) .network-panel {
+    max-height: min(170px, 20dvh);
+  }
+}
 .tutorial-overlay .network-panel {
   max-height: min(55dvh, 570px);
 }

@@ -172,10 +172,21 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     await host.screenshot({ path: testInfo.outputPath("agent-desk.png") });
   }
   const archivist = guests[0]!;
+  await archivist.setViewportSize({ width: 1920, height: 1080 });
   const archive = archivist.getByRole("region", { name: "Archivarbeitsplatz" });
-  await archive
-    .getByRole("textbox", { name: "Akten durchsuchen" })
-    .fill("Formularbeamte");
+  const archiveSearch = archive.getByRole("textbox", {
+    name: "Akten durchsuchen",
+  });
+  await expect
+    .poll(async () => {
+      const canvas = await archivist.locator("canvas").boundingBox();
+      const search = await archiveSearch.boundingBox();
+      return canvas && search
+        ? Math.abs(search.x - (canvas.x + (1324 * canvas.width) / 1920))
+        : Infinity;
+    })
+    .toBeLessThan(2);
+  await archiveSearch.fill("Formularbeamte");
   await archive
     .getByRole("combobox", { name: "Akten nach Tag filtern" })
     .selectOption("core.tag.ink");
@@ -198,6 +209,10 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     await archivist.screenshot({
       path: testInfo.outputPath("archive-desk.png"),
     });
+  }
+  if (process.env.CAPTURE_ARCHIVE === "1") {
+    await context.close();
+    return;
   }
   await host.evaluate(() =>
     (

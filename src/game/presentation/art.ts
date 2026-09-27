@@ -78,6 +78,38 @@ export function plate(
     .setOrigin(0);
 }
 
+/** Draw full-size panels so large reading surfaces stay sharp. */
+export function scalablePlate(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  material: "panel-paper" | "panel-wood" | "panel-bakelite",
+): Phaser.GameObjects.Graphics {
+  const colors = {
+    "panel-paper": [0xb89361, 0xf2dab0],
+    "panel-wood": [0x4b2d28, 0x5d362b],
+    "panel-bakelite": [0x211d2a, 0x302733],
+  } as const;
+  const [frame, face] = colors[material];
+  const inset = h < 100 ? 8 : 20;
+  const graphics = scene.add.graphics({ x, y });
+  graphics.fillStyle(0x171216).fillRoundedRect(3, 6, w, h, 16);
+  graphics.fillStyle(frame).fillRoundedRect(0, 0, w, h, 16);
+  graphics.lineStyle(4, 0x21151a).strokeRoundedRect(2, 2, w - 4, h - 4, 15);
+  graphics
+    .fillStyle(face)
+    .fillRoundedRect(inset, inset, w - inset * 2, h - inset * 2, 10);
+  graphics
+    .lineStyle(3, 0x8c6545, 0.85)
+    .strokeRoundedRect(inset, inset, w - inset * 2, h - inset * 2, 10);
+  for (const screwX of [15, w - 15])
+    for (const screwY of [15, h - 15])
+      graphics.fillStyle(0x171216).fillCircle(screwX, screwY, 5);
+  return graphics;
+}
+
 export function paper(
   scene: Phaser.Scene,
   x: number,

@@ -30,6 +30,8 @@ export class GameNetworkOverlay {
   readonly audio = new AudioSystem();
   constructor(private readonly network: GameNetwork) {
     this.root.className = "game-network-overlay";
+    if (network.role === "archivist")
+      this.root.classList.add("archive-network-overlay");
     if (network.lobby.mode.kind === "tutorial")
       this.root.classList.add("tutorial-overlay");
     this.root.setAttribute("aria-label", "Netzwerkstatus");

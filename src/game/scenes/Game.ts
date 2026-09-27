@@ -21,6 +21,7 @@ import {
   plate,
   room,
   roomSign,
+  scalablePlate,
   statusBar,
 } from "../presentation/art";
 
@@ -108,12 +109,12 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     );
     placeholder(scene, "button", 442, 378 + i * 119, 42, 18);
   }
-  placeholder(scene, "rulebook", 577, 310, 684, 546);
+  scalablePlate(scene, 577, 310, 684, 546, "panel-wood");
   const readingPage = scene.add.graphics();
-  readingPage.fillStyle(0xe9c99a, 0.96);
-  readingPage.fillRoundedRect(604, 337, 582, 484, 18);
+  readingPage.fillStyle(0xf2dab0, 1);
+  readingPage.fillRoundedRect(604, 337, 642, 484, 18);
   readingPage.lineStyle(4, 0x6d342c, 0.9);
-  readingPage.strokeRoundedRect(604, 337, 582, 484, 18);
+  readingPage.strokeRoundedRect(604, 337, 642, 484, 18);
   label(scene, 615, 352, "REGELBUCH", 34, C.ink);
   if (!live) {
     label(scene, 619, 430, "AKTIVE REGELN", 25, C.ink);
@@ -121,23 +122,23 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 619, 646, "◇   Fall prüfen", 27, C.ink);
     label(scene, 619, 715, "◇   Ausnahme prüfen", 27, C.ink);
   }
-  paper(scene, 1293, 336, 497, 377);
+  scalablePlate(scene, 1293, 336, 497, 385, "panel-paper");
   label(scene, 1332, 378, "SEELEN-DOSSIER", 30, C.ink);
   if (!live) {
     label(scene, 1332, 450, "Keine Akte geöffnet", 27, C.ink);
     label(scene, 1332, 568, "GETEILTE TAGS  ◇", 23, C.ink);
   }
-  devil(scene, 1540, 868, 0.42, 0x70517b);
+  if (live) {
+    scalablePlate(scene, 1293, 728, 497, 133, "panel-paper");
+    scalablePlate(scene, 1314, 785, 454, 59, "panel-bakelite");
+  } else devil(scene, 1540, 868, 0.42, 0x70517b);
   for (let i = 0; i < 3; i++) {
     const x = 603 + i * 290;
-    neon(
-      scene,
-      x,
-      898,
-      255,
-      82,
-      [C.success, C.warning, C.error][i] ?? C.warning,
-    );
+    const stamp = scene.add.graphics();
+    stamp.fillStyle(0x251923).fillRoundedRect(x, 898, 255, 82, 12);
+    stamp
+      .lineStyle(5, [C.success, C.warning, C.error][i] ?? C.warning)
+      .strokeRoundedRect(x + 2, 900, 251, 78, 11);
     if (!live)
       label(
         scene,
