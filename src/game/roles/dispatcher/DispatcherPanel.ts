@@ -60,6 +60,9 @@ export class DispatcherPanel {
   private readonly prepareText: Phaser.GameObjects.Text;
   private readonly readyText: Phaser.GameObjects.Text;
   private readonly commitText: Phaser.GameObjects.Text;
+  private readonly leverCheckText: Phaser.GameObjects.Text;
+  private readonly guardText: Phaser.GameObjects.Text;
+  private readonly guardTrack: Phaser.GameObjects.Graphics;
   private readonly feedbackText: Phaser.GameObjects.Text;
   private readonly leverArm: Phaser.GameObjects.Container;
   private readonly unsubscribe: () => void;
@@ -221,7 +224,26 @@ export class DispatcherPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
     controlSurface(scene, 584, 795, 642, 181, C.error);
+    this.leverCheckText = label(
+      scene,
+      634,
+      813,
+      "Ziel: — · Bedingungen offen",
+      19,
+      C.text,
+      535,
+    );
     this.commitText = label(scene, 634, 856, "↗ HEBEL SPERRE", 34);
+    this.guardTrack = scene.add.graphics();
+    this.guardText = label(
+      scene,
+      634,
+      927,
+      "SCHUTZBÜGEL: GESCHLOSSEN",
+      17,
+      C.muted,
+      440,
+    );
     this.commitText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
@@ -379,7 +401,7 @@ export class DispatcherPanel {
     if (!this.armed) {
       this.armed = true;
       this.feedback =
-        "Letzte Prüfung: Ziel, Hinweise und Freigaben bestätigen. Erneut ziehen.";
+        "Schutzbügel offen. Ziel und Freigaben prüfen, dann erneut ziehen.";
       this.render();
       return;
     }
@@ -403,14 +425,14 @@ export class DispatcherPanel {
           placeholder(
             this.scene,
             "spark",
-            1790 + i * 12,
-            890 - (i % 3) * 17,
+            1160 + i * 12,
+            810 - (i % 3) * 17,
             24,
             24,
           ),
         );
       }
-    sparks.add(placeholder(this.scene, "smoke", 1780, 840, 110, 60));
+    sparks.add(placeholder(this.scene, "smoke", 1120, 790, 110, 60));
     if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
     else
       this.scene.tweens.add({
@@ -567,7 +589,7 @@ export class DispatcherPanel {
         return `${matches ? "✓" : "◇"} ${entry.label}: ${showValue(entry.value)}`;
       }) ?? [];
     const summary = selected
-      ? `${selected.description}\n\nTECHNIK\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\nFreigaben: ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}`
+      ? `${selected.description}\n\nEINSTELLUNG\n${role.controls.map((control) => `${control.label}: ${showValue(control.value)}`).join("\n")}\n\nVORGABEN\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\nFreigaben: ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}`
       : "Neun Regelziele und drei Sonderrohre.\nZiel wählen, Anlage einstellen, Freigaben prüfen.";
     if (this.summarySource !== summary) {
       this.summarySource = summary;
@@ -640,6 +662,30 @@ export class DispatcherPanel {
     this.readyButton.disabled = !role.prepared;
     const canCommit =
       role.prepared && Object.values(shared.approvals).every(Boolean);
+    const missing = [
+      ...(!selected ? ["Ziel"] : []),
+      ...(incident ? ["Störung"] : []),
+      ...(!role.prepared ? ["Vorbereitung"] : []),
+      ...(!shared.approvals.agent ? ["Agent"] : []),
+      ...(!shared.approvals.archivist ? ["Archiv"] : []),
+      ...(!shared.approvals.dispatcher ? ["Disposition"] : []),
+    ];
+    fitText(
+      this.leverCheckText,
+      `ZIEL: ${selected?.name ?? "—"} · ${missing.length ? `FEHLT: ${missing.join(", ")}` : "TECHNIK UND FREIGABEN ✓"}`,
+      535,
+      36,
+      19,
+      15,
+    );
+    this.guardTrack.clear();
+    this.guardTrack.fillStyle(0x171216).fillRoundedRect(634, 917, 460, 6, 3);
+    this.guardTrack
+      .fillStyle(this.armed ? C.success : C.warning)
+      .fillRoundedRect(this.armed ? 1053 : 634, 913, 42, 14, 4);
+    this.guardText.setText(
+      `SCHUTZBÜGEL: ${this.armed ? "OFFEN · ERNEUT ZIEHEN" : "GESCHLOSSEN"}`,
+    );
     fitText(
       this.commitText,
       canCommit
@@ -667,7 +713,7 @@ export class DispatcherPanel {
       18,
       15,
     );
-    const status = `${selected ? `Ziel ${selected.name}. ${requirementLines.join(". ")}.` : "Kein Ziel gewählt."} ${incident ? `Störung ${incident.diagnosis}.` : "Keine Störung."} ${role.prepared ? "Anlage vorbereitet." : "Anlage nicht vorbereitet."} ${role.lastOutcome ? `Ergebnis: ${role.lastOutcome.outcome}.` : ""} ${this.network.error || this.feedback}`;
+    const status = `${selected ? `Ziel ${selected.name}. ${requirementLines.join(". ")}.` : "Kein Ziel gewählt."} ${incident ? `Störung ${incident.diagnosis}.` : "Keine Störung."} ${role.prepared ? "Anlage vorbereitet." : "Anlage nicht vorbereitet."} Schutzbügel ${this.armed ? "offen" : "geschlossen"}. ${missing.length ? `Fehlt: ${missing.join(", ")}.` : "Alle Bedingungen erfüllt."} ${role.lastOutcome ? `Ergebnis: ${role.lastOutcome.outcome}.` : ""} ${this.network.error || this.feedback}`;
     if (this.mirrorStatus.textContent !== status)
       this.mirrorStatus.textContent = status;
     if (role.lastOutcome) {

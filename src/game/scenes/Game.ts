@@ -261,7 +261,9 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 1320, 827, "◇  ANLAGE VORBEREITEN", 22);
     label(scene, 1320, 905, "◇  BEREIT MELDEN", 22);
     controlSurface(scene, 584, 795, 642, 181, C.error);
+    label(scene, 634, 814, "ZIEL: — · BEDINGUNGEN OFFEN", 19);
     label(scene, 634, 853, "↗  HEBEL GESPERRT", 34);
+    label(scene, 634, 925, "SCHUTZBÜGEL: GESCHLOSSEN", 17, C.muted);
     placeholder(scene, "lever-arm", 1118, 802, 80, 150);
   }
 }
