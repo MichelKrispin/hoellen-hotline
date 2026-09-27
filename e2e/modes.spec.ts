@@ -90,6 +90,11 @@ test("tutorial guides three connected roles into one shared practice case", asyn
     await page.getByRole("button", { name: "Bereit melden" }).click();
   }
   await host.getByRole("button", { name: "Schicht starten" }).click();
+  const stationTasks = host.getByRole("list", { name: "Tutorialaufgaben" });
+  await expect(stationTasks.getByRole("listitem")).toHaveCount(3);
+  await expect(
+    stationTasks.getByText("Agent · geteilten Tag erkennen"),
+  ).toBeVisible();
   for (const [index, page] of pages.entries()) {
     const panel = page.getByRole("region", { name: "Netzwerkstatus" });
     await expect(panel).toContainText("Station");
@@ -98,15 +103,27 @@ test("tutorial guides three connected roles into one shared practice case", asyn
       .selectOption(["tag", "pin", "approvals"][index]!);
     await panel.getByRole("button", { name: "Station abschließen" }).click();
   }
-  for (const page of pages)
+  for (const page of pages) {
     await expect(page.getByLabel("Tutorialschritt")).toContainText(
       "Übungsfall",
     );
+    await expect(
+      page
+        .getByRole("list", { name: "Tutorialaufgaben" })
+        .getByRole("listitem"),
+    ).toHaveCount(6);
+  }
   const accept = host
     .getByRole("region", { name: "Agentenpult und Tastatursteuerung" })
     .getByRole("button", { name: "Anruf annehmen" });
   await accept.focus();
   await accept.click();
+  await expect(
+    host
+      .getByRole("list", { name: "Tutorialaufgaben" })
+      .getByRole("listitem")
+      .filter({ hasText: "Anruf · Agent" }),
+  ).toHaveClass(/is-done/);
   for (const page of pages)
     await expect(page.getByLabel("Tutorialschritt")).not.toContainText(
       "Station abgeschlossen",

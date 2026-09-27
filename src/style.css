@@ -1033,6 +1033,27 @@ button:disabled {
   background: #26343b;
   color: #fff0d4;
 }
+.tutorial-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 9px;
+  margin: 10px 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9em;
+}
+.tutorial-checklist li {
+  padding: 5px 7px;
+  border: 1px solid #8a6b5d;
+  border-radius: 4px;
+}
+.tutorial-checklist li.is-done {
+  border-color: #68d8dc;
+  color: #b8f2e3;
+}
+.tutorial-checklist li span {
+  font-weight: bold;
+}
 .shift-report-paper {
   width: min(900px, calc(100vw - 24px));
   max-height: calc(100dvh - 30px);
@@ -1476,6 +1497,17 @@ html[data-palette="contrast"] .lobby-setup .scenario-intro {
   .network-panel,
   .tutorial-overlay .network-panel {
     max-height: 25dvh;
+  }
+  .tutorial-overlay .network-panel {
+    max-height: 40dvh;
+  }
+  body:has(.tutorial-overlay)
+    :is(
+      .agent-accessible-controls,
+      .archivist-mirror,
+      .dispatcher-accessible-controls
+    ) {
+    top: calc(58px + 40dvh + 8px) !important;
   }
   .agent-accessible-controls,
   .archivist-mirror,

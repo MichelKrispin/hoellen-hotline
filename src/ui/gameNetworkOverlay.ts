@@ -7,6 +7,7 @@ import { reactionUrl } from "../assets/reactions";
 import { AudioSystem, type AudioBus } from "../audio/AudioSystem";
 import { GAMEPLAY_HASH_VERSION } from "../content/schemas";
 import { PROTOCOL_VERSION } from "../net/protocol";
+import type { PublicShiftView } from "../game/state/contracts";
 
 const escapeHtml = (value: string): string =>
   value.replace(
@@ -16,6 +17,36 @@ const escapeHtml = (value: string): string =>
         c
       ]!,
   );
+
+function tutorialChecklist(view: PublicShiftView): string {
+  const tutorial = view.tutorial;
+  if (!tutorial) return "";
+  const finished = view.phase === "results";
+  const steps: [string, boolean][] =
+    tutorial.stage === "stations"
+      ? [
+          ["Agent · geteilten Tag erkennen", tutorial.stations.agent],
+          ["Archiv · geteilten Pin erkennen", tutorial.stations.archivist],
+          ["Disposition · Freigaben verstehen", tutorial.stations.dispatcher],
+        ]
+      : [
+          ["Anruf · Agent", finished || Boolean(view.activeCaseId)],
+          ["Tag · Agent", finished || view.publishedTags.length > 0],
+          ["Pin · Archiv", finished || view.archivePins.length > 0],
+          ["Ziel · Disposition", finished || Boolean(view.selectedDestination)],
+          [
+            "Freigaben · alle drei",
+            finished || Object.values(view.approvals).every(Boolean),
+          ],
+          ["Zustellung · Disposition", finished],
+        ];
+  return `<ol class="tutorial-checklist" aria-label="Tutorialaufgaben">${steps
+    .map(
+      ([label, done]) =>
+        `<li class="${done ? "is-done" : ""}"><span aria-hidden="true">${done ? "✓" : "○"}</span> ${label}</li>`,
+    )
+    .join("")}</ol>`;
+}
 export class GameNetworkOverlay {
   private root = document.createElement("section");
   private reportRoot = document.createElement("section");
@@ -25,6 +56,7 @@ export class GameNetworkOverlay {
   private notice = "";
   private lastStatus = "";
   private lastTutorialKey = "";
+  private lastChecklist = "";
   private lastReactionKey = "";
   private lastAttention = false;
   readonly audio = new AudioSystem();
@@ -249,7 +281,10 @@ export class GameNetworkOverlay {
         ? `<figure class="network-reaction"><img src="${escapeHtml(reactionImage)}" alt=""><figcaption>${escapeHtml(reaction.caption)}</figcaption></figure>`
         : "";
     const tutorialHint = (() => {
-      if (!tutorial || view?.public.phase !== "shift") return "";
+      if (!tutorial) return "";
+      if (view?.public.phase === "results")
+        return "Übung abgeschlossen. Öffnet gemeinsam die Abschlussakte und besprecht, welche Hinweise ihr geteilt habt.";
+      if (view?.public.phase !== "shift") return "";
       if (tutorial.stage === "stations")
         return tutorial.stations[this.network.role]
           ? `Station abgeschlossen (${Object.values(tutorial.stations).filter(Boolean).length}/3). Warte auf die übrigen Arbeitsplätze. Sprecht schon jetzt darüber, welche Hinweise ihr weitergeben könnt; teilt eure Bildschirme nicht.`
@@ -302,11 +337,12 @@ export class GameNetworkOverlay {
     })();
     const tutorialProgress = tutorial
       ? view?.public.phase === "results"
-        ? "Übung abgeschlossen · Lest gemeinsam die Abschlussakte und besprecht eure Entscheidungen."
+        ? "Übung abgeschlossen · 6/6 Aufgaben"
         : tutorial.stage === "stations"
           ? `Rollenstationen ${Object.values(tutorial.stations).filter(Boolean).length}/3 · danach gemeinsamer Übungsfall`
-          : `Gemeinsamer Übungsfall · Tag ${view?.public.publishedTags.length ? "✓" : "○"} · Pin ${view?.public.archivePins.length ? "✓" : "○"} · Ziel ${view?.public.selectedDestination ? "✓" : "○"} · Freigaben ${Object.values(view?.public.approvals ?? {}).filter(Boolean).length}/3`
+          : `Gemeinsamer Übungsfall · ${[view?.public.activeCaseId, view?.public.publishedTags.length, view?.public.archivePins.length, view?.public.selectedDestination, Object.values(view?.public.approvals ?? {}).every(Boolean)].filter(Boolean).length}/6 Aufgaben`
       : "";
+    const checklist = view ? tutorialChecklist(view.public) : "";
     const stationChoices =
       this.network.role === "agent"
         ? '<option value="" selected disabled>Antwort wählen</option><option value="dossier">Geheimes Dossier</option><option value="tag">Veröffentlichter Tag</option><option value="machine">Maschinenwert</option>'
@@ -383,10 +419,18 @@ export class GameNetworkOverlay {
       if (modifierLine) modifierLine.textContent = modifiers;
       const tutorialLine =
         this.root.querySelector<HTMLElement>(".network-tutorial");
-      if (tutorialLine) tutorialLine.textContent = tutorialHint;
+      if (tutorialLine && tutorialLine.textContent !== tutorialHint)
+        tutorialLine.textContent = tutorialHint;
       const progressLine =
         this.root.querySelector<HTMLElement>(".tutorial-progress");
-      if (progressLine) progressLine.textContent = tutorialProgress;
+      if (progressLine && progressLine.textContent !== tutorialProgress)
+        progressLine.textContent = tutorialProgress;
+      const checklistLine = this.root.querySelector<HTMLElement>(
+        ".tutorial-checklist",
+      );
+      if (checklistLine && checklist !== this.lastChecklist)
+        checklistLine.outerHTML = checklist;
+      this.lastChecklist = checklist;
       return;
     }
     this.lastStatus = this.network.status;
@@ -444,7 +488,8 @@ export class GameNetworkOverlay {
       (newReaction && Boolean(reactionHtml)) ||
       (this.root.querySelector<HTMLDetailsElement>(".network-panel")?.open ??
         false);
-    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${tutorial ? "Tutorial · " : ""}${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span></summary><div class="network-panel-body"><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span>${tutorial ? `<strong class="tutorial-progress" aria-label="Tutorialfortschritt">${escapeHtml(tutorialProgress)}</strong>` : ""}<span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
+    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${tutorial ? "Tutorial · " : ""}${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span></summary><div class="network-panel-body">${tutorial ? `<strong class="tutorial-progress" aria-label="Tutorialfortschritt">${escapeHtml(tutorialProgress)}</strong><span class="network-tutorial" aria-label="Tutorialschritt" aria-live="polite">${escapeHtml(tutorialHint)}</span>${stationControls}${checklist}` : ""}<span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
+    this.lastChecklist = checklist;
   }
   destroy(): void {
     delete document.documentElement.dataset.contentHash;
