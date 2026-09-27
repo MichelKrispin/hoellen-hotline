@@ -198,6 +198,93 @@ describe("deterministic simulation", () => {
     expect(state.phase).toBe("shift");
     expect(state.endReason).toBeNull();
   });
+  it("plays a tutorial case through all three roles to the final report", async () => {
+    const tutorialPackages = structuredClone(packages);
+    tutorialPackages[0]!.scenarios[0]!.casePlan.count = 1;
+    tutorialPackages[0]!.scenarios[0]!.victory.count = 1;
+    tutorialPackages[0]!.scenarios[0]!.mutators = [];
+    tutorialPackages[0]!.scenarios[0]!.allowedContent.incidents = [];
+    const hash = (await loadContent(tutorialPackages)).gameplayHash;
+    let state = createSimulation(
+      { ...config, tutorial: true, incidentDensity: "none" },
+      "tutorial-v1",
+      hash,
+    );
+    let step = 0;
+    const act = (playerId: PlayerId, command: SimCommand) => {
+      const result = reduceInput(
+        state,
+        {
+          type: "command",
+          playerId,
+          actionId: `tutorial-flow-${step++}` as ActionId,
+          command,
+        },
+        tutorialPackages,
+      );
+      expect(result.rejected).toBeUndefined();
+      state = result.state;
+    };
+    for (const player of config.players)
+      act(player.id, { kind: "READY", ready: true });
+    act(agent, { kind: "START" });
+    act(agent, { kind: "COMPLETE_TUTORIAL_STATION", answer: "tag" });
+    act(archivist, { kind: "COMPLETE_TUTORIAL_STATION", answer: "pin" });
+    act(dispatcher, {
+      kind: "COMPLETE_TUTORIAL_STATION",
+      answer: "approvals",
+    });
+    const caseId = state.cases[0]!.id;
+    act(agent, { kind: "ACCEPT_CASE", caseId });
+    const item = state.cases[0]!;
+    act(agent, {
+      kind: "DIALOGUE",
+      caseId,
+      choiceId: item.dialogueOptions[0]!,
+    });
+    expect(state.cases[0]!.discoveredTags.length).toBeGreaterThan(0);
+    act(agent, {
+      kind: "PUBLISH_TAG",
+      caseId,
+      tagId: state.cases[0]!.discoveredTags[0]!,
+    });
+    act(agent, {
+      kind: "SUGGEST_DESTINATION",
+      caseId,
+      destinationId: item.trueDestination,
+    });
+    act(archivist, {
+      kind: "ARCHIVE_PIN",
+      caseId,
+      recordId: item.generated.archetypeId,
+    });
+    act(archivist, { kind: "STAMP", caseId, stamp: "verified" });
+    act(dispatcher, {
+      kind: "SELECT_DESTINATION",
+      caseId,
+      destinationId: item.trueDestination,
+    });
+    const content = caseContent(tutorialPackages, state.scenarioId);
+    const destination = content.destinations.find(
+      (entry) => entry.id === item.trueDestination,
+    )!;
+    for (const requirement of destination.machineRequirements)
+      act(dispatcher, {
+        kind: "MACHINE_CONTROL",
+        caseId,
+        controlId: requirement.control,
+        value: requirement.equals,
+      });
+    act(dispatcher, { kind: "PREPARE", caseId });
+    for (const playerId of [agent, archivist, dispatcher])
+      act(playerId, { kind: "APPROVE", caseId, approved: true });
+    act(dispatcher, { kind: "ROUTE_COMMIT", caseId });
+    expect(state.phase).toBe("results");
+    expect(state.endReason).toBe("completed");
+    expect(
+      projectView(state, "agent", tutorialPackages).public.report?.cases,
+    ).toHaveLength(1);
+  });
   it("freezes shift time and dialogue cooldowns during host and disconnect pauses", async () => {
     const hash = (await loadContent(packages)).gameplayHash;
     let state = createSimulation(config, "pause", hash);

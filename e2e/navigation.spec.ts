@@ -1,5 +1,33 @@
 import { test, expect } from "@playwright/test";
 
+test("title action opens the lobby", async ({ page }) => {
+  await page.goto("/");
+  const canvas = page.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-scene", "Title");
+  const box = await canvas.boundingBox();
+  expect(box).not.toBeNull();
+  await page.mouse.click(
+    box!.x + (960 / 1920) * box!.width,
+    box!.y + (430 / 1080) * box!.height,
+  );
+  await expect(canvas).toHaveAttribute("data-scene", "Lobby");
+  await expect(
+    page.getByRole("button", { name: /Lobby erstellen/ }),
+  ).toBeVisible();
+});
+
+test("phone title action opens the lobby", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const action = page.getByRole("button", { name: "Zur Lobby →" });
+  await expect(action).toBeVisible();
+  await action.click();
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
+  await expect(
+    page.getByRole("button", { name: /Lobby erstellen/ }),
+  ).toBeVisible();
+});
+
 test("scene navigation covers lobby, three roles and results", async ({
   page,
 }) => {

@@ -69,21 +69,40 @@ export function button(
   width = 430,
   height = 82,
 ): void {
-  const rect = placeholder(
-    scene,
-    "button",
-    x - width / 2,
-    y - height / 2,
-    width,
-    height,
-  )
-    .setTint(color)
-    .setInteractive({ useHandCursor: true });
+  const rect = scene.add.graphics();
+  const draw = (hovered: boolean): void => {
+    rect.clear();
+    rect.fillStyle(0x160e18, 0.85);
+    rect.fillRoundedRect(
+      x - width / 2 + 7,
+      y - height / 2 + 8,
+      width,
+      height,
+      12,
+    );
+    rect.fillStyle(hovered ? 0xffd18a : color);
+    rect.fillRoundedRect(x - width / 2, y - height / 2, width, height, 12);
+    rect.lineStyle(4, hovered ? 0xffffff : 0x30232a);
+    rect.strokeRoundedRect(
+      x - width / 2 + 2,
+      y - height / 2 + 2,
+      width - 4,
+      height - 4,
+      10,
+    );
+  };
+  draw(false);
+  rect.setInteractive(
+    new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height),
+    Phaser.Geom.Rectangle.Contains,
+  );
+  rect.input!.cursor = "pointer";
   let fontSize = 31;
   const text = scene.add
     .text(x, y, label, {
       fontFamily: "Arial, sans-serif",
       fontSize: `${fontSize}px`,
+      fontStyle: "bold",
       color: "#1b111b",
     })
     .setOrigin(0.5);
@@ -95,11 +114,11 @@ export function button(
     text.setFontSize(fontSize);
   }
   rect.on("pointerover", () => {
-    rect.setAlpha(0.8);
+    draw(true);
     text.setScale(1.02);
   });
   rect.on("pointerout", () => {
-    rect.setAlpha(1);
+    draw(false);
     text.setScale(1);
   });
   rect.on("pointerdown", action);

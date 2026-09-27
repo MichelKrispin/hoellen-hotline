@@ -15,6 +15,10 @@ npm run dev
 
 Debug-Navigation: Mit `D` ein- und ausschalten; danach 1 Titel, 2 Lobby, 3 Agent, 4 Archivar, 5 Disponent, 6 Ergebnis, 7 Atlas-Prüfung. Alle drei Rollenpulte sind in einer verbundenen Partie bedienbar. Die Gestaltungsregeln stehen in [docs/art-bible.md](docs/art-bible.md), die Rollenbedienung in [docs/agent.md](docs/agent.md), [docs/archivist.md](docs/archivist.md) und [docs/dispatcher.md](docs/dispatcher.md).
 
+### Tutorial zu dritt spielen
+
+Der Host öffnet die Lobby, wählt **Tutorial · Übungsfall** und verbindet zwei Gäste per Einladungslink oder manuellem Offer/Answer-Verfahren. Jede Person wählt eine andere Rolle und meldet sich bereit. Nach **Schicht starten** beantwortet jeder die Frage an seinem Pult. Sobald alle drei Stationen abgeschlossen sind, beginnt der gemeinsame Übungsfall. Die offene Tutorialanzeige erklärt für jede Rolle den nächsten Schritt und zeigt Tags, Pins, Zielwahl und Freigaben. Der Fall endet nach der Zustellung mit einer gemeinsamen Abschlussakte. Die Druckwerte können den Übungsfall nicht beenden.
+
 Content-Pakete, Validierung und Hash-Kompatibilität sind in [docs/content.md](docs/content.md) beschrieben.
 
 Die Headless-Simulation aus Batch 3 ist in [docs/simulation.md](docs/simulation.md) beschrieben.
@@ -38,4 +42,4 @@ VITE_BASE=/hoellen-hotline/ npm run build
 
 Für `test:e2e` muss ein Playwright-kompatibles Chromium verfügbar sein. Ohne `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` verwendet Playwright seine eigene Browserinstallation.
 
-`VITE_BASE` ist der Pages-Unterpfad mit führendem und abschließendem Schrägstrich. Der Standard ist `/`. CI prüft den Unterpfad sowie kurze Chromium- und Firefox-Flows und veröffentlicht erfolgreiche Pushes auf `main` über GitHub Pages. `npm run test:e2e` enthält zusätzlich das vollständige Drei-Tab-Tutorial und die Acht-Fälle-Schicht; diese ressourcenintensiven Läufe sind auf dem GitHub-Runner nicht Teil des Deploy-Gates.
+`VITE_BASE` ist der Pages-Unterpfad mit führendem und abschließendem Schrägstrich. Der Standard ist `/`. CI prüft den Unterpfad sowie kurze Chromium- und Firefox-Flows und veröffentlicht erfolgreiche Pushes auf `main` über GitHub Pages. `npm run test:e2e` enthält zusätzlich den Drei-Tab-Tutorialstart und die Acht-Fälle-Schicht; diese ressourcenintensiven Läufe sind auf dem GitHub-Runner nicht Teil des Deploy-Gates. Die Simulation prüft den Tutorialfall bis zur Abschlussakte.

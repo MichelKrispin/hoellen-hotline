@@ -1,6 +1,7 @@
 import Phaser from "phaser";
-import { sceneHeader, installDebugNavigation } from "./navigation";
+import { installDebugNavigation } from "./navigation";
 import { LobbyOverlay } from "../../ui/lobbyOverlay";
+import { titleRoom } from "../presentation/titleRoom";
 
 export class Lobby extends Phaser.Scene {
   private overlay: LobbyOverlay | null = null;
@@ -8,11 +9,9 @@ export class Lobby extends Phaser.Scene {
     super("Lobby");
   }
   create(): void {
-    const debugHint = sceneHeader(
-      this,
-      "Warteraum",
-      "Private Verbindung für drei Arbeitsplätze",
-    );
+    this.game.canvas.dataset.scene = "Lobby";
+    titleRoom(this);
+    this.add.rectangle(960, 540, 1920, 1080, 0x160e18, 0.25);
     this.overlay = new LobbyOverlay();
     this.overlay.onStart = (role, network) =>
       this.scene.start("Game", { role, network });
@@ -20,6 +19,6 @@ export class Lobby extends Phaser.Scene {
       this.overlay?.destroy();
       this.overlay = null;
     });
-    installDebugNavigation(this, debugHint);
+    installDebugNavigation(this);
   }
 }

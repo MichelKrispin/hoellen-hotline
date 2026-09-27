@@ -327,20 +327,22 @@ export class LobbyOverlay {
     }
     if (!lobby) {
       this.updateMarkup(
-        `<div class="lobby-card"><h1>Private Lobby</h1><p>Host erstellt eine Lobby und teilt einen Einladungslink mit zwei Mitspielern.</p><button data-action="host">Lobby erstellen</button>${this.notice ? `<p role="status">${escapeHtml(this.notice)}</p>` : ""}<p>Öffentliches Matchmaking ist noch nicht verfügbar.</p><p>${legalLinks}</p></div>`,
+        `<div class="lobby-card lobby-card--welcome"><div class="lobby-welcome-paper"><span class="lobby-paper-kicker">KUNDENSERVICE FÜR DIE EWIGKEIT · 3 ARBEITSPLÄTZE</span><h1>Die Schicht beginnt hier.</h1><p>Erstelle eine private Lobby und teile den Einladungslink mit zwei Mitspielern. Jede Person übernimmt einen Arbeitsplatz.</p><div class="lobby-role-preview" aria-label="Arbeitsplätze"><span>☎ Agent</span><span>▣ Archiv</span><span>↗ Disposition</span></div><button class="lobby-primary" data-action="host">Lobby erstellen <span aria-hidden="true">→</span></button>${this.notice ? `<p role="status" class="lobby-notice">${escapeHtml(this.notice)}</p>` : ""}<p class="lobby-footnote">Drei Spieler · direkte Verbindung · kein öffentliches Matchmaking</p></div><p class="lobby-links">${legalLinks}</p></div>`,
       );
       return;
     }
     const local = lobby.members[lobby.localSlot];
     const progress = lobby.isHost ? readLocalProgress() : null;
     const intro =
-      CAMPAIGN_CATALOG.flatMap((pkg) =>
-        pkg.scenarios.map((scenario) =>
-          scenario.id === lobby.mode.scenarioId && scenario.intro
-            ? pkg.translations[scenario.intro]
-            : null,
-        ),
-      ).find((text) => text) ?? "";
+      lobby.mode.kind === "tutorial"
+        ? "Drei verbundene Spieler lernen gemeinsam: Wählt je eine andere Rolle, beantwortet die Frage an eurem Pult und bearbeitet dann einen fehlertoleranten Übungsfall. Agent teilt Tags, Archiv pinnt Belege und prüft Regeln, Disposition stellt ein Ziel ein. Sprecht miteinander, ohne eure Bildschirme zu teilen."
+        : (CAMPAIGN_CATALOG.flatMap((pkg) =>
+            pkg.scenarios.map((scenario) =>
+              scenario.id === lobby.mode.scenarioId && scenario.intro
+                ? pkg.translations[scenario.intro]
+                : null,
+            ),
+          ).find((text) => text) ?? "");
     const modeOptions = modeChoices
       .map((item) => {
         const mode = item.mode;
@@ -369,11 +371,11 @@ export class LobbyOverlay {
         ? `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>${local.connected ? "Mit dem Host verbunden." : "Direkte Verbindung wird hergestellt …"}</p>${!lobby.answerLink ? '<button data-action="join">Verbindung erneut versuchen</button>' : ""}`
         : `<h2>Einladung für Gast ${lobby.localSlot}</h2><p>Sitzungskürzel mit dem Host abgleichen.</p><button data-action="join" ${lobby.answerLink ? "disabled" : ""}>Beitreten und Antwort erzeugen</button>${lobby.answerLink ? `<label>Antwortlink · an Host senden<textarea readonly aria-label="Antwortlink">${escapeHtml(lobby.answerLink)}</textarea></label><button data-action="copy-generated-answer">Antwort kopieren</button><p>Der Host fügt diesen Link in seine bestehende Lobby ein.</p>` : ""}`;
     this
-      .updateMarkup(`<div class="lobby-card"><header><h1>Warteraum <span>${lobby.code}</span></h1><p>Nur mit vertrauten Mitspielern teilen · Direktverbindung per WebRTC</p></header>
-      <div class="lobby-grid"><div><label>Dein Name<input id="player-name" maxlength="24" value="${escapeHtml(this.name)}" /></label>
-      ${lobby.isHost ? `<label>Spielmodus<select id="game-mode">${modeOptions}</select></label>${lobby.mode.kind === "tutorial" ? "" : `<label>Seed (leer = zufällig)<input id="game-seed" maxlength="128" value="${escapeHtml(this.seedInput)}"></label>${lobby.mode.kind === "campaign" ? '<button data-action="apply-seed">Seed übernehmen</button>' : renderFreePlayControls(this.freeDraft)}`}<label>Fortschritt von anderem Gerät importieren<textarea id="progress-import" aria-label="Kampagnenfortschritt importieren">${escapeHtml(this.progressImport)}</textarea></label><button data-action="import-progress">Fortschritt importieren</button>` : `<p>Spielmodus: ${escapeHtml(modeChoices.find((item) => item.key === modeKey(lobby.mode))?.label ?? lobby.mode.kind)} · Hostauswahl; nur der Host schaltet Szenarien frei.</p>`}<p class="scenario-intro">${escapeHtml(intro)}</p>
-      ${invitations}</div>
-      <div><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.contentHash === null || lobby.modeHash === null ? "Inhalte offen" : m.contentHash === lobby.modeHash ? "✓ Inhalte gleich" : "× Inhalte verschieden"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
+      .updateMarkup(`<div class="lobby-card lobby-card--active"><header><span class="lobby-eyebrow">HÖLLEN-HOTLINE · WARTERAUM</span><h1>Private Lobby <span>${lobby.code}</span></h1><p>Nur mit vertrauten Mitspielern teilen · Direktverbindung per WebRTC</p></header>
+      <div class="lobby-grid"><div class="lobby-setup"><span class="lobby-paper-kicker">SCHICHTAKTE · EINLADUNG</span><label>Dein Name<input id="player-name" maxlength="24" value="${escapeHtml(this.name)}" /></label>
+      <div class="lobby-invitations">${invitations}</div><h2>Schichtplanung</h2>
+      ${lobby.isHost ? `<label>Spielmodus<select id="game-mode">${modeOptions}</select></label>${lobby.mode.kind === "tutorial" ? "" : `<label>Seed (leer = zufällig)<input id="game-seed" maxlength="128" value="${escapeHtml(this.seedInput)}"></label>${lobby.mode.kind === "campaign" ? '<button data-action="apply-seed">Seed übernehmen</button>' : renderFreePlayControls(this.freeDraft)}`}<label>Fortschritt von anderem Gerät importieren<textarea id="progress-import" aria-label="Kampagnenfortschritt importieren">${escapeHtml(this.progressImport)}</textarea></label><button data-action="import-progress">Fortschritt importieren</button>` : `<p>Spielmodus: ${escapeHtml(modeChoices.find((item) => item.key === modeKey(lobby.mode))?.label ?? lobby.mode.kind)} · Hostauswahl; nur der Host schaltet Szenarien frei.</p>`}<p class="scenario-intro">${escapeHtml(intro)}</p></div>
+      <div class="lobby-team"><span class="lobby-panel-kicker">PERSONALTAFEL · 3 PLÄTZE</span><h2>Arbeitsplätze</h2>${lobby.members.map((m, i) => `<div class="member member--${i}"><strong>${i === 0 ? "Host" : `Gast ${i}`} · ${escapeHtml(m.name)}</strong><span>${m.connected ? "● Verbunden" : "○ Getrennt"} · ${m.role ? (roles.find((r) => r.id === m.role)?.label ?? "Unbekannt") : "Rolle offen"} · ${m.ready ? "✓ Bereit" : "Wartet"} · ${m.contentHash === null || lobby.modeHash === null ? "Inhalte offen" : m.contentHash === lobby.modeHash ? "✓ Inhalte gleich" : "× Inhalte verschieden"} · ${m.ping === null ? "Ping –" : `${m.ping} ms`}</span></div>`).join("")}
       <h2>Deine Rolle</h2><div class="lobby-actions">${roles.map((r) => `<button data-action="role-${r.id}" ${!local.connected || lobby.members.some((m, i) => i !== lobby.localSlot && m.role === r.id) ? "disabled" : ""} aria-pressed="${local.role === r.id}">${r.label}</button>`).join("")}</div><div class="lobby-actions"><button data-action="ready" ${!local.role || !local.connected ? "disabled" : ""}>${local.ready ? "Bereits bereit ✓" : "Bereit melden"}</button><button data-action="ping">Verbindung testen</button></div>${lobby.isHost ? `<button data-action="start" ${lobby.canStart() ? "" : "disabled"}>Schicht starten</button>` : ""}</div></div>
       <p role="status" class="lobby-notice">${escapeHtml(this.notice || lobby.error)}</p><p class="lobby-footnote">Wenn die direkte Verbindung scheitert, neuen Link versuchen. Ohne TURN-Relay funktionieren manche Netzwerke nicht. ${legalLinks}</p></div>`);
   }

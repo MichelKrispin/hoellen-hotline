@@ -30,6 +30,8 @@ export class GameNetworkOverlay {
   readonly audio = new AudioSystem();
   constructor(private readonly network: GameNetwork) {
     this.root.className = "game-network-overlay";
+    if (network.lobby.mode.kind === "tutorial")
+      this.root.classList.add("tutorial-overlay");
     this.root.setAttribute("aria-label", "Netzwerkstatus");
     document.body.append(this.root);
     this.reportRoot.className = "shift-report";
@@ -50,7 +52,7 @@ export class GameNetworkOverlay {
         }
       ).__closeGameChannel = (slot) => network.lobby.channelFor(slot)?.close();
     network.onChange = () => this.render();
-    network.lobby.onChange = () => this.render(true);
+    network.lobby.onChange = () => this.render(network.status !== "active");
     this.root.addEventListener("input", (event) => {
       const target = event.target;
       if (target instanceof HTMLInputElement && target.dataset.audioBus) {
@@ -108,8 +110,12 @@ export class GameNetworkOverlay {
             kind: "COMPLETE_TUTORIAL_STATION",
             answer,
           });
-          if (error) this.notice = error;
-        }
+          if (error)
+            this.notice =
+              error === "Tutorial station answer is incorrect"
+                ? "Das ist noch nicht richtig. Lies den Hinweis zur Sichtbarkeit und versuche es erneut."
+                : error;
+        } else this.notice = "Wähle zuerst eine Antwort auf die Stationsfrage.";
       } else if (action === "open-report") this.reportDismissed = false;
       else if (action === "audio-unlock") {
         this.notice = (await this.audio.unlock())
@@ -244,46 +250,67 @@ export class GameNetworkOverlay {
       if (!tutorial || view?.public.phase !== "shift") return "";
       if (tutorial.stage === "stations")
         return tutorial.stations[this.network.role]
-          ? "Station abgeschlossen. Warte auf die anderen beiden Arbeitsplätze."
+          ? `Station abgeschlossen (${Object.values(tutorial.stations).filter(Boolean).length}/3). Warte auf die übrigen Arbeitsplätze. Sprecht schon jetzt darüber, welche Hinweise ihr weitergeben könnt; teilt eure Bildschirme nicht.`
           : this.network.role === "agent"
-            ? "Station Agent: Welche Information darf an das Team weitergegeben werden?"
+            ? "Station Agent · Du sprichst mit dem Anrufer. Dialogantworten und entdeckte Hinweise siehst zunächst nur du. Über Hinweis veröffentlichen wird ein Tag für alle sichtbar. Welcher Eintrag wird geteilt?"
             : this.network.role === "archivist"
-              ? "Station Archiv: Welcher Beleg ist für das Team sichtbar?"
-              : "Station Disposition: Wann ist der Hebel freigegeben?";
+              ? "Station Archiv · Durchsuche Akten und Regelbuch. Vollständige Dossiers bleiben bei dir; über Akte pinnen erscheint ein Beleg bei allen. Was wird geteilt?"
+              : "Station Disposition · Wähle ein Ziel, stelle die Regler passend ein und bereite die Anlage vor. Erst nach den Freigaben aller drei Rollen darfst du zustellen. Wann ist der Hebel frei?";
       if (!view.public.activeCaseId)
-        return "Übungsfall: Der Agent nimmt den nächsten Anruf an.";
+        return this.network.role === "agent"
+          ? "Übungsfall · Nimm den Anruf am Agentenpult an. Danach befragst du den Anrufer und veröffentlichst einen Hinweis."
+          : "Übungsfall · Der Agent nimmt jetzt den Anruf an. Sieh dir währenddessen dein Pult an; danach arbeitet ihr gemeinsam am selben Fall.";
       if (view.role.role === "agent")
         return view.public.publishedTags.length === 0
-          ? "Frage nach Hinweisen und teile einen Tag mit dem Team."
+          ? view.role.discoveredTags.length === 0
+            ? "Agent · Wähle eine Gesprächsoption, um Hinweise aufzudecken. Die Antwort bleibt bei dir. Danach wähle einen entdeckten Hinweis und veröffentliche ihn in einem freien Slot."
+            : "Agent · Höre dem Anrufer auch über eine Gesprächsoption zu. Wähle dann einen entdeckten Hinweis und klicke auf Hinweis veröffentlichen, Slot 1. Nur der veröffentlichte Tag wird für Archiv und Disposition sichtbar."
           : view.public.suggestedDestination === null
-            ? "Sende eine Zielbitte an die Disposition."
-            : !view.public.approvals.agent
-              ? "Prüfe die vorbereitete Anlage und gib das Ziel frei."
-              : "Warte auf die Zustellung.";
+            ? "Agent · Besprich Tag und mögliche Ziele mit dem Team. Wähle einen Zielbereich und sende eine Zielbitte an die Disposition; die Bitte legt das Ziel noch nicht fest."
+            : view.public.selectedDestination === null
+              ? "Agent · Die Zielbitte ist gesendet. Warte, bis die Disposition ein Ziel ausgewählt hat, und vergleiche es mit deinem Gespräch."
+              : !view.public.approvals.agent
+                ? "Agent · Vergleiche das gewählte Ziel mit deinen Hinweisen. Klicke auf Freigabe, wenn es passt; bei Zweifeln sprecht miteinander und ändert das Ziel."
+                : "Agent · Deine Freigabe ist erteilt. Warte auf die übrigen Freigaben und die Zustellung.";
       if (view.role.role === "archivist")
         return view.public.archivePins.length === 0
-          ? "Suche eine Akte und pinne einen Beleg für das Team."
+          ? "Archiv · Suche nach dem Namen oder dem veröffentlichten Tag. Öffne eine passende Akte und pinne sie in Slot 1. Die vollständige Akte bleibt nur bei dir sichtbar."
           : view.role.stamp === null
-            ? "Prüfe das Regelbuch und setze einen Stempel."
-            : !view.public.approvals.archivist
-              ? "Gib das vorbereitete Ziel frei."
-              : "Warte auf die Zustellung.";
-      return view.public.selectedDestination === null
-        ? "Wähle ein Ziel an der Maschine."
-        : view.role.incident
-          ? "Lies die Diagnose und behebe die Störung."
-          : !view.role.prepared
-            ? "Stelle die Controls ein und bereite die Anlage vor."
-            : !view.public.approvals.dispatcher
-              ? "Warte auf beide Freigaben und melde Bereitschaft."
-              : "Prüfe die Zusammenfassung und betätige den Hebel.";
+            ? "Archiv · Lies die aktiven Regeln und Ausnahmen im Regelbuch. Setze einen Stempel: passt, unklar oder nein; erkläre dem Team deine Einschätzung."
+            : view.public.selectedDestination === null
+              ? "Archiv · Teile deine Regelbewertung mit der Disposition. Warte auf ihre Zielwahl und prüfe sie anschließend."
+              : !view.public.approvals.archivist
+                ? "Archiv · Prüfe das gewählte Ziel gegen Akte und Regelbuch. Gib es frei, wenn es passt; eine neue Zielwahl setzt Freigaben zurück."
+                : "Archiv · Deine Freigabe ist erteilt. Warte auf die übrigen Freigaben und die Zustellung.";
+      return view.public.publishedTags.length === 0 ||
+        view.public.archivePins.length === 0
+        ? "Disposition · Warte auf den veröffentlichten Tag des Agenten und den gepinnten Archivbeleg. Vergleicht eure Informationen gemeinsam; Bildschirme bleiben privat."
+        : view.public.selectedDestination === null
+          ? "Disposition · Vergleiche Tag, Pin und Zielbitte. Wähle an der Zielbank ein Ziel. Eine neue Wahl setzt alle Freigaben zurück."
+          : view.role.incident
+            ? "Disposition · Lies die Störungsdiagnose. Stelle den genannten Regler auf den verlangten Wert und klicke auf Störung beheben."
+            : !view.role.prepared
+              ? "Disposition · Stelle jeden Regler gemäß den Anforderungen des gewählten Ziels ein. Klicke danach auf Anlage vorbereiten."
+              : !view.public.approvals.dispatcher
+                ? "Disposition · Die Anlage ist vorbereitet. Melde Bereitschaft; Agent und Archiv müssen das Ziel ebenfalls freigeben."
+                : !view.public.approvals.agent ||
+                    !view.public.approvals.archivist
+                  ? "Disposition · Du bist bereit. Warte auf die Freigaben von Agent und Archiv."
+                  : "Disposition · Alle drei Freigaben liegen vor. Prüfe Ziel und Hinweise und betätige den Zustellhebel zweimal.";
     })();
+    const tutorialProgress = tutorial
+      ? view?.public.phase === "results"
+        ? "Übung abgeschlossen · Lest gemeinsam die Abschlussakte und besprecht eure Entscheidungen."
+        : tutorial.stage === "stations"
+          ? `Rollenstationen ${Object.values(tutorial.stations).filter(Boolean).length}/3 · danach gemeinsamer Übungsfall`
+          : `Gemeinsamer Übungsfall · Tag ${view?.public.publishedTags.length ? "✓" : "○"} · Pin ${view?.public.archivePins.length ? "✓" : "○"} · Ziel ${view?.public.selectedDestination ? "✓" : "○"} · Freigaben ${Object.values(view?.public.approvals ?? {}).filter(Boolean).length}/3`
+      : "";
     const stationChoices =
       this.network.role === "agent"
-        ? '<option value="dossier">Geheimes Dossier</option><option value="tag">Veröffentlichter Tag</option><option value="machine">Maschinenwert</option>'
+        ? '<option value="" selected disabled>Antwort wählen</option><option value="dossier">Geheimes Dossier</option><option value="tag">Veröffentlichter Tag</option><option value="machine">Maschinenwert</option>'
         : this.network.role === "archivist"
-          ? '<option value="dialogue">Dialogantwort</option><option value="pin">Gepinnter Beleg</option><option value="pressure">Geheimer Regeltext</option>'
-          : '<option value="speed">Sobald die Maschine läuft</option><option value="approvals">Nach Freigaben und Bereitschaft</option><option value="caller">Wenn der Anrufer zustimmt</option>';
+          ? '<option value="" selected disabled>Antwort wählen</option><option value="dialogue">Dialogantwort</option><option value="pin">Gepinnter Beleg</option><option value="pressure">Geheimer Regeltext</option>'
+          : '<option value="" selected disabled>Antwort wählen</option><option value="speed">Sobald die Maschine läuft</option><option value="approvals">Nach Freigaben und Bereitschaft</option><option value="caller">Wenn der Anrufer zustimmt</option>';
     const stationControls =
       tutorial?.stage === "stations" && !tutorial.stations[this.network.role]
         ? `<label>Stationsfrage<select id="tutorial-answer">${stationChoices}</select></label><button data-action="tutorial-station">Station abschließen</button>`
@@ -319,7 +346,7 @@ export class GameNetworkOverlay {
         ".network-panel strong",
       );
       if (status && this.network.status === "active")
-        status.textContent = pauseReason ? "◷ Schicht pausiert" : "● Verbunden";
+        status.textContent = `${tutorial ? "Tutorial · " : ""}${pauseReason ? "◷ Schicht pausiert" : "● Verbunden"}`;
       const pauseButton = this.root.querySelector<HTMLButtonElement>(
         '[data-action="toggle-pause"]',
       );
@@ -355,6 +382,9 @@ export class GameNetworkOverlay {
       const tutorialLine =
         this.root.querySelector<HTMLElement>(".network-tutorial");
       if (tutorialLine) tutorialLine.textContent = tutorialHint;
+      const progressLine =
+        this.root.querySelector<HTMLElement>(".tutorial-progress");
+      if (progressLine) progressLine.textContent = tutorialProgress;
       return;
     }
     this.lastStatus = this.network.status;
@@ -405,13 +435,14 @@ export class GameNetworkOverlay {
         ? `<small class="network-diagnostic">Content-Hash v${GAMEPLAY_HASH_VERSION}: ${escapeHtml(network.lobby.modeHash ?? "unbekannt")} · Simulation v${SIMULATION_VERSION} · Protokoll v${PROTOCOL_VERSION}</small>`
         : "";
     const expanded =
+      Boolean(tutorial) ||
       network.status !== "active" ||
       newAttention ||
       Boolean(stationControls) ||
       (newReaction && Boolean(reactionHtml)) ||
       (this.root.querySelector<HTMLDetailsElement>(".network-panel")?.open ??
         false);
-    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span></summary><div class="network-panel-body"><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span><span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
+    this.root.innerHTML = `<details class="network-panel"${expanded ? " open" : ""}><summary class="network-panel-summary"><strong>${tutorial ? "Tutorial · " : ""}${status}</strong><span class="network-ping">Ping: ${network.pingMs ?? "–"} ms</span></summary><div class="network-panel-body"><span class="network-detail">Rolle: ${escapeHtml(network.role)} · Revision: ${view?.public.revision ?? "–"} · Fall: ${escapeHtml(view?.public.activeCaseId ?? "–")}</span>${reactionHtml}<span class="network-approval-log" aria-label="Freigabeprotokoll">${escapeHtml(approvalLog)}</span><span class="network-modifiers" aria-label="Schichtmodifikatoren">${escapeHtml(modifiers)}</span>${tutorial ? `<strong class="tutorial-progress" aria-label="Tutorialfortschritt">${escapeHtml(tutorialProgress)}</strong>` : ""}<span class="network-tutorial" aria-label="Tutorialschritt">${escapeHtml(tutorialHint)}</span>${stationControls}<span class="network-remaining">${network.remainingMs !== null ? `Reconnect: ${Math.ceil(network.remainingMs / 1000)} s` : ""}</span>${view?.public.report ? '<button data-action="open-report">Abschlussakte öffnen</button>' : ""}${pauseButton}${reconnect}${audioControls}${diagnostic}<p role="status">${escapeHtml(this.notice || network.error)}</p></div></details>`;
   }
   destroy(): void {
     delete document.documentElement.dataset.contentHash;

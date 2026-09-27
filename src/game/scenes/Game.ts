@@ -208,8 +208,8 @@ export class Game extends Phaser.Scene {
         else this.scene.start("Results");
       },
       C.dispatcher,
-      212,
-      54,
+      260,
+      64,
     );
     if (this.network) this.overlay = new GameNetworkOverlay(this.network);
     if (this.network && this.role === "agent")
