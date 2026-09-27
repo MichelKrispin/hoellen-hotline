@@ -199,8 +199,29 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
 function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "ZIELBANK  /  ROUTING", C.dispatcher);
   devil(scene, 296, 661, 1.24, 0xa64131);
-  scalablePlate(scene, 546, 322, 842, 680, "panel-metal");
-  if (!live) label(scene, 595, 351, "ZIEL WÄHLEN", 28);
+  metalHousing(scene, 520, 310, 765, 690);
+  scalablePlate(scene, 545, 332, 715, 180, "panel-paper");
+  if (!live) {
+    label(scene, 575, 351, "MASCHINENAUFTRAG", 27, C.ink);
+    label(scene, 575, 406, "Ziel wählen · Technik einstellen", 22, C.ink);
+  }
+  physicalLabel(
+    scene,
+    548,
+    519,
+    707,
+    42,
+    "MASCHINENREGLER  /  AKTUELLE WERTE",
+    {
+      material: "metal",
+      fontSize: 20,
+    },
+  );
+  scalablePlate(scene, 1297, 310, 506, 394, "panel-metal");
+  physicalLabel(scene, 1315, 326, 470, 42, "ZIELBANK  /  12 ROHRE", {
+    material: "metal",
+    fontSize: 20,
+  });
   const rows: [string, number, string][] = [
     ["ZORN", C.error, "♨"],
     ["LUST", 0xd773c7, "♥"],
@@ -211,27 +232,27 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   ];
   if (!live)
     rows.forEach(([name, color, symbol], i) => {
-      const x = 575 + (i % 2) * 389;
-      const y = 401 + Math.floor(i / 2) * 139;
-      controlSurface(scene, x, y, 344, 106, color);
-      label(scene, x + 24, y + 28, `${symbol}  ${name}`, 29);
+      const x = 1313 + (i % 2) * 237;
+      const y = 380 + Math.floor(i / 2) * 53;
+      controlSurface(scene, x, y, 225, 51, color);
+      label(scene, x + 14, y + 12, `${symbol}  ${name}`, 20);
     });
   if (!live) {
-    for (let i = 0; i < 5; i++) {
-      const x = 660 + i * 145;
-      placeholder(scene, "lever-arm", x - 42, 808, 84, 170).setFlipX(
-        Boolean(i % 2),
-      );
+    for (let i = 0; i < 6; i++) {
+      const x = 555 + (i % 3) * 233;
+      const y = 575 + Math.floor(i / 3) * 102;
+      controlSurface(scene, x, y, 219, 88, C.metalEdge);
+      label(scene, x + 17, y + 20, `◉  REGLER ${i + 1}`, 20);
     }
   }
-  scalablePlate(scene, 1416, 340, 372, 331, "panel-paper");
+  scalablePlate(scene, 1297, 718, 506, 282, "panel-metal");
   if (!live) {
-    label(scene, 1450, 381, "ROUTE", 32, C.ink);
-    label(scene, 1450, 467, "Noch kein Ziel", 26, C.ink, 310);
-    gauge(scene, 1604, 782, 87, 0.52);
-    label(scene, 1480, 898, "KESSELDRUCK", 26);
-    controlSurface(scene, 1432, 932, 342, 79, C.error);
-    label(scene, 1451, 951, "↗  ZUSTELLEN", 29);
+    label(scene, 1320, 745, "✓  Keine Störung", 21);
+    label(scene, 1320, 827, "◇  ANLAGE VORBEREITEN", 22);
+    label(scene, 1320, 905, "◇  BEREIT MELDEN", 22);
+    controlSurface(scene, 584, 795, 642, 181, C.error);
+    label(scene, 634, 853, "↗  HEBEL GESPERRT", 34);
+    placeholder(scene, "lever-arm", 1118, 802, 80, 150);
   }
 }
 

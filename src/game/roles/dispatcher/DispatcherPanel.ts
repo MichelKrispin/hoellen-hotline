@@ -128,17 +128,17 @@ export class DispatcherPanel {
     window.addEventListener("pointerdown", this.outsidePointer);
 
     for (let i = 0; i < 12; i++) {
-      const x = 575 + (i % 3) * 262;
-      const y = 386 + Math.floor(i / 3) * 92;
-      controlSurface(scene, x, y, 246, 79, colors[i]!);
+      const x = 1313 + (i % 2) * 237;
+      const y = 380 + Math.floor(i / 2) * 53;
+      controlSurface(scene, x, y, 225, 51, colors[i]!);
       const frame = scene.add
         .graphics()
         .lineStyle(3, C.warning)
-        .strokeRoundedRect(x + 8, y + 8, 230, 63, 8)
+        .strokeRoundedRect(x + 5, y + 5, 215, 41, 7)
         .setVisible(false);
-      const text = label(scene, x + 16, y + 21, "", 23, C.text, 220);
+      const text = label(scene, x + 12, y + 10, "", 19, C.text, 201);
       scene.add
-        .zone(x, y, 246, 79)
+        .zone(x, y, 225, 51)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.selectDestination(i));
@@ -146,80 +146,80 @@ export class DispatcherPanel {
       this.targetLabels.push(text);
     }
     for (let i = 0; i < 6; i++) {
-      const x = 575 + (i % 3) * 262;
-      const y = 778 + Math.floor(i / 3) * 102;
-      controlSurface(scene, x, y, 246, 90, C.metalEdge);
-      const name = label(scene, x + 18, y + 12, "", 21, C.text, 215);
-      const value = label(scene, x + 18, y + 48, "", 25, C.text, 215);
+      const x = 555 + (i % 3) * 233;
+      const y = 575 + Math.floor(i / 3) * 102;
+      controlSurface(scene, x, y, 219, 88, C.metalEdge);
+      const name = label(scene, x + 15, y + 10, "", 20, C.text, 190);
+      const value = label(scene, x + 15, y + 45, "", 23, C.text, 190);
       scene.add
-        .zone(x, y, 246, 90)
+        .zone(x, y, 219, 88)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.cycleControl(i));
       this.controlLabels.push(name);
       this.controlValues.push(value);
     }
-    this.summaryTitle = label(scene, 1450, 378, "ZIELBANK", 29, C.ink);
+    this.summaryTitle = label(scene, 575, 351, "MASCHINENAUFTRAG", 27, C.ink);
     this.summaryText = label(
       scene,
-      1450,
-      428,
+      575,
+      398,
       "Ziel vorwählen.",
       20,
       C.ink,
-      318,
+      650,
     );
     this.summaryText.setLineSpacing(4);
-    this.previousSummaryPage = label(scene, 1450, 628, "◀", 19, C.ink)
+    this.previousSummaryPage = label(scene, 575, 483, "◀", 19, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeSummaryPage(-1));
-    this.summaryPageLabel = label(scene, 1585, 628, "", 18, C.ink);
-    this.nextSummaryPage = label(scene, 1731, 628, "▶", 19, C.ink)
+    this.summaryPageLabel = label(scene, 780, 483, "", 18, C.ink);
+    this.nextSummaryPage = label(scene, 1215, 483, "▶", 19, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeSummaryPage(1));
-    controlSurface(scene, 1416, 680, 372, 71, C.metalEdge);
-    this.incidentText = label(scene, 1432, 688, "", 18, C.text, 340);
+    controlSurface(scene, 1313, 738, 474, 62, C.metalEdge);
+    this.incidentText = label(scene, 1328, 748, "", 18, C.text, 440);
     this.incidentText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
     scene.add
-      .zone(1416, 680, 372, 71)
+      .zone(1313, 738, 474, 62)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
-    controlSurface(scene, 1437, 756, 333, 59, C.warning);
-    this.prepareText = label(scene, 1453, 769, "ANLAGE VORBEREITEN", 23);
+    controlSurface(scene, 1313, 813, 474, 55, C.warning);
+    this.prepareText = label(scene, 1328, 826, "ANLAGE VORBEREITEN", 22);
     this.prepareText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
     scene.add
-      .zone(1437, 756, 333, 59)
+      .zone(1313, 813, 474, 55)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
-    controlSurface(scene, 1437, 828, 333, 59, C.success);
-    this.readyText = label(scene, 1453, 841, "BEREIT MELDEN", 23);
+    controlSurface(scene, 1313, 884, 474, 55, C.success);
+    this.readyText = label(scene, 1328, 897, "BEREIT MELDEN", 22);
     this.readyText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
     scene.add
-      .zone(1437, 828, 333, 59)
+      .zone(1313, 884, 474, 55)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
-    controlSurface(scene, 1432, 916, 342, 88, C.error);
-    this.commitText = label(scene, 1451, 941, "↗ HEBEL SPERRE", 25);
+    controlSurface(scene, 584, 795, 642, 181, C.error);
+    this.commitText = label(scene, 634, 856, "↗ HEBEL SPERRE", 34);
     this.commitText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
     scene.add
-      .zone(1432, 916, 342, 88)
+      .zone(584, 795, 642, 181)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
-    const arm = placeholder(scene, "lever-arm", -30, -110, 60, 110);
-    this.leverArm = scene.add.container(1830, 982, [arm]);
-    this.feedbackText = label(scene, 587, 1008, "", 20, C.text, 780);
+    const arm = placeholder(scene, "lever-arm", -40, -135, 80, 150);
+    this.leverArm = scene.add.container(1188, 936, [arm]);
+    this.feedbackText = label(scene, 1320, 953, "", 18, C.text, 460);
     this.unsubscribe = network.subscribe(() => this.render());
   }
 
@@ -248,7 +248,7 @@ export class DispatcherPanel {
         const separator = first ? (page ? "\n" : "") : " ";
         const candidate = page + separator + word;
         this.summaryText.setText(candidate);
-        if (page && this.summaryText.height > 190) {
+        if (page && this.summaryText.height > 72) {
           pages.push(page);
           page = word;
         } else page = candidate;
@@ -458,16 +458,16 @@ export class DispatcherPanel {
         fitText(
           text,
           `${destination.kind === "special" ? "✶ " : ""}${destination.glyph} ${destination.name}`,
-          220,
-          42,
-          23,
-          18,
+          201,
+          31,
+          19,
+          15,
         );
         text.setAlpha(1);
         button.textContent = `${destination.kind === "special" ? "Sonderziel" : "Ziel"}: ${destination.name}. ${destination.description}`;
         button.disabled = !shared.activeCaseId;
       } else {
-        fitText(text, "—", 220, 42, 23, 18).setAlpha(0.35);
+        fitText(text, "—", 201, 31, 19, 15).setAlpha(0.35);
         button.textContent = "Ziel nicht belegt";
         button.disabled = true;
       }
@@ -476,14 +476,14 @@ export class DispatcherPanel {
     }
     for (let i = 0; i < 6; i++) {
       const control = role.controls[i];
-      fitText(this.controlLabels[i]!, control?.label ?? "–", 215, 28, 21, 18);
+      fitText(this.controlLabels[i]!, control?.label ?? "–", 190, 28, 20, 16);
       fitText(
         this.controlValues[i]!,
         control ? `${showValue(control.value)}  ↻` : "",
-        215,
+        190,
         32,
-        25,
-        20,
+        23,
+        18,
       );
       this.controlButtons[i]!.textContent = control
         ? `${control.label}: ${showValue(control.value)}. Nächsten Wert wählen.`
@@ -493,9 +493,9 @@ export class DispatcherPanel {
     fitText(
       this.summaryTitle,
       selected ? `${selected.glyph} ${selected.name}` : "ZIELBANK",
-      318,
+      650,
       38,
-      29,
+      27,
       22,
     );
     const requirementLines =
@@ -539,7 +539,7 @@ export class DispatcherPanel {
           ? `⚠ ${incident.name}\n↗ STÖRUNG BEHEBEN`
           : `⚠ ${incident.name}: ${incident.diagnosis}`
         : "✓ Keine aktive Störung",
-      340,
+      440,
       54,
       19,
       17,
@@ -555,7 +555,7 @@ export class DispatcherPanel {
     fitText(
       this.prepareText,
       role.prepared ? "✓ ANLAGE VORBEREITET" : "ANLAGE VORBEREITEN",
-      300,
+      440,
       32,
       23,
       17,
@@ -568,7 +568,7 @@ export class DispatcherPanel {
     fitText(
       this.readyText,
       shared.approvals.dispatcher ? "✓ BEREIT · WIDERRUFEN" : "BEREIT MELDEN",
-      300,
+      440,
       32,
       23,
       17,
@@ -587,10 +587,10 @@ export class DispatcherPanel {
           ? "↗ JETZT ZUSTELLEN"
           : "↗ HEBEL ENTSICHERN"
         : "↗ HEBEL GESPERRT",
-      300,
-      36,
-      25,
-      18,
+      560,
+      55,
+      34,
+      24,
     );
     this.commitText.setAlpha(canCommit ? 1 : 0.5);
     this.commitButton.textContent = canCommit
@@ -602,10 +602,10 @@ export class DispatcherPanel {
     fitText(
       this.feedbackText,
       this.network.error || this.feedback,
-      780,
-      42,
-      20,
+      460,
+      40,
       18,
+      15,
     );
     const status = `${selected ? `Ziel ${selected.name}. ${requirementLines.join(". ")}.` : "Kein Ziel gewählt."} ${incident ? `Störung ${incident.diagnosis}.` : "Keine Störung."} ${role.prepared ? "Anlage vorbereitet." : "Anlage nicht vorbereitet."} ${role.lastOutcome ? `Ergebnis: ${role.lastOutcome.outcome}.` : ""} ${this.network.error || this.feedback}`;
     if (this.mirrorStatus.textContent !== status)
