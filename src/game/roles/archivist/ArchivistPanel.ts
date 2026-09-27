@@ -37,6 +37,8 @@ export class ArchivistPanel {
   private readonly resultLabels: Phaser.GameObjects.Text[] = [];
   private readonly resultCards: Phaser.GameObjects.NineSlice[] = [];
   private readonly pinLabels: Phaser.GameObjects.Text[] = [];
+  private readonly dossierTitle: Phaser.GameObjects.Text;
+  private readonly dossierText: Phaser.GameObjects.Text;
   private readonly contentTitle: Phaser.GameObjects.Text;
   private readonly contentText: Phaser.GameObjects.Text;
   private readonly contentPage: Phaser.GameObjects.Text;
@@ -155,9 +157,9 @@ export class ArchivistPanel {
     window.addEventListener("pointerdown", this.outsidePointer);
     this.positionControls();
 
-    for (const [index, y] of [353, 472, 591, 710].entries()) {
+    for (let index = 0; index < 4; index++) {
       scene.add
-        .zone(126, y, 388, 92)
+        .zone(1265 + index * 128, 385, 124, 38)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () =>
@@ -166,20 +168,39 @@ export class ArchivistPanel {
           ),
         );
     }
-    this.contentTitle = label(scene, 619, 430, "AKTIVE REGELN", 27, C.ink, 610);
-    this.contentText = label(scene, 619, 488, "", 21, C.ink, 610);
+    this.dossierTitle = label(
+      scene,
+      575,
+      407,
+      "Keine Akte geöffnet",
+      29,
+      C.ink,
+      585,
+    );
+    this.dossierText = label(scene, 575, 462, "", 21, C.ink, 580);
+    this.dossierText.setLineSpacing(6);
+    this.contentTitle = label(
+      scene,
+      1280,
+      439,
+      "AKTIVE REGELN",
+      24,
+      C.ink,
+      465,
+    );
+    this.contentText = label(scene, 1280, 491, "", 20, C.ink, 465);
     this.contentText.setLineSpacing(5);
-    this.previousContentPage = label(scene, 620, 781, "◀", 20, C.ink)
+    this.previousContentPage = label(scene, 1280, 778, "◀", 20, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeContentPage(-1));
-    this.contentPage = label(scene, 1010, 781, "", 18, C.ink);
-    this.nextContentPage = label(scene, 1195, 781, "▶", 20, C.ink)
+    this.contentPage = label(scene, 1480, 778, "", 18, C.ink);
+    this.nextContentPage = label(scene, 1740, 778, "▶", 20, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeContentPage(1));
-    this.drawer = placeholder(scene, "button", 442, 378, 42, 18);
-    this.pageLabel = label(scene, 1326, 475, "", 18, C.ink);
-    this.prevPage = label(scene, 1652, 475, "◀", 20, C.ink);
-    this.nextPage = label(scene, 1722, 475, "▶", 20, C.ink);
+    this.drawer = placeholder(scene, "button", 445, 489, 34, 17);
+    this.pageLabel = label(scene, 130, 492, "", 18, C.text);
+    this.prevPage = label(scene, 412, 492, "◀", 20);
+    this.nextPage = label(scene, 458, 492, "▶", 20);
     this.prevPage
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changePage(-1));
@@ -187,13 +208,13 @@ export class ArchivistPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changePage(1));
     for (let i = 0; i < 3; i++) {
-      const y = 499 + i * 46;
+      const y = 532 + i * 57;
       this.resultCards.push(
-        plate(scene, 1319, y, 444, 42, C.paper, 0x9d7155, 6),
+        plate(scene, 124, y, 360, 49, C.paper, 0x9d7155, 6),
       );
-      const text = label(scene, 1334, y + 7, "", 21, C.ink, 412);
+      const text = label(scene, 140, y + 10, "", 20, C.ink, 326);
       scene.add
-        .zone(1319, y, 444, 42)
+        .zone(124, y, 360, 49)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.selectRecord(i));
@@ -202,12 +223,12 @@ export class ArchivistPanel {
     for (let i = 0; i < 2; i++) {
       const text = label(
         scene,
-        1332,
-        640 + i * 34,
+        130,
+        850 + i * 43,
         `◇ PIN ${i + 1}: frei`,
-        21,
-        C.ink,
-        425,
+        20,
+        C.text,
+        340,
       );
       text
         .setInteractive({ useHandCursor: true })
@@ -215,15 +236,15 @@ export class ArchivistPanel {
       this.pinLabels.push(text);
     }
     for (const [index, stamp] of STAMPS.entries()) {
-      const x = 603 + index * 290;
-      const text = label(scene, x + 14, 918, STAMP_LABELS[index]!, 22);
+      const x = 550 + index * 220;
+      const text = label(scene, x + 12, 921, STAMP_LABELS[index]!, 18);
       text
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.stamp(stamp, index));
       this.stampLabels.push(text);
     }
-    this.stampStatus = label(scene, 1319, 753, "Noch kein Stempel.", 21, C.ink);
-    this.approval = label(scene, 1333, 801, "◇ Freigabe offen", 22);
+    this.stampStatus = label(scene, 575, 798, "Noch kein Stempel.", 21, C.ink);
+    this.approval = label(scene, 1270, 916, "◇ Freigabe offen", 22);
     this.approval
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
@@ -235,15 +256,15 @@ export class ArchivistPanel {
     const scaleX = bounds.width / 1920;
     const scaleY = bounds.height / 1080;
     Object.assign(this.search.style, {
-      left: `${bounds.left + 1324 * scaleX}px`,
-      top: `${bounds.top + 422 * scaleY}px`,
-      width: `${285 * scaleX}px`,
+      left: `${bounds.left + 136 * scaleX}px`,
+      top: `${bounds.top + 412 * scaleY}px`,
+      width: `${211 * scaleX}px`,
       height: `${45 * scaleY}px`,
     });
     Object.assign(this.filter.style, {
-      left: `${bounds.left + 1615 * scaleX}px`,
-      top: `${bounds.top + 422 * scaleY}px`,
-      width: `${148 * scaleX}px`,
+      left: `${bounds.left + 354 * scaleX}px`,
+      top: `${bounds.top + 412 * scaleY}px`,
+      width: `${118 * scaleX}px`,
       height: `${45 * scaleY}px`,
     });
   }
@@ -278,7 +299,6 @@ export class ArchivistPanel {
   }
   private selectRecordById(recordId: string): void {
     this.selectedRecordId = recordId;
-    this.tab = "dossier";
     this.contentPageIndex = 0;
     this.render();
   }
@@ -361,7 +381,7 @@ export class ArchivistPanel {
   private ejectPaper(): void {
     if (performance.now() - this.lastEjectionAt < 550) return;
     this.lastEjectionAt = performance.now();
-    const scrap = placeholder(this.scene, "fax-slip", 1330, 506, 160, 24);
+    const scrap = placeholder(this.scene, "fax-slip", 150, 538, 160, 24);
     this.scene.tweens.add({
       targets: scrap,
       y: -80,
@@ -476,9 +496,9 @@ export class ArchivistPanel {
           : i === 0 && this.results.length === 0
             ? "Keine passende Akte"
             : "",
-        412,
-        28,
-        21,
+        326,
+        30,
+        20,
         16,
       );
       if (resultsChanged && record && !prefersReducedMotion()) {
@@ -487,7 +507,7 @@ export class ArchivistPanel {
         this.scene.tweens.killTweensOf(card);
         this.scene.tweens.killTweensOf(text);
         card.setAlpha(0.25).setY(10);
-        text.setAlpha(0.25).setY(499 + i * 46 + 17);
+        text.setAlpha(0.25).setY(532 + i * 57 + 20);
         this.scene.tweens.add({
           targets: card,
           alpha: 1,
@@ -498,7 +518,7 @@ export class ArchivistPanel {
         this.scene.tweens.add({
           targets: text,
           alpha: 1,
-          y: 499 + i * 46 + 7,
+          y: 532 + i * 57 + 10,
           duration: 180,
           delay: i * 55,
         });
@@ -511,13 +531,33 @@ export class ArchivistPanel {
     const selected = role.archiveRecords.find(
       (item) => item.id === this.selectedRecordId,
     );
+    fitText(
+      this.dossierTitle,
+      selected
+        ? `${selected.name}  /  ${selected.aliases[0] ?? "–"}`
+        : "Keine Akte geöffnet",
+      585,
+      42,
+      29,
+      21,
+    );
+    fitText(
+      this.dossierText,
+      selected
+        ? this.detail(selected, role)
+        : "Karte im linken Schubfach wählen.\nAlias, Ereignis und Beschwerde mit dem Gespräch abgleichen.",
+      580,
+      310,
+      21,
+      16,
+    );
     const title = {
       dossier: "AKTE / VERGLEICH",
       rules: "TAGESKLAUSELN",
       exceptions: "AUSNAHMEN / QUERVERWEISE",
       notes: "GEMEINSAME NOTIZEN",
     }[this.tab];
-    fitText(this.contentTitle, title, 610, 38, 27, 20);
+    fitText(this.contentTitle, title, 465, 38, 24, 19);
     const body =
       this.tab === "dossier"
         ? selected
@@ -562,7 +602,7 @@ export class ArchivistPanel {
       const recordId = publicView.archivePins[i];
       const record = role.archiveRecords.find((item) => item.id === recordId);
       const name = record?.aliases[0] ?? recordId ?? "frei";
-      fitText(this.pinLabels[i]!, `◇ PIN ${i + 1}: ${name}`, 425, 28, 21, 16);
+      fitText(this.pinLabels[i]!, `◇ PIN ${i + 1}: ${name}`, 340, 30, 20, 16);
       this.pinButtons[i]!.textContent =
         `Pin ${i + 1}: ${name}. ${recordId && (!selected || recordId === this.selectedRecordId) ? "Lösen" : recordId ? "Ersetzen" : "Ausgewählte Akte pinnen"}`;
       this.pinButtons[i]!.disabled =

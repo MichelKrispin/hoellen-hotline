@@ -78,7 +78,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   paperSurface(scene, 817, 496, 348, 37, "card");
   if (!live) label(scene, 837, 500, "FALL  —", 19, C.ink);
   if (!live) label(scene, 817, 427, "Noch kein Anruf", 41);
-  paperSurface(scene, 527, 545, 835, 285, "form");
+  scalablePlate(scene, 527, 545, 835, 285, "panel-paper");
   physicalLabel(scene, 549, 550, 346, 30, "GESPRÄCHS-SKRIPT", {
     material: "paper",
     fontSize: 20,
@@ -114,60 +114,80 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
 
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "AKTEN  /  REGELWERK", C.archivist);
-  placeholder(scene, "filing-cabinet", 105, 314, 431, 542);
+  placeholder(scene, "filing-cabinet", 95, 310, 427, 680);
+  metalHousing(scene, 109, 331, 390, 491);
+  physicalLabel(scene, 124, 347, 360, 44, "KARTEIKASTEN  /  SUCHE", {
+    material: "wood",
+    fontSize: 22,
+  });
+  paperSurface(scene, 124, 404, 360, 70, "card");
+  if (!live) label(scene, 140, 421, "Akten durchsuchen …", 22, C.ink);
+  physicalLabel(scene, 124, 478, 360, 39, "TREFFER  /  SCHUBLADE", {
+    material: "wood",
+    fontSize: 19,
+  });
+  if (!live)
+    for (let i = 0; i < 3; i++) {
+      paperSurface(scene, 124, 540 + i * 56, 360, 49, "card");
+      label(
+        scene,
+        142,
+        551 + i * 56,
+        i === 0 ? "Keine Akte geöffnet" : "—",
+        20,
+        C.ink,
+      );
+    }
+  scalablePlate(scene, 530, 310, 690, 550, "panel-paper");
+  label(scene, 573, 350, "SEELEN-DOSSIER", 32, C.ink);
+  if (!live) {
+    label(scene, 575, 425, "Keine Akte geöffnet", 27, C.ink);
+    label(scene, 575, 550, "Alias · Beruf · Ereignis", 23, C.ink);
+    label(scene, 575, 623, "Beschwerde · Unstimmigkeiten", 23, C.ink);
+  }
+  scalablePlate(scene, 1240, 310, 555, 550, "panel-wood");
+  scalablePlate(scene, 1258, 327, 520, 509, "panel-paper");
+  label(scene, 1280, 344, "REGELBUCH", 28, C.ink);
   for (let i = 0; i < 4; i++) {
-    plate(scene, 126, 346 + i * 119, 387, 91, 0x33212b, C.woodEdge, 5);
-    label(
+    physicalLabel(
       scene,
-      159,
-      368 + i * 119,
-      [
-        "I  /  DOSSIERS",
-        "II  /  REGELN",
-        "III  /  AUSNAHMEN",
-        "IV  /  NOTIZEN",
-      ][i] ?? "",
-      25,
+      1265 + i * 128,
+      385,
+      124,
+      38,
+      ["AKTE", "REGELN", "AUSN.", "NOTIZ"][i]!,
+      {
+        material: "paper",
+        fontSize: 16,
+        paddingX: 11,
+        paddingY: 8,
+      },
     );
-    placeholder(scene, "button", 442, 378 + i * 119, 42, 18);
   }
-  scalablePlate(scene, 577, 310, 684, 546, "panel-wood");
-  const readingPage = scene.add.graphics();
-  readingPage.fillStyle(0xf2dab0, 1);
-  readingPage.fillRoundedRect(604, 337, 642, 484, 18);
-  readingPage.lineStyle(4, 0x6d342c, 0.9);
-  readingPage.strokeRoundedRect(604, 337, 642, 484, 18);
-  label(scene, 615, 352, "REGELBUCH", 34, C.ink);
   if (!live) {
-    label(scene, 619, 430, "AKTIVE REGELN", 25, C.ink);
-    label(scene, 619, 502, "Noch keine Schicht begonnen.", 25, C.ink, 550);
-    label(scene, 619, 646, "◇   Fall prüfen", 27, C.ink);
-    label(scene, 619, 715, "◇   Ausnahme prüfen", 27, C.ink);
+    label(scene, 1280, 457, "Noch keine Schicht begonnen.", 22, C.ink, 465);
+    label(scene, 1280, 595, "◇  Fall prüfen", 22, C.ink);
+    label(scene, 1280, 655, "◇  Ausnahme prüfen", 22, C.ink);
   }
-  scalablePlate(scene, 1293, 336, 497, 385, "panel-paper");
-  label(scene, 1332, 378, "SEELEN-DOSSIER", 30, C.ink);
-  if (!live) {
-    label(scene, 1332, 450, "Keine Akte geöffnet", 27, C.ink);
-    label(scene, 1332, 568, "GETEILTE TAGS  ◇", 23, C.ink);
-  }
-  if (live) {
-    scalablePlate(scene, 1293, 728, 497, 133, "panel-paper");
-    scalablePlate(scene, 1314, 785, 454, 59, "panel-bakelite");
-  } else devil(scene, 1540, 868, 0.42, 0x70517b);
+  if (!live) devil(scene, 1770, 858, 0.3, 0x70517b);
+  plate(scene, 109, 829, 390, 137, C.wood);
+  if (!live) label(scene, 127, 848, "◇  PIN 1     ◇  PIN 2", 20);
+  plate(scene, 1240, 875, 555, 112, C.bakelite);
+  if (!live) label(scene, 1272, 911, "◇  FREIGABE OFFEN", 22);
   for (let i = 0; i < 3; i++) {
-    const x = 603 + i * 290;
+    const x = 550 + i * 220;
     const stamp = scene.add.graphics();
-    stamp.fillStyle(0x251923).fillRoundedRect(x, 898, 255, 82, 12);
+    stamp.fillStyle(0x251923).fillRoundedRect(x, 898, 204, 82, 12);
     stamp
       .lineStyle(5, [C.success, C.warning, C.error][i] ?? C.warning)
-      .strokeRoundedRect(x + 2, 900, 251, 78, 11);
+      .strokeRoundedRect(x + 2, 900, 200, 78, 11);
     if (!live)
       label(
         scene,
-        x + 22,
+        x + 14,
         919,
-        ["✓  PASST", "?  UNKLAR", "×  NEIN"][i] ?? "",
-        27,
+        ["✓ VERIFIZIERT", "? FRAGWÜRDIG", "× NICHT FREI"][i] ?? "",
+        19,
       );
   }
 }
