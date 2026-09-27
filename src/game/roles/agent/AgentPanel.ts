@@ -22,6 +22,7 @@ export class AgentPanel {
   private readonly portrait: Phaser.GameObjects.Image;
   private readonly callerSprite: Phaser.GameObjects.Image;
   private readonly caller: Phaser.GameObjects.Text;
+  private readonly callerCase: Phaser.GameObjects.Text;
   private readonly speech: Phaser.GameObjects.Text;
   private readonly mood: Phaser.GameObjects.Text;
   private readonly queue: Phaser.GameObjects.Text;
@@ -83,17 +84,18 @@ export class AgentPanel {
     private readonly network: GameNetwork,
   ) {
     this.callerSprite = scene.add
-      .image(713, 446, "agent-caller")
-      .setDisplaySize(122, 143);
+      .image(703, 446, "agent-caller")
+      .setDisplaySize(152, 163);
     const initialPortrait = textureFor(scene, "asset.core.portrait.clerk");
     this.portrait = scene.add.image(
-      713,
+      703,
       446,
       initialPortrait.key,
       initialPortrait.frame,
     );
-    this.portrait.setDisplaySize(122, 153).setVisible(false);
+    this.portrait.setDisplaySize(152, 163).setVisible(false);
     this.caller = label(scene, 817, 416, "Noch kein Anruf", 35, C.text, 515);
+    this.callerCase = label(scene, 837, 500, "FALL  —", 19, C.ink, 305);
     this.speech = label(scene, 817, 466, "Leitung frei.", 27, "#91eafa", 510);
     this.mood = label(scene, 130, 923, "STIMMUNG  —", 21, "#ffc69c");
     this.queue = label(scene, 1428, 938, "◇ Ruhig", 24);
@@ -397,6 +399,14 @@ export class AgentPanel {
       42,
       35,
       22,
+    );
+    fitText(
+      this.callerCase,
+      `FALL  ${view.public.activeCaseId?.split(".").at(-1) ?? role.incomingCaseId?.split(".").at(-1) ?? "—"}`,
+      305,
+      26,
+      19,
+      16,
     );
     fitText(
       this.speech,

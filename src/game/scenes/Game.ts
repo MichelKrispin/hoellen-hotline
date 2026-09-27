@@ -60,6 +60,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   bakeliteControl(scene, 95, 742, 395, 232);
   neonIndicator(scene, 119, 759, 346, 72, C.agent);
   plate(scene, 119, 839, 346, 62, C.wood);
+  placeholder(scene, "telephone", 241, 648, 245, 108);
   if (!live)
     label(scene, 151, 778, "☎  ANNEHMEN (A)", 27).setFontFamily(
       '"Trebuchet MS", "DejaVu Sans", sans-serif',
@@ -69,13 +70,20 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 130, 923, "STIMMUNG   —", 21, "#ffc69c");
   }
   metalHousing(scene, 501, 308, 889, 541);
-  neon(scene, 528, 337, 834, 209, C.cyan);
-  plate(scene, 637, 366, 152, 160, C.bakelite);
-  if (!live) scene.add.image(713, 446, "agent-caller").setDisplaySize(122, 143);
+  plate(scene, 526, 335, 837, 215, C.bakelite);
+  neonIndicator(scene, 539, 348, 810, 183, C.cyan);
+  plate(scene, 608, 360, 190, 175, C.bakelite);
+  if (!live) scene.add.image(703, 446, "agent-caller").setDisplaySize(152, 163);
   label(scene, 818, 374, "SEELENKANAL", 24, "#91eafa");
+  paperSurface(scene, 817, 496, 348, 37, "card");
+  if (!live) label(scene, 837, 500, "FALL  —", 19, C.ink);
   if (!live) label(scene, 817, 427, "Noch kein Anruf", 41);
-  plate(scene, 527, 545, 835, 285, C.bakelite);
-  label(scene, 552, 552, "GESPRÄCHSOPTIONEN", 22, "#ffc69c");
+  paperSurface(scene, 527, 545, 835, 285, "form");
+  physicalLabel(scene, 549, 550, 346, 30, "GESPRÄCHS-SKRIPT", {
+    material: "paper",
+    fontSize: 20,
+    paddingY: 4,
+  });
   if (!live)
     for (let i = 0; i < 5; i++)
       plate(scene, 541, 582 + i * 48, 790, 42, C.paper);
@@ -88,8 +96,10 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 1153, 914, "BITTE SENDEN", 21);
   }
   plate(scene, 1402, 317, 394, 553, C.wood);
-  paperSurface(scene, 1416, 330, 367, 528);
+  paperSurface(scene, 1416, 330, 367, 528, "clipboard");
   label(scene, 1450, 365, "GETEILTE HINWEISE", 25, C.ink);
+  for (let i = 0; i < 3; i++)
+    paperSurface(scene, 1431, 424 + i * 82, 338, 71, "note");
   if (!live)
     for (let i = 0; i < 3; i++)
       label(scene, 1450, 446 + i * 82, `◇  HINWEIS ${i + 1}`, 24, C.ink);
