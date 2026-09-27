@@ -18,21 +18,32 @@ import {
   gauge,
   label,
   neon,
-  paper,
   plate,
   room,
   roomSign,
   scalablePlate,
   statusBar,
 } from "../presentation/art";
+import {
+  bakeliteControl,
+  metalHousing,
+  neonIndicator,
+  paperSurface,
+  physicalLabel,
+} from "../presentation/uiPrimitives";
 
 const C = TOKENS.color;
 
 function agentDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "LEITUNG  /  ANRUFER", C.agent);
   plate(scene, 95, 317, 395, 416, C.wood);
-  plate(scene, 111, 334, 363, 39, C.bakelite);
-  label(scene, 129, 341, "AGENT  /  TELEFONZENTRALE", 19, "#ffc69c");
+  physicalLabel(scene, 111, 334, 363, 39, "AGENT  /  TELEFONZENTRALE", {
+    material: "bakelite",
+    fontSize: 19,
+    color: "#ffc69c",
+    paddingX: 18,
+    paddingY: 7,
+  });
   const operator = scene.add
     .image(292, 548, "agent-operator")
     .setDisplaySize(320, 355);
@@ -46,8 +57,8 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
       ease: "Sine.easeInOut",
     });
   }
-  plate(scene, 95, 742, 395, 232, C.bakelite);
-  neon(scene, 119, 759, 346, 72, C.agent);
+  bakeliteControl(scene, 95, 742, 395, 232);
+  neonIndicator(scene, 119, 759, 346, 72, C.agent);
   plate(scene, 119, 839, 346, 62, C.wood);
   if (!live)
     label(scene, 151, 778, "☎  ANNEHMEN (A)", 27).setFontFamily(
@@ -57,7 +68,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 137, 850, "↯  UNTERBRECHEN (I)", 22);
     label(scene, 130, 923, "STIMMUNG   —", 21, "#ffc69c");
   }
-  plate(scene, 501, 308, 889, 541, C.metal);
+  metalHousing(scene, 501, 308, 889, 541);
   neon(scene, 528, 337, 834, 209, C.cyan);
   plate(scene, 637, 366, 152, 160, C.bakelite);
   if (!live) scene.add.image(713, 446, "agent-caller").setDisplaySize(122, 143);
@@ -77,7 +88,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 1153, 914, "BITTE SENDEN", 21);
   }
   plate(scene, 1402, 317, 394, 553, C.wood);
-  paper(scene, 1416, 330, 367, 528);
+  paperSurface(scene, 1416, 330, 367, 528);
   label(scene, 1450, 365, "GETEILTE HINWEISE", 25, C.ink);
   if (!live)
     for (let i = 0; i < 3; i++)
