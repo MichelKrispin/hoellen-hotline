@@ -1,3 +1,22 @@
+:root {
+  --material-metal-dark: #302733;
+  --material-metal-edge: #8e7472;
+  --material-wood-dark: #4c2d2a;
+  --material-paper: #f2dab0;
+  --material-paper-aged: #e9c99a;
+  --material-bakelite: #211d2a;
+  --signal-cyan: #68d8dc;
+  --signal-warning: #ffc46a;
+  --signal-danger: #ff6755;
+  --ink-primary: #30232a;
+  --ink-muted: #624b45;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
+
 html,
 body,
 #app {

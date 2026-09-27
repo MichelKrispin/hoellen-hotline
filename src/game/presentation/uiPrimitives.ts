@@ -4,9 +4,11 @@ import { TOKENS } from "../../ui/tokens";
 import { label, plate } from "./art";
 
 const C = TOKENS.color;
+const M = TOKENS.material;
 
 export type PhysicalLabelMaterial = "metal" | "wood" | "bakelite" | "paper";
-export type PaperVariant = "card" | "form" | "note" | "clipboard" | "dossier" | "continuous";
+export type PaperVariant =
+  "card" | "form" | "note" | "clipboard" | "dossier" | "continuous";
 
 export interface PhysicalLabelOptions {
   material?: PhysicalLabelMaterial;
@@ -17,10 +19,10 @@ export interface PhysicalLabelOptions {
 }
 
 const MATERIAL_FILL: Record<PhysicalLabelMaterial, number> = {
-  metal: C.metal,
-  wood: C.wood,
-  bakelite: C.bakelite,
-  paper: C.paper,
+  metal: M.metalDark,
+  wood: M.woodDark,
+  bakelite: M.bakelite,
+  paper: M.paperAged,
 };
 
 /** Massive, reusable metal housing for machines, displays and HUD modules. */
@@ -31,9 +33,9 @@ export function metalHousing(
   width: number,
   height: number,
 ): Phaser.GameObjects.NineSlice {
-  const surface = plate(scene, x, y, width, height, C.metal, C.metalEdge);
+  const surface = plate(scene, x, y, width, height, M.metalDark, M.metalEdge);
   const details = scene.add.graphics();
-  details.lineStyle(2, C.metalEdge, 0.55);
+  details.lineStyle(2, M.metalEdge, 0.55);
   details.lineBetween(x + 26, y + 12, x + width - 26, y + 12);
   details.lineBetween(x + 26, y + height - 13, x + width - 26, y + height - 13);
   for (const rivetX of [x + 18, x + width - 18]) {
@@ -57,8 +59,10 @@ export function paperSurface(
   const surface = placeholder(scene, "paper-sheet", x, y, width, height);
   const detail = scene.add.graphics();
   if (variant === "clipboard") {
-    detail.fillStyle(C.metal).fillRoundedRect(x + width / 2 - 35, y - 4, 70, 17, 4);
-    detail.fillStyle(C.metalEdge).fillCircle(x + width / 2, y + 4, 4);
+    detail
+      .fillStyle(M.metalDark)
+      .fillRoundedRect(x + width / 2 - 35, y - 4, 70, 17, 4);
+    detail.fillStyle(M.metalEdge).fillCircle(x + width / 2, y + 4, 4);
   } else if (variant === "continuous") {
     detail.lineStyle(2, 0x9d7155, 0.65);
     for (let lineY = y + 34; lineY < y + height - 18; lineY += 42)
@@ -67,7 +71,12 @@ export function paperSurface(
     detail.fillStyle(0x9d7155).fillRect(x + 28, y - 5, 110, 16);
   } else if (variant === "note" || variant === "card") {
     detail.lineStyle(2, 0x9d7155, 0.6);
-    detail.lineBetween(x + 16, y + height - 20, x + width - 16, y + height - 20);
+    detail.lineBetween(
+      x + 16,
+      y + height - 20,
+      x + width - 16,
+      y + height - 20,
+    );
   }
   return surface;
 }
@@ -81,12 +90,20 @@ export function bakeliteControl(
   height: number,
   accent?: number,
 ): Phaser.GameObjects.NineSlice {
-  const surface = plate(scene, x, y, width, height, C.bakelite);
-  scene.add.graphics()
-    .lineStyle(2, C.metalEdge, 0.7)
+  const surface = plate(scene, x, y, width, height, M.bakelite);
+  scene.add
+    .graphics()
+    .lineStyle(2, M.metalEdge, 0.7)
     .lineBetween(x + 14, y + 8, x + width - 14, y + 8);
   if (accent !== undefined)
-    neonIndicator(scene, x + 16, y + height - 15, Math.min(38, width - 32), 6, accent);
+    neonIndicator(
+      scene,
+      x + 16,
+      y + height - 15,
+      Math.min(38, width - 32),
+      6,
+      accent,
+    );
   return surface;
 }
 
