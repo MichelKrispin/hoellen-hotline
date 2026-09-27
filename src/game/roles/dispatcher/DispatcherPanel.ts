@@ -69,10 +69,12 @@ export class DispatcherPanel {
   private readonly feedbackText: Phaser.GameObjects.Text;
   private readonly leverArm: Phaser.GameObjects.Container;
   private readonly figure: Phaser.GameObjects.Image | null;
+  private readonly warningLight: Phaser.GameObjects.Image | null;
   private readonly unsubscribe: () => void;
   private vignette: Phaser.GameObjects.Container | null = null;
   private vignetteTimer: Phaser.Time.TimerEvent | null = null;
   private seenOutcome: string | null = null;
+  private seenIncident: string | null = null;
   private armed = false;
   private armSignature = "";
   private feedback = "";
@@ -99,6 +101,9 @@ export class DispatcherPanel {
   ) {
     this.figure = scene.children.getByName(
       "dispatcher-worker",
+    ) as Phaser.GameObjects.Image | null;
+    this.warningLight = scene.children.getByName(
+      "dispatcher-warning-light",
     ) as Phaser.GameObjects.Image | null;
     this.mirror.className = "dispatcher-accessible-controls";
     this.mirror.setAttribute(
@@ -639,6 +644,21 @@ export class DispatcherPanel {
       !hasSummaryPages ||
       this.summaryPageIndex === this.summaryPages.length - 1;
     const incident = role.incident;
+    this.warningLight?.setVisible(Boolean(incident));
+    if (incident && incident.id !== this.seenIncident && this.warningLight) {
+      this.seenIncident = incident.id;
+      if (!prefersReducedFlash()) {
+        this.scene.tweens.killTweensOf(this.warningLight);
+        this.scene.tweens.add({
+          targets: this.warningLight,
+          alpha: 0.35,
+          duration: 130,
+          yoyo: true,
+          repeat: 2,
+        });
+      }
+    }
+    if (!incident) this.seenIncident = null;
     const recovered =
       incident &&
       role.controls.find((item) => item.id === incident.recoveryControlId)

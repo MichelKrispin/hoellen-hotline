@@ -15,9 +15,7 @@ import { prefersReducedMotion } from "../../app/options";
 import {
   controlSurface,
   devil,
-  gauge,
   label,
-  neon,
   plate,
   room,
   roomSign,
@@ -62,6 +60,10 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
   neonIndicator(scene, 119, 759, 346, 72, C.agent);
   plate(scene, 119, 839, 346, 62, C.wood);
   placeholder(scene, "telephone", 241, 648, 245, 108);
+  const cable = scene.add.graphics();
+  cable.lineStyle(8, 0x171216).lineBetween(389, 712, 446, 716);
+  cable.lineStyle(6, 0x171216).lineBetween(446, 716, 507, 684);
+  cable.lineStyle(2, 0x8e5050, 0.75).lineBetween(390, 709, 446, 713);
   if (!live)
     label(scene, 151, 778, "☎  ANNEHMEN (A)", 27).setFontFamily(
       '"Trebuchet MS", "DejaVu Sans", sans-serif',
@@ -116,6 +118,7 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   roomSign(scene, "AKTEN  /  REGELWERK", C.archivist);
   placeholder(scene, "filing-cabinet", 95, 310, 427, 680);
+  placeholder(scene, "archive-stack", 80, 723, 90, 100);
   metalHousing(scene, 109, 331, 390, 491);
   physicalLabel(scene, 124, 347, 360, 44, "KARTEIKASTEN  /  SUCHE", {
     material: "wood",
@@ -218,6 +221,9 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
       fontSize: 20,
     },
   );
+  placeholder(scene, "warning-light", 1235, 276, 54, 68)
+    .setName("dispatcher-warning-light")
+    .setVisible(false);
   scalablePlate(scene, 1297, 310, 506, 394, "panel-metal");
   physicalLabel(scene, 1315, 326, 470, 42, "ZIELBANK  /  12 ROHRE", {
     material: "metal",
