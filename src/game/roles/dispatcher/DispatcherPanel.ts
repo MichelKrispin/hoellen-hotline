@@ -7,6 +7,7 @@ import { fitText, label } from "../../presentation/art";
 import { workspaceSprite } from "../../../assets/workspaceSprites";
 import { DISPATCH_LAYOUT } from "../../presentation/workspaceLayout";
 import { placeholder } from "../../../assets/placeholders";
+import { roleSprite } from "../../../assets/roleSprites";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
 import {
@@ -196,16 +197,10 @@ export class DispatcherPanel {
       workspaceSprite(scene, "paper-card", x + 28, y + 173, 240, 36);
       const value = label(scene, x + 43, y + 179, "", 23, C.ink, 210);
       const range = label(scene, x + 235, y + 143, "", 15, C.muted, 50);
-      const dialFace = workspaceSprite(scene, "dial-face", -62, -62, 124, 124);
-      const pointer = workspaceSprite(
-        scene,
-        "dial-pointer",
-        0,
-        0,
-        124,
-        124,
-      ) as Phaser.GameObjects.Image;
-      pointer.setOrigin(0.5);
+      const dialFace = roleSprite(scene, "analog_gauge", -62, -62, 124, 124);
+      const pointer = roleSprite(scene, "gauge_needle", 0, 0, 22, 78);
+      // The needle hub sits three quarters down the supplied crop.
+      pointer.setOrigin(0.5, 0.75).setPosition(0, 0);
       const dial = scene.add.container(x + w / 2, y + 105, [dialFace, pointer]);
       const track = workspaceSprite(scene, "switch-track", -60, -60, 120, 120);
       const handle = workspaceSprite(
@@ -310,7 +305,7 @@ export class DispatcherPanel {
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
-    const arm = placeholder(scene, "lever-arm", -40, -135, 80, 150);
+    const arm = roleSprite(scene, "single_lever", -40, -125, 80, 125);
     this.leverArm = scene.add.container(1670, 954, [arm]);
     this.feedbackText = label(scene, 1120, 1020, "", 18, C.text, 710);
     this.unsubscribe = network.subscribe(() => this.render());
@@ -485,7 +480,7 @@ export class DispatcherPanel {
           ),
         );
       }
-    sparks.add(placeholder(this.scene, "smoke", 1620, 840, 110, 60));
+    sparks.add(roleSprite(this.scene, "machine_fx", 1620, 826, 90, 112));
     if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
     else
       this.scene.tweens.add({

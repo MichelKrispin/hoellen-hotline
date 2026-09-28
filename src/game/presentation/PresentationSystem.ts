@@ -3,6 +3,7 @@ import type { GameNetwork } from "../../net/gameNetwork";
 import { ReactionScheduler } from "./reactionScheduler";
 import { prefersReducedMotion } from "../../app/options";
 import { placeholder } from "../../assets/placeholders";
+import { roleSprite } from "../../assets/roleSprites";
 
 export class PresentationSystem {
   private readonly scheduler = new ReactionScheduler();
@@ -16,11 +17,11 @@ export class PresentationSystem {
     private readonly scene: Phaser.Scene,
     private readonly network: GameNetwork,
   ) {
-    const figure = placeholder(scene, "warning-light", 52, 736, 48, 48);
-    const plant = placeholder(scene, "plant", 1848, 842, 65, 95);
+    const figure = roleSprite(scene, "red_siren", 52, 836, 48, 48);
+    const plant = roleSprite(scene, "demonic_plant", 1848, 842, 65, 95);
     const pipes = placeholder(scene, "pipe", 1388, 275, 14, 250);
     const gauge = placeholder(scene, "gauge-face", 1850, 720, 54, 54);
-    const demons = placeholder(scene, "demon-eyes", 235, 400, 68, 24);
+    const demons = roleSprite(scene, "watching_eyes", 235, 400, 68, 24);
     this.graphics = { figure, plant, pipes, gauge, demons };
     for (const graphic of Object.values(this.graphics))
       graphic.setDepth(5).setAlpha(0.72);

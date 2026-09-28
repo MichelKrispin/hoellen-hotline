@@ -16,7 +16,7 @@ test("role atlases load within the documented client budget", async ({
       "resource",
     ) as PerformanceResourceTiming[];
     const atlases = resources.filter((entry) =>
-      /role-agent|shared/.test(entry.name),
+      /role-agent|shared|generated\/role-sprites/.test(entry.name),
     );
     return {
       renderer: gl ? "webgl" : target.getContext("2d") ? "canvas" : "none",

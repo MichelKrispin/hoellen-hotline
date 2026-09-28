@@ -4,6 +4,7 @@ node_modules
 playwright-report
 test-results
 *.png
+src/assets/source/role-sprites/
 TODO.md
 gameplay.md
 hoellen-hotline-spezifikation.md

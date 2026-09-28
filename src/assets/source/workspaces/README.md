@@ -27,6 +27,6 @@ Eine Grafik mit identischem Dateinamen als `.webp` oder `.png` in diesen Ordner 
 | `slider-track`, `slider-thumb`             | Schieberegler und beweglicher Schieber                                    |
 | `lever-housing`                            | Hebelgehäuse; Arm kommt weiterhin aus den bestehenden Placeholder-Sprites |
 
-Kulisse, Tisch, Telefon, Figuren, Porträts, Hebelarm, Hörer, Rauch und Funken verwenden weiterhin die vorhandenen, separat geladenen Assets. Deren IDs und Herkunft stehen in `../placeholders/README.md`, `src/assets/portraits.ts` und `src/game/scenes/Boot.ts`.
+Kulisse, Tisch und Figurenporträts verwenden weiterhin die vorhandenen, separat geladenen Assets. Telefon, Hörer, Analogregler, Stempel und weitere Requisiten kommen aus dem [Rollen-Requisitenpaket](../../../../docs/role-sprites.md). `src/assets/roleSprites.ts` lädt dessen WebP-Dateien rollenweise und erhält die Motivproportionen. Die flächigen SVG-Materialien hier bleiben als separate Schreib- und Bedienflächen erhalten.
 
 `src/game/presentation/roleWorkspaces.ts` setzt die drei Arbeitsplätze zusammen. `workspaceLayout.ts` teilt die Positionen wiederholter Karten und Regler mit den laufenden Rollenpanels, sodass Sprites und Klickflächen übereinstimmen. Referenzraum: 1920 × 1080. Die SVGs sind absichtlich schlicht; die vorhandene Höllenkulisse und Figuren werden weiterverwendet.

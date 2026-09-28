@@ -11,6 +11,7 @@ import { fitText, label } from "../../presentation/art";
 import { workspaceSprite } from "../../../assets/workspaceSprites";
 import { ARCHIVE_LAYOUT } from "../../presentation/workspaceLayout";
 import { placeholder } from "../../../assets/placeholders";
+import { roleSprite } from "../../../assets/roleSprites";
 import { TOKENS } from "../../../ui/tokens";
 import { searchArchive } from "./archiveSearch";
 import { prefersReducedMotion } from "../../../app/options";
@@ -451,14 +452,25 @@ export class ArchivistPanel {
     if (performance.now() - this.lastEjectionAt < 550) return;
     this.lastEjectionAt = performance.now();
     if (prefersReducedMotion()) return;
-    const scrap = placeholder(this.scene, "fax-slip", 150, 538, 160, 24);
+    const scrap = roleSprite(this.scene, "torn_record_slip", 150, 538, 52, 60);
+    const fragments = roleSprite(
+      this.scene,
+      "paper_fragments",
+      172,
+      542,
+      46,
+      48,
+    );
     this.scene.tweens.add({
-      targets: scrap,
+      targets: [scrap, fragments],
       y: -80,
       x: 45,
       alpha: 0,
       duration: 550,
-      onComplete: () => scrap.destroy(),
+      onComplete: () => {
+        scrap.destroy();
+        fragments.destroy();
+      },
     });
     this.scene.tweens.add({
       targets: this.drawer,

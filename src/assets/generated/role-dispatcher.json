@@ -41,7 +41,7 @@
   },
   "meta": {
     "app": "hoellen-hotline-asset-pipeline",
-    "image": "role-dispatcher.png",
+    "image": "role-dispatcher.webp",
     "size": {
       "w": 160,
       "h": 200
@@ -49,7 +49,7 @@
     "scale": "1",
     "assetGroup": "role-dispatcher",
     "vramBytes": 128000,
-    "preloadBytes": 51497,
+    "preloadBytes": 14436,
     "animation": {
       "fps": 1,
       "loop": false,

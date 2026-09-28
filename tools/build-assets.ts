@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { buildRoleSprites } from "./build-role-sprites";
 
 const root = resolve("src/assets");
 const source = join(root, "source");
@@ -115,13 +116,15 @@ function buildGroup(name: string, files: string[], folder: string): void {
     "none",
     atlas,
   ]);
-  const actualBytes = readFileSync(atlas).byteLength;
+  const runtimeAtlas = join(output, `${name}.webp`);
+  run("magick", [atlas, "-strip", "-quality", "86", runtimeAtlas]);
+  const actualBytes = readFileSync(runtimeAtlas).byteLength;
   const vramBytes = columns * width * rows * height * 4;
   if (actualBytes > 2 * 1024 * 1024 || vramBytes > 16 * 1024 * 1024)
     throw new Error(`${name} exceeds download or VRAM budget`);
   const meta = {
     app: "hoellen-hotline-asset-pipeline",
-    image: `${name}.png`,
+    image: `${name}.webp`,
     size: { w: columns * width, h: rows * height },
     scale: "1",
     assetGroup: name,
@@ -155,3 +158,4 @@ buildGroup("role-agent", portraits, join(source, "portraits"));
 buildGroup("shared", reactions, join(source, "reactions"));
 buildGroup("role-archivist", ["clerk-copy.svg"], join(source, "portraits"));
 buildGroup("role-dispatcher", ["clerk-retired.svg"], join(source, "portraits"));
+buildRoleSprites();

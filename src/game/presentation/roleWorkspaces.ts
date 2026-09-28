@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { placeholder } from "../../assets/placeholders";
 import { workspaceSprite as sprite } from "../../assets/workspaceSprites";
+import { roleSprite as prop } from "../../assets/roleSprites";
 import type { Role } from "../state/contracts";
 import { prefersReducedMotion } from "../../app/options";
 import { devil, label } from "./art";
@@ -24,7 +24,7 @@ function heading(
 }
 
 function agentDesk(scene: Phaser.Scene, live: boolean): void {
-  placeholder(scene, "paper-sheet", 76, 195, 170, 210).setAngle(-6);
+  prop(scene, "paper_note", 76, 195, 170, 210).setAngle(-6);
   label(
     scene,
     94,
@@ -47,20 +47,25 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
       repeat: -1,
       ease: "Sine.easeInOut",
     });
-  placeholder(scene, "telephone", 160, 627, 320, 180);
+  prop(scene, "phone_base", 160, 552, 320, 240);
+  if (!live) prop(scene, "handset", 363, 569, 67, 120).setAngle(-12);
   sprite(scene, "control-housing", 95, 758, 395, 224);
   sprite(scene, "control-housing", 119, 775, 346, 72).setTint(0xe38d6f);
   sprite(scene, "control-housing", 119, 857, 346, 62);
+  prop(scene, "push_button", 124, 785, 48, 45);
+  prop(scene, "alarm_button", 123, 865, 43, 42);
   if (!live) {
-    label(scene, 151, 795, "☎ ANNEHMEN (A)", 27);
-    label(scene, 135, 870, "↯ UNTERBRECHEN (I)", 22);
+    label(scene, 181, 795, "ANNEHMEN (A)", 27);
+    label(scene, 173, 870, "UNTERBRECHEN (I)", 22);
     label(scene, 130, 943, "STIMMUNG  —", 21, "#ffc69c");
   }
   sprite(scene, "iron-frame", 501, 180, 889, 247);
   sprite(scene, "cyan-monitor", 525, 199, 841, 207);
   heading(scene, 551, 216, "EINGEHENDER ANRUF / SEELENKANAL", "#91eafa");
+  prop(scene, "cyan_neon_frame", 552, 245, 185, 155);
   if (!live) {
-    scene.add.image(648, 321, "agent-caller").setDisplaySize(138, 148);
+    prop(scene, "caller_ghost", 579, 247, 138, 148);
+    prop(scene, "ring_energy", 695, 333, 42, 30);
     label(scene, 746, 276, "Noch kein Anruf", 35);
     label(scene, 746, 334, "FALL  —", 19, "#91eafa");
   }
@@ -108,7 +113,8 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
 }
 
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {
-  placeholder(scene, "filing-cabinet", 95, 194, 427, 630);
+  prop(scene, "filing_cabinet", 12, 310, 100, 300);
+  prop(scene, "case_file_stack", 20, 650, 78, 175);
   sprite(scene, "iron-frame", 109, 194, 390, 620);
   heading(scene, 130, 220, "ARCHIVSUCHE");
   sprite(scene, "paper-card", 124, 270, 360, 70);
@@ -128,6 +134,7 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     }
   sprite(scene, "dossier-paper", 530, 194, 690, 620);
   sprite(scene, "clipboard-clip", 555, 170, 130, 53).setAngle(-4);
+  prop(scene, "paper_stack", 1157, 198, 50, 62);
   heading(scene, 575, 241, "HÖLLEN-HOTLINE / SEELEN-DOSSIER", C.ink);
   if (!live) {
     label(scene, 575, 305, "Keine Akte geöffnet", 29, C.ink);
@@ -135,6 +142,7 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 575, 490, "Beschwerde · Unstimmigkeiten", 23, C.ink);
   }
   sprite(scene, "book-spread", 1240, 210, 555, 604);
+  prop(scene, "rulebook_open", 1630, 219, 125, 70);
   heading(scene, 1280, 250, "REGELWERK", C.ink);
   for (let i = 0; i < 4; i++) {
     const box = ARCHIVE_LAYOUT.tab(i);
@@ -152,6 +160,8 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
     label(scene, 1280, 370, "Noch keine Schicht begonnen.", 22, C.ink, 465);
   sprite(scene, "iron-frame", 109, 835, 390, 169);
   heading(scene, 130, 854, "ÖFFENTLICHE PINS");
+  for (let i = 0; i < 2; i++)
+    prop(scene, "wax_seal_pin", 112, 888 + i * 43, 18, 32);
   if (!live) {
     label(scene, 130, 897, "◇ PIN 1: frei", 20);
     label(scene, 130, 940, "◇ PIN 2: frei", 20);
@@ -159,9 +169,7 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
   for (let i = 0; i < 3; i++) {
     const box = ARCHIVE_LAYOUT.stamp(i);
     sprite(scene, "stamp-base", box.x, box.y, box.w, box.h);
-    sprite(scene, "stamp-cap", box.x + 57, box.y + 16, 90, 45).setTint(
-      [C.success, C.warning, C.error][i]!,
-    );
+    prop(scene, "infernal_stamp", box.x + 60, box.y + 5, 80, 90);
     if (!live)
       label(
         scene,
@@ -178,16 +186,21 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
 
 function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   devil(scene, 285, 254, 0.52, 0xa64131).setName("dispatcher-worker");
-  placeholder(scene, "telephone", 109, 299, 250, 90);
+  prop(scene, "lever_bank", 115, 300, 240, 78);
+  prop(scene, "receipt_roll", 409, 186, 35, 112);
+  prop(scene, "horned_signplate", 465, 185, 137, 72);
   heading(scene, 457, 260, "DISPOSITION / ÜBERGABE-PARAMETER");
   sprite(scene, "iron-frame", 96, 348, 971, 505);
+  prop(scene, "routing_console", 96, 335, 971, 520);
   if (!live)
     for (let i = 0; i < 6; i++) {
       const box = DISPATCH_LAYOUT.control(i);
       sprite(scene, "control-housing", box.x, box.y, box.w, box.h);
       heading(scene, box.x + 17, box.y + 17, `REGLER ${i + 1}`);
-      sprite(scene, "dial-face", box.x + 78, box.y + 53, 140, 140);
-      sprite(scene, "dial-pointer", box.x + 78, box.y + 53, 140, 140);
+      prop(scene, "analog_gauge", box.x + 78, box.y + 53, 140, 140);
+      prop(scene, "gauge_needle", 0, 0, 25, 90)
+        .setOrigin(0.5, 0.75)
+        .setPosition(box.x + 148, box.y + 123);
     }
   sprite(scene, "dossier-paper", 1090, 194, 411, 642);
   sprite(scene, "clipboard-clip", 1220, 170, 150, 61);
@@ -233,11 +246,12 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
     }
   sprite(scene, "iron-frame", 96, 870, 971, 134);
   heading(scene, 120, 886, "SYSTEMSTATUS / REPARATUR");
-  placeholder(scene, "warning-light", 1010, 850, 54, 68)
+  prop(scene, "warning_beacon", 1010, 850, 54, 68)
     .setName("dispatcher-warning-light")
     .setVisible(false);
   sprite(scene, "control-housing", 1090, 852, 411, 72);
   sprite(scene, "control-housing", 1090, 939, 411, 65);
+  prop(scene, "red_push_button", 1433, 859, 57, 55);
   if (!live) {
     label(scene, 120, 932, "✓ Keine aktive Störung", 21);
     label(scene, 1115, 874, "ANLAGE VORBEREITEN", 22);
@@ -247,7 +261,7 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
   if (!live) {
     label(scene, 1540, 744, "ZIEL: — · OFFEN", 19, C.text, 270);
     label(scene, 1540, 792, "↗ HEBEL GESPERRT", 25, C.text, 250);
-    placeholder(scene, "lever-arm", 1626, 815, 80, 150);
+    prop(scene, "single_lever", 1626, 830, 80, 125);
     label(scene, 1540, 969, "SCHUTZBÜGEL: ZU", 17);
   }
 }

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { isolateCanvasInput } from "../../../ui/canvasInput";
 import { textureFor } from "../../../assets/registry";
-import { placeholder } from "../../../assets/placeholders";
+import { roleSprite } from "../../../assets/roleSprites";
 import { workspaceSprite } from "../../../assets/workspaceSprites";
 import { AGENT_LAYOUT } from "../../presentation/workspaceLayout";
 import type { GameNetwork } from "../../../net/gameNetwork";
@@ -44,6 +44,7 @@ export class AgentPanel {
   private readonly feedback: Phaser.GameObjects.Text;
   private readonly handset: Phaser.GameObjects.Image;
   private readonly face: Phaser.GameObjects.Image;
+  private readonly ring: Phaser.GameObjects.Image;
   private readonly operator: Phaser.GameObjects.Image | null;
   private readonly mirror = document.createElement("section");
   private readonly mirrorChoices: HTMLButtonElement[] = [];
@@ -96,9 +97,7 @@ export class AgentPanel {
     this.operator = scene.children.getByName(
       "agent-operator",
     ) as Phaser.GameObjects.Image | null;
-    this.callerSprite = scene.add
-      .image(648, 321, "agent-caller")
-      .setDisplaySize(138, 148);
+    this.callerSprite = roleSprite(scene, "caller_ghost", 579, 247, 138, 148);
     const initialPortrait = textureFor(scene, "asset.core.portrait.clerk");
     this.portrait = scene.add.image(
       648,
@@ -112,7 +111,7 @@ export class AgentPanel {
     this.speech = label(scene, 548, 489, "Leitung frei.", 25, C.ink, 790);
     this.mood = label(scene, 130, 943, "STIMMUNG  —", 21, "#ffc69c");
     this.queue = label(scene, 1428, 924, "◇ Ruhig", 24);
-    this.accept = label(scene, 151, 795, "☎   ANNEHMEN (A)", 27).setFontFamily(
+    this.accept = label(scene, 181, 795, "ANNEHMEN (A)", 27).setFontFamily(
       '"Trebuchet MS", "DejaVu Sans", sans-serif',
     );
     scene.add
@@ -125,9 +124,9 @@ export class AgentPanel {
       .on("pointerdown", () => this.acceptCase());
     this.interrupt = label(
       scene,
-      135,
+      173,
       870,
-      "↯ UNTERBRECHEN (I)",
+      "UNTERBRECHEN (I)",
       22,
     ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     scene.add
@@ -256,10 +255,18 @@ export class AgentPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
     this.feedback = label(scene, 559, 1021, "", 18, C.text, 740);
-    this.handset = placeholder(scene, "handset", 350, 636, 80, 45).setVisible(
-      false,
+    this.handset = roleSprite(scene, "handset", 363, 569, 67, 120).setAngle(
+      -12,
     );
-    this.face = placeholder(scene, "soul-mouth", 625, 321, 46, 23).setVisible(
+    this.face = roleSprite(
+      scene,
+      "spectral_mouth",
+      625,
+      321,
+      46,
+      35,
+    ).setVisible(false);
+    this.ring = roleSprite(scene, "ring_energy", 695, 333, 42, 30).setVisible(
       false,
     );
     this.setupMirror();
@@ -495,7 +502,14 @@ export class AgentPanel {
       24,
       18,
     );
-    this.accept.setText(active ? "● LEITUNG AKTIV" : "☎ ANNEHMEN (A)");
+    fitText(
+      this.accept,
+      active ? "● LEITUNG AKTIV" : "ANNEHMEN (A)",
+      275,
+      36,
+      27,
+      22,
+    );
     this.accept.setAlpha(role.incomingCaseId || active ? 1 : 0.45);
     this.acceptButton.disabled = !role.incomingCaseId;
     for (let i = 0; i < 5; i++) {
@@ -510,8 +524,8 @@ export class AgentPanel {
     }
     fitText(
       this.interrupt,
-      `↯ UNTERBRECHEN (I)${role.cooldownMs ? ` · ${Math.ceil(role.cooldownMs / 1000)} s` : ""}`,
-      310,
+      `UNTERBRECHEN (I)${role.cooldownMs ? ` · ${Math.ceil(role.cooldownMs / 1000)} s` : ""}`,
+      283,
       32,
       22,
       18,
@@ -631,13 +645,12 @@ export class AgentPanel {
       portraitId && portrait.missing ? portraitId : "";
     this.face.setVisible(role.callerMood !== null && !hasPortrait);
     this.face.setFlipY((role.callerMood ?? 50) < 45);
-    this.handset.setVisible(Boolean(worm));
-    if (worm) {
-      const offset = prefersReducedMotion()
-        ? 0
-        : Math.sin(sceneTime(this.scene) / 170) * 10;
-      this.handset.setX(350 + offset);
-    }
+    this.ring.setVisible(Boolean(role.incomingCallerName && !role.callerName));
+    const offset =
+      worm && !prefersReducedMotion()
+        ? Math.sin(sceneTime(this.scene) / 170) * 10
+        : 0;
+    this.handset.setX(396.5 + offset);
   }
   destroy(): void {
     this.unsubscribe();

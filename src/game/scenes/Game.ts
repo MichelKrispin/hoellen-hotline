@@ -5,6 +5,7 @@ import type { Role } from "../state/contracts";
 import type { GameNetwork } from "../../net/gameNetwork";
 import { GameNetworkOverlay } from "../../ui/gameNetworkOverlay";
 import { preloadAssetGroups } from "../../assets/registry";
+import { preloadRoleSprites } from "../../assets/roleSprites";
 import { AgentPanel } from "../roles/agent/AgentPanel";
 import { ArchivistPanel } from "../roles/archivist/ArchivistPanel";
 import { DispatcherPanel } from "../roles/dispatcher/DispatcherPanel";
@@ -46,6 +47,7 @@ export class Game extends Phaser.Scene {
     );
     this.load.once("complete", () => progress.destroy());
     preloadAssetGroups(this, ["shared", `role-${this.role}`]);
+    preloadRoleSprites(this, this.role);
   }
   create(): void {
     document.body.classList.add("role-game");

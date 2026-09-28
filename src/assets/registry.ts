@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-const images = import.meta.glob("./generated/*.png", {
+const images = import.meta.glob("./generated/*.webp", {
   eager: true,
   query: "?url",
   import: "default",
@@ -32,7 +32,7 @@ export function preloadAssetGroups(
   requested: AssetGroup[],
 ): void {
   for (const group of requested) {
-    const image = images[`./generated/${group}.png`];
+    const image = images[`./generated/${group}.webp`];
     const json = data[`./generated/${group}.json`];
     if (image && json && !scene.textures.exists(group))
       scene.load.atlas(group, image, json);

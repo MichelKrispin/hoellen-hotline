@@ -763,7 +763,7 @@
   },
   "meta": {
     "app": "hoellen-hotline-asset-pipeline",
-    "image": "shared.png",
+    "image": "shared.webp",
     "size": {
       "w": 1440,
       "h": 400
@@ -771,7 +771,7 @@
     "scale": "1",
     "assetGroup": "shared",
     "vramBytes": 2304000,
-    "preloadBytes": 466684,
+    "preloadBytes": 144124,
     "animation": {
       "fps": 1,
       "loop": false,

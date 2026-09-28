@@ -1143,7 +1143,7 @@
   },
   "meta": {
     "app": "hoellen-hotline-asset-pipeline",
-    "image": "role-agent.png",
+    "image": "role-agent.webp",
     "size": {
       "w": 960,
       "h": 1000
@@ -1151,7 +1151,7 @@
     "scale": "1",
     "assetGroup": "role-agent",
     "vramBytes": 3840000,
-    "preloadBytes": 1498039,
+    "preloadBytes": 407060,
     "animation": {
       "fps": 1,
       "loop": false,

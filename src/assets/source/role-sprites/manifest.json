@@ -1,0 +1,463 @@
+{
+  "version": 1,
+  "format": "RGBA PNG",
+  "notes": "Individual sprites are cropped from the generated source atlases and retain alpha. Coordinates are [left, top, right, bottom] in the 1536x1024 source sheet.",
+  "roles": {
+    "agent": {
+      "sheet": "agent/agent-sprites.png",
+      "sheet_size": [
+        1536,
+        1024
+      ],
+      "sprites": [
+        {
+          "id": "phone_base",
+          "file": "agent/sprites/phone_base.png",
+          "source_rect": [
+            8,
+            0,
+            685,
+            614
+          ],
+          "size": [
+            677,
+            613
+          ]
+        },
+        {
+          "id": "handset",
+          "file": "agent/sprites/handset.png",
+          "source_rect": [
+            676,
+            5,
+            1040,
+            660
+          ],
+          "size": [
+            364,
+            651
+          ]
+        },
+        {
+          "id": "caller_ghost",
+          "file": "agent/sprites/caller_ghost.png",
+          "source_rect": [
+            1005,
+            10,
+            1520,
+            620
+          ],
+          "size": [
+            513,
+            604
+          ]
+        },
+        {
+          "id": "spectral_mouth",
+          "file": "agent/sprites/spectral_mouth.png",
+          "source_rect": [
+            45,
+            635,
+            540,
+            1015
+          ],
+          "size": [
+            486,
+            370
+          ]
+        },
+        {
+          "id": "ring_energy",
+          "file": "agent/sprites/ring_energy.png",
+          "source_rect": [
+            575,
+            645,
+            1100,
+            1024
+          ],
+          "size": [
+            507,
+            355
+          ]
+        },
+        {
+          "id": "alarm_button",
+          "file": "agent/sprites/alarm_button.png",
+          "source_rect": [
+            1110,
+            695,
+            1520,
+            985
+          ],
+          "size": [
+            399,
+            285
+          ]
+        }
+      ]
+    },
+    "archivist": {
+      "sheet": "archivist/archivist-sprites.png",
+      "sheet_size": [
+        1536,
+        1024
+      ],
+      "sprites": [
+        {
+          "id": "filing_cabinet",
+          "file": "archivist/sprites/filing_cabinet.png",
+          "source_rect": [
+            18,
+            50,
+            395,
+            540
+          ],
+          "size": [
+            371,
+            485
+          ]
+        },
+        {
+          "id": "case_file_stack",
+          "file": "archivist/sprites/case_file_stack.png",
+          "source_rect": [
+            398,
+            20,
+            746,
+            555
+          ],
+          "size": [
+            348,
+            527
+          ]
+        },
+        {
+          "id": "rulebook_open",
+          "file": "archivist/sprites/rulebook_open.png",
+          "source_rect": [
+            712,
+            136,
+            1286,
+            535
+          ],
+          "size": [
+            574,
+            391
+          ]
+        },
+        {
+          "id": "infernal_stamp",
+          "file": "archivist/sprites/infernal_stamp.png",
+          "source_rect": [
+            1272,
+            95,
+            1525,
+            540
+          ],
+          "size": [
+            253,
+            438
+          ]
+        },
+        {
+          "id": "paper_stack",
+          "file": "archivist/sprites/paper_stack.png",
+          "source_rect": [
+            30,
+            552,
+            399,
+            982
+          ],
+          "size": [
+            366,
+            428
+          ]
+        },
+        {
+          "id": "torn_record_slip",
+          "file": "archivist/sprites/torn_record_slip.png",
+          "source_rect": [
+            427,
+            587,
+            767,
+            960
+          ],
+          "size": [
+            336,
+            371
+          ]
+        },
+        {
+          "id": "wax_seal_pin",
+          "file": "archivist/sprites/wax_seal_pin.png",
+          "source_rect": [
+            818,
+            553,
+            1108,
+            962
+          ],
+          "size": [
+            286,
+            409
+          ]
+        },
+        {
+          "id": "paper_fragments",
+          "file": "archivist/sprites/paper_fragments.png",
+          "source_rect": [
+            1140,
+            590,
+            1530,
+            1015
+          ],
+          "size": [
+            352,
+            359
+          ]
+        }
+      ]
+    },
+    "dispatcher": {
+      "sheet": "dispatcher/dispatcher-sprites.png",
+      "sheet_size": [
+        1536,
+        1024
+      ],
+      "sprites": [
+        {
+          "id": "routing_console",
+          "file": "dispatcher/sprites/routing_console.png",
+          "source_rect": [
+            6,
+            0,
+            758,
+            572
+          ],
+          "size": [
+            748,
+            570
+          ]
+        },
+        {
+          "id": "lever_bank",
+          "file": "dispatcher/sprites/lever_bank.png",
+          "source_rect": [
+            746,
+            196,
+            1322,
+            580
+          ],
+          "size": [
+            576,
+            380
+          ]
+        },
+        {
+          "id": "single_lever",
+          "file": "dispatcher/sprites/single_lever.png",
+          "source_rect": [
+            1216,
+            10,
+            1534,
+            592
+          ],
+          "size": [
+            316,
+            580
+          ]
+        },
+        {
+          "id": "red_push_button",
+          "file": "dispatcher/sprites/red_push_button.png",
+          "source_rect": [
+            2,
+            604,
+            417,
+            952
+          ],
+          "size": [
+            415,
+            347
+          ]
+        },
+        {
+          "id": "warning_beacon",
+          "file": "dispatcher/sprites/warning_beacon.png",
+          "source_rect": [
+            391,
+            583,
+            747,
+            995
+          ],
+          "size": [
+            356,
+            408
+          ]
+        },
+        {
+          "id": "analog_gauge",
+          "file": "dispatcher/sprites/analog_gauge.png",
+          "source_rect": [
+            722,
+            596,
+            1109,
+            992
+          ],
+          "size": [
+            385,
+            392
+          ]
+        },
+        {
+          "id": "gauge_needle",
+          "file": "dispatcher/sprites/gauge_needle.png",
+          "source_rect": [
+            1143,
+            621,
+            1246,
+            988
+          ],
+          "size": [
+            99,
+            360
+          ]
+        },
+        {
+          "id": "machine_fx",
+          "file": "dispatcher/sprites/machine_fx.png",
+          "source_rect": [
+            1240,
+            565,
+            1536,
+            1024
+          ],
+          "size": [
+            296,
+            435
+          ]
+        }
+      ]
+    },
+    "shared": {
+      "sheet": "shared/shared-ui-sprites.png",
+      "sheet_size": [
+        1536,
+        1024
+      ],
+      "sprites": [
+        {
+          "id": "paper_note",
+          "file": "shared/sprites/paper_note.png",
+          "source_rect": [
+            29,
+            45,
+            458,
+            606
+          ],
+          "size": [
+            427,
+            559
+          ]
+        },
+        {
+          "id": "receipt_roll",
+          "file": "shared/sprites/receipt_roll.png",
+          "source_rect": [
+            459,
+            62,
+            766,
+            636
+          ],
+          "size": [
+            302,
+            568
+          ]
+        },
+        {
+          "id": "demonic_plant",
+          "file": "shared/sprites/demonic_plant.png",
+          "source_rect": [
+            783,
+            54,
+            1138,
+            632
+          ],
+          "size": [
+            355,
+            571
+          ]
+        },
+        {
+          "id": "watching_eyes",
+          "file": "shared/sprites/watching_eyes.png",
+          "source_rect": [
+            1125,
+            235,
+            1514,
+            490
+          ],
+          "size": [
+            389,
+            255
+          ]
+        },
+        {
+          "id": "red_siren",
+          "file": "shared/sprites/red_siren.png",
+          "source_rect": [
+            11,
+            607,
+            343,
+            945
+          ],
+          "size": [
+            329,
+            335
+          ]
+        },
+        {
+          "id": "push_button",
+          "file": "shared/sprites/push_button.png",
+          "source_rect": [
+            347,
+            670,
+            684,
+            955
+          ],
+          "size": [
+            332,
+            285
+          ]
+        },
+        {
+          "id": "horned_signplate",
+          "file": "shared/sprites/horned_signplate.png",
+          "source_rect": [
+            684,
+            648,
+            1170,
+            944
+          ],
+          "size": [
+            485,
+            292
+          ]
+        },
+        {
+          "id": "cyan_neon_frame",
+          "file": "shared/sprites/cyan_neon_frame.png",
+          "source_rect": [
+            1168,
+            623,
+            1530,
+            966
+          ],
+          "size": [
+            362,
+            343
+          ]
+        }
+      ]
+    }
+  }
+}
