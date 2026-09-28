@@ -3,6 +3,8 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/pages-base.spec.ts",
+  // Loading all three workplaces and creating an invite needs headroom on CI.
+  timeout: 120_000,
   workers: 1,
   use: {
     baseURL: "http://127.0.0.1:4173",
