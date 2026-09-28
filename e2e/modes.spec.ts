@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 
 test("host configures free play and sees registered campaign scenarios", async ({
@@ -139,24 +139,79 @@ test("tutorial guides three connected roles into one shared practice case", asyn
   const accept = host
     .getByRole("region", { name: "Agentenpult und Tastatursteuerung" })
     .getByRole("button", { name: "Anruf annehmen" });
-  await accept.focus();
-  await accept.click();
+  // Exercise the relocated canvas controls as well as the mobile DOM controls.
+  for (const page of pages) {
+    await page.setViewportSize({ width: 1672, height: 941 });
+    await page.evaluate(() => {
+      (document.activeElement as HTMLElement | null)?.blur();
+      document
+        .querySelectorAll<HTMLElement>("[data-open]")
+        .forEach((element) => delete element.dataset.open);
+      const networkPanel =
+        document.querySelector<HTMLDetailsElement>(".network-panel");
+      if (networkPanel) networkPanel.open = false;
+    });
+  }
+  const clickDesk = async (page: Page, x: number, y: number): Promise<void> => {
+    await page.bringToFront();
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
+    const bounds = await page.locator("canvas").boundingBox();
+    if (!bounds) throw new Error("Canvas fehlt");
+    const target = await page.evaluate(
+      ({ x, y }) => document.elementFromPoint(x, y)?.tagName,
+      {
+        x: bounds.x + (x / 1920) * bounds.width,
+        y: bounds.y + (y / 1080) * bounds.height,
+      },
+    );
+    expect(target).toBe("CANVAS");
+    await page.mouse.click(
+      bounds.x + (x / 1920) * bounds.width,
+      bounds.y + (y / 1080) * bounds.height,
+    );
+  };
+  await clickDesk(host, 292, 810);
+  await expect(accept).toBeDisabled();
   await expect(
     host
-      .getByRole("list", { name: "Tutorialaufgaben" })
-      .getByRole("listitem")
+      .getByRole("list", { name: "Tutorialaufgaben", includeHidden: true })
+      .getByRole("listitem", { includeHidden: true })
       .filter({ hasText: "Anruf · Agent" }),
   ).toHaveClass(/is-done/);
-  if (process.env.CAPTURE_UI === "1") {
-    await guests[0]!
+  const archive = guests[0]!;
+  const firstRecord = archive
+    .locator(".archivist-mirror")
+    .getByRole("button", { name: /Der Formularbeamte/ })
+    .first();
+  await clickDesk(archive, 280, 430);
+  await expect(firstRecord).toHaveAttribute("aria-pressed", "true");
+  await clickDesk(archive, 650, 885);
+  await expect(
+    archive
       .locator(".archivist-mirror")
-      .getByRole("button", { name: /Der Formularbeamte/ })
-      .first()
-      .click();
-    await guests[1]!
-      .getByRole("region", { name: "Disponentenpult und Tastatursteuerung" })
-      .getByRole("button", { name: /Ziel: Archiv\./ })
-      .click();
+      .getByRole("button", { name: "✓ VERIFIZIERT", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  const dispatcher = guests[1]!;
+  const archiveTarget = dispatcher
+    .locator(".dispatcher-targets")
+    .getByRole("button", { name: /Ziel: Archiv\./ });
+  const targetIndex = await archiveTarget.evaluate((element) =>
+    Array.from(element.parentElement!.children).indexOf(element),
+  );
+  await clickDesk(dispatcher, 1680, 254 + targetIndex * 38);
+  await expect(archiveTarget).toHaveAttribute("aria-pressed", "true");
+  const firstControl = dispatcher
+    .locator(".dispatcher-controls button")
+    .first();
+  const previousValue = await firstControl.textContent();
+  await clickDesk(dispatcher, 260, 480);
+  await expect(firstControl).not.toHaveText(previousValue!);
+  if (process.env.CAPTURE_UI === "1") {
     await mkdir("docs/ui-acceptance/screenshots", { recursive: true });
     for (const [index, page] of pages.entries()) {
       const role = ["agent", "archivist", "dispatcher"][index]!;

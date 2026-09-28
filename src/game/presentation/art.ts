@@ -8,6 +8,8 @@ import {
   shapePlaceholderKey,
 } from "../../assets/placeholders";
 
+import { workspaceSprite } from "../../assets/workspaceSprites";
+
 const C = TOKENS.color;
 
 export function label(
@@ -323,15 +325,15 @@ export function statusBar(
   scene: Phaser.Scene,
   role: Role,
 ): { update: (view: PublicShiftView) => void } {
-  plate(scene, 82, 32, 1756, 126);
+  workspaceSprite(scene, "iron-frame", 82, 16, 1756, 105);
   const names: Record<Role, string> = {
     agent: "AGENT",
     archivist: "ARCHIV",
     dispatcher: "DISPOSITION",
   };
-  plate(scene, 104, 50, 305, 90, C.bakelite);
-  label(scene, 124, 57, "SCHICHTPLATZ", 17, C.muted);
-  label(scene, 124, 87, names[role], 33);
+  workspaceSprite(scene, "control-housing", 104, 30, 305, 79);
+  label(scene, 124, 37, "SCHICHTPLATZ", 17, C.muted);
+  label(scene, 124, 65, names[role], 33);
   const windows = [
     { x: 424, w: 164, title: "☰ QUEUE" },
     { x: 598, w: 170, title: "◷ SCHICHT" },
@@ -340,30 +342,30 @@ export function statusBar(
     { x: 1345, w: 468, title: "✓ FREIGABEN" },
   ];
   for (const item of windows) {
-    plate(scene, item.x, 49, item.w, 91, C.bakelite);
-    label(scene, item.x + 13, 54, item.title, 17, C.muted);
+    workspaceSprite(scene, "control-housing", item.x, 30, item.w, 79);
+    label(scene, item.x + 13, 36, item.title, 17, C.muted);
   }
-  const queue = label(scene, 446, 83, "—", 37);
-  const queueState = label(scene, 503, 92, "WARTET", 15, C.muted);
-  const clock = label(scene, 621, 86, "—:—", 32);
-  const caseId = label(scene, 1164, 88, "—", 25, C.text, 159);
+  const queue = label(scene, 446, 63, "—", 37);
+  const queueState = label(scene, 503, 74, "WARTET", 15, C.muted);
+  const clock = label(scene, 621, 67, "—:—", 32);
+  const caseId = label(scene, 1164, 67, "—", 25, C.text, 159);
   const stressNames = ["WART", "KESSEL", "AUDIT"];
   const stressReadings = stressNames.map((name, index) => {
     const x = 793 + index * 115;
-    label(scene, x, 88, name, 13, C.muted);
-    return label(scene, x + 69, 85, "—", 24);
+    label(scene, x, 67, name, 13, C.muted);
+    return label(scene, x + 69, 65, "—", 24);
   });
   const stressBars = scene.add.graphics();
   const approvalNames = ["AGENT", "ARCHIV", "ROUTE"];
   const approvals = approvalNames.map((name, index) => {
     const x = 1361 + index * 147;
-    return label(scene, x, 88, `○ ${name} OFFEN`, 16, C.text, 140);
+    return label(scene, x, 67, `○ ${name} OFFEN`, 16, C.text, 140);
   });
   const others = (Object.keys(names) as Role[]).filter((item) => item !== role);
   const colleagues = label(
     scene,
-    106,
-    172,
+    480,
+    137,
     others.map((item) => `${names[item]}  ○`).join("     "),
     22,
     C.muted,
@@ -381,14 +383,14 @@ export function statusBar(
       levels.forEach((value, index) => {
         stressReadings[index]!.setText(String(value));
         const x = 793 + index * 115;
-        stressBars.fillStyle(0x171216).fillRoundedRect(x, 119, 98, 9, 4);
+        stressBars.fillStyle(0x171216).fillRoundedRect(x, 98, 98, 9, 4);
         stressBars
           .fillStyle(
             value >= 75 ? C.error : value >= 50 ? C.warning : C.success,
           )
           .fillRoundedRect(
             x + 2,
-            121,
+            100,
             Math.max(2, Math.min(94, value * 0.94)),
             5,
             2,

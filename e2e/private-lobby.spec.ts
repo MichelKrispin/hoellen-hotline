@@ -188,7 +188,7 @@ test("three browsers join the private lobby and choose distinct roles", async ({
       return canvas && search
         ? Math.max(
             Math.abs(search.x - (canvas.x + (136 * canvas.width) / 1920)),
-            Math.abs(search.y - (canvas.y + (412 * canvas.height) / 1080)),
+            Math.abs(search.y - (canvas.y + (278 * canvas.height) / 1080)),
           )
         : Infinity;
     })

@@ -1746,7 +1746,7 @@ html[data-palette="contrast"] .lobby-setup .scenario-intro {
 
 body.role-game .game-network-overlay,
 body.role-game .game-network-overlay.tutorial-overlay {
-  top: 18vh;
+  top: 12vh;
   bottom: auto;
   width: min(320px, calc(100vw - 16px));
 }

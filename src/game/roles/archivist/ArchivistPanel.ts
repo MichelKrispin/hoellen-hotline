@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { isolateCanvasInput } from "../../../ui/canvasInput";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type {
@@ -6,7 +7,9 @@ import type {
   RoleView,
   RuleEntryView,
 } from "../../state/contracts";
-import { fitText, label, plate } from "../../presentation/art";
+import { fitText, label } from "../../presentation/art";
+import { workspaceSprite } from "../../../assets/workspaceSprites";
+import { ARCHIVE_LAYOUT } from "../../presentation/workspaceLayout";
 import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import { searchArchive } from "./archiveSearch";
@@ -38,13 +41,16 @@ export class ArchivistPanel {
   private readonly prevPage: Phaser.GameObjects.Text;
   private readonly nextPage: Phaser.GameObjects.Text;
   private readonly resultLabels: Phaser.GameObjects.Text[] = [];
-  private readonly resultCards: Phaser.GameObjects.NineSlice[] = [];
+  private readonly resultCards: (
+    Phaser.GameObjects.Image | Phaser.GameObjects.NineSlice
+  )[] = [];
   private readonly pinLabels: Phaser.GameObjects.Text[] = [];
   private readonly dossierTitle: Phaser.GameObjects.Text;
   private readonly dossierText: Phaser.GameObjects.Text;
   private readonly dossierPortrait: Phaser.GameObjects.Image;
   private readonly contentTitle: Phaser.GameObjects.Text;
   private readonly contentText: Phaser.GameObjects.Text;
+  private readonly continuationText: Phaser.GameObjects.Text;
   private readonly contentPage: Phaser.GameObjects.Text;
   private readonly tabMarker: Phaser.GameObjects.Graphics;
   private readonly previousContentPage: Phaser.GameObjects.Text;
@@ -94,6 +100,7 @@ export class ArchivistPanel {
     this.figure = scene.children.getByName(
       "archivist-worker",
     ) as Phaser.GameObjects.Image | null;
+    isolateCanvasInput(this.root);
     this.root.className = "archivist-controls";
     this.root.setAttribute("aria-label", "Archivarbeitsplatz");
     this.search.className = "archive-search";
@@ -178,7 +185,7 @@ export class ArchivistPanel {
 
     for (let index = 0; index < 4; index++) {
       scene.add
-        .zone(1265 + index * 128, 385, 124, 38)
+        .zone(ARCHIVE_LAYOUT.tab(index).x, ARCHIVE_LAYOUT.tab(index).y, 124, 38)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () =>
@@ -190,35 +197,45 @@ export class ArchivistPanel {
     this.dossierTitle = label(
       scene,
       575,
-      407,
+      305,
       "Keine Akte geöffnet",
       29,
       C.ink,
       470,
     );
-    this.dossierText = label(scene, 575, 462, "", 21, C.ink, 475);
+    this.dossierText = label(scene, 575, 370, "", 21, C.ink, 475);
     this.dossierText.setLineSpacing(6);
     this.dossierPortrait = placeholder(
       scene,
       "soul",
       1075,
-      468,
+      380,
       100,
       125,
     ).setVisible(false);
-    label(scene, 1072, 612, "BILD-AKTE", 15, C.ink);
+    label(scene, 1072, 524, "BILD-AKTE", 15, C.ink);
     this.tabMarker = scene.add.graphics();
     this.contentTitle = label(
       scene,
       1280,
-      439,
+      347,
       "AKTIVE REGELN",
       24,
       C.ink,
       465,
     );
-    this.contentText = label(scene, 1280, 491, "", 20, C.ink, 465);
+    this.contentText = label(scene, 1280, 420, "", 20, C.ink, 205);
     this.contentText.setLineSpacing(5);
+    label(scene, 1547, 347, "FORTSETZUNG", 20, C.ink, 205);
+    this.continuationText = label(
+      scene,
+      1547,
+      420,
+      "",
+      20,
+      C.ink,
+      205,
+    ).setLineSpacing(5);
     this.previousContentPage = label(scene, 1280, 778, "◀", 20, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeContentPage(-1));
@@ -226,10 +243,10 @@ export class ArchivistPanel {
     this.nextContentPage = label(scene, 1740, 778, "▶", 20, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeContentPage(1));
-    this.drawer = placeholder(scene, "button", 445, 489, 34, 17);
-    this.pageLabel = label(scene, 130, 519, "", 18, C.text);
-    this.prevPage = label(scene, 412, 519, "◀", 20);
-    this.nextPage = label(scene, 458, 519, "▶", 20);
+    this.drawer = placeholder(scene, "button", 445, 345, 34, 17);
+    this.pageLabel = label(scene, 130, 768, "", 18, C.text);
+    this.prevPage = label(scene, 412, 768, "◀", 20);
+    this.nextPage = label(scene, 458, 768, "▶", 20);
     this.prevPage
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changePage(-1));
@@ -237,13 +254,11 @@ export class ArchivistPanel {
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changePage(1));
     for (let i = 0; i < 3; i++) {
-      const y = 552 + i * 57;
-      this.resultCards.push(
-        plate(scene, 124, y, 360, 49, C.paper, 0x9d7155, 6),
-      );
-      const text = label(scene, 140, y + 10, "", 20, C.ink, 326);
+      const { x, y, w, h } = ARCHIVE_LAYOUT.result(i);
+      this.resultCards.push(workspaceSprite(scene, "paper-card", x, y, w, h));
+      const text = label(scene, 136, y + 22, "", 20, C.ink, 310);
       scene.add
-        .zone(124, y, 360, 49)
+        .zone(x, y, w, h)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.selectRecord(i));
@@ -253,7 +268,7 @@ export class ArchivistPanel {
       const text = label(
         scene,
         130,
-        850 + i * 43,
+        897 + i * 43,
         `◇ PIN ${i + 1}: frei`,
         20,
         C.text,
@@ -265,14 +280,19 @@ export class ArchivistPanel {
       this.pinLabels.push(text);
     }
     for (const [index, stamp] of STAMPS.entries()) {
-      const x = 550 + index * 220;
-      const text = label(scene, x + 12, 921, STAMP_LABELS[index]!, 18);
+      const { x, y, w, h } = ARCHIVE_LAYOUT.stamp(index);
+      const text = label(scene, x + 12, 945, STAMP_LABELS[index]!, 18);
       text
+        .setInteractive({ useHandCursor: true })
+        .on("pointerdown", () => this.stamp(stamp, index));
+      scene.add
+        .zone(x, y, w, h)
+        .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.stamp(stamp, index));
       this.stampLabels.push(text);
     }
-    this.stampStatus = label(scene, 575, 798, "Noch kein Stempel.", 21, C.ink);
+    this.stampStatus = label(scene, 575, 764, "Noch kein Stempel.", 21, C.ink);
     this.stampImprintFrame = scene.add.graphics();
     this.stampImprintFrame
       .lineStyle(4, 0x8e3d31)
@@ -280,7 +300,7 @@ export class ArchivistPanel {
     this.stampImprint = label(scene, 1057, 689, "", 18, "#813529", 126);
     this.stampImprint.setVisible(false);
     this.stampImprintFrame.setVisible(false);
-    this.approval = label(scene, 1270, 916, "◇ Freigabe offen", 22);
+    this.approval = label(scene, 1270, 926, "◇ Freigabe offen", 22);
     this.approval
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
@@ -293,13 +313,13 @@ export class ArchivistPanel {
     const scaleY = bounds.height / 1080;
     Object.assign(this.search.style, {
       left: `${bounds.left + 136 * scaleX}px`,
-      top: `${bounds.top + 412 * scaleY}px`,
+      top: `${bounds.top + 278 * scaleY}px`,
       width: `${211 * scaleX}px`,
       height: `${45 * scaleY}px`,
     });
     Object.assign(this.filter.style, {
       left: `${bounds.left + 354 * scaleX}px`,
-      top: `${bounds.top + 412 * scaleY}px`,
+      top: `${bounds.top + 278 * scaleY}px`,
       width: `${118 * scaleX}px`,
       height: `${45 * scaleY}px`,
     });
@@ -342,7 +362,7 @@ export class ArchivistPanel {
   private changeContentPage(delta: number): void {
     this.contentPageIndex = Math.max(
       0,
-      Math.min(this.contentPages.length - 1, this.contentPageIndex + delta),
+      Math.min(this.contentPages.length - 1, this.contentPageIndex + delta * 2),
     );
     this.render();
   }
@@ -361,7 +381,7 @@ export class ArchivistPanel {
         const separator = first ? (page ? "\n" : "") : " ";
         const candidate = page + separator + word;
         this.contentText.setText(candidate);
-        if (page && this.contentText.height > 278) {
+        if (page && this.contentText.height > 335) {
           pages.push(page);
           page = word;
         } else page = candidate;
@@ -547,17 +567,20 @@ export class ArchivistPanel {
     for (let i = 0; i < 3; i++) {
       const record = this.results[this.page * 3 + i];
       const selectedCard = record?.id === this.selectedRecordId;
-      this.resultCards[i]!.setX(selectedCard ? 132 : 124);
-      this.resultLabels[i]!.setX(selectedCard ? 148 : 140);
+      this.resultCards[i]!.setX(selectedCard ? 124 : 116);
+      this.resultLabels[i]!.setX(selectedCard ? 144 : 136);
       fitText(
         this.resultLabels[i]!,
         record
-          ? `${record.id === this.selectedRecordId ? "▸" : "◇"} ${record.aliases[0] ?? record.name}`
+          ? `${record.id === this.selectedRecordId ? "▸" : "◇"} ${record.aliases[0] ?? record.name}\n${record.occupation || "–"}\n${record.tags
+              .slice(0, 2)
+              .map((id) => role.tagLabels[id] ?? id)
+              .join(" · ")}`
           : i === 0 && this.results.length === 0
             ? "Keine passende Akte"
             : "",
-        326,
-        30,
+        310,
+        86,
         20,
         16,
       );
@@ -566,19 +589,19 @@ export class ArchivistPanel {
         const text = this.resultLabels[i]!;
         this.scene.tweens.killTweensOf(card);
         this.scene.tweens.killTweensOf(text);
-        card.setAlpha(0.25).setY(552 + i * 57 + 10);
-        text.setAlpha(0.25).setY(552 + i * 57 + 20);
+        card.setAlpha(0.25).setY(ARCHIVE_LAYOUT.result(i).y + 10);
+        text.setAlpha(0.25).setY(ARCHIVE_LAYOUT.result(i).y + 32);
         this.scene.tweens.add({
           targets: card,
           alpha: 1,
-          y: 552 + i * 57,
+          y: ARCHIVE_LAYOUT.result(i).y,
           duration: 180,
           delay: i * 55,
         });
         this.scene.tweens.add({
           targets: text,
           alpha: 1,
-          y: 552 + i * 57 + 10,
+          y: ARCHIVE_LAYOUT.result(i).y + 22,
           duration: 180,
           delay: i * 55,
         });
@@ -607,7 +630,7 @@ export class ArchivistPanel {
         ? this.detail(selected, role)
         : "Karte im linken Schubfach wählen.\nAlias, Ereignis und Beschwerde mit dem Gespräch abgleichen.",
       475,
-      310,
+      365,
       21,
       15,
     );
@@ -626,16 +649,16 @@ export class ArchivistPanel {
       .fillStyle(0x30232a)
       .fillTriangle(
         1317 + activeTab * 128,
-        427,
+        333,
         1337 + activeTab * 128,
-        427,
+        333,
         1327 + activeTab * 128,
-        436,
+        342,
       );
     this.tabButtons.forEach((button, index) =>
       button.setAttribute("aria-pressed", String(index === activeTab)),
     );
-    fitText(this.contentTitle, title, 465, 38, 24, 19);
+    fitText(this.contentTitle, title, 205, 62, 23, 17);
     const body =
       this.tab === "dossier"
         ? selected
@@ -661,24 +684,26 @@ export class ArchivistPanel {
       );
     }
     this.contentText.setText(this.contentPages[this.contentPageIndex] ?? "");
-    const hasContentPages = this.contentPages.length > 1;
+    this.continuationText.setText(
+      this.contentPages[this.contentPageIndex + 1] ?? "",
+    );
+    const hasContentPages = this.contentPages.length > 2;
     this.contentPage.setText(
       hasContentPages
-        ? `Seite ${this.contentPageIndex + 1} / ${this.contentPages.length}`
+        ? `${this.contentPageIndex + 1}–${Math.min(this.contentPageIndex + 2, this.contentPages.length)} / ${this.contentPages.length}`
         : "",
     );
     this.previousContentPage.setVisible(hasContentPages);
     this.nextContentPage.setVisible(hasContentPages);
     this.previousContentPage.setAlpha(this.contentPageIndex === 0 ? 0.35 : 1);
     this.nextContentPage.setAlpha(
-      this.contentPageIndex === this.contentPages.length - 1 ? 0.35 : 1,
+      this.contentPageIndex + 2 >= this.contentPages.length ? 0.35 : 1,
     );
     this.previousContentButton.disabled =
       !hasContentPages || this.contentPageIndex === 0;
     this.nextContentButton.disabled =
-      !hasContentPages ||
-      this.contentPageIndex === this.contentPages.length - 1;
-    const accessibleDetail = `${selected ? `${selected.name}. ${this.detail(selected, role)}. ` : ""}${title}. ${this.contentPages[this.contentPageIndex] ?? ""}`;
+      !hasContentPages || this.contentPageIndex + 2 >= this.contentPages.length;
+    const accessibleDetail = `${selected ? `${selected.name}. ${this.detail(selected, role)}. ` : ""}${title}. ${this.contentPages.slice(this.contentPageIndex, this.contentPageIndex + 2).join(" ")}`;
     if (this.mirrorDetail.textContent !== accessibleDetail)
       this.mirrorDetail.textContent = accessibleDetail;
     for (let i = 0; i < 2; i++) {

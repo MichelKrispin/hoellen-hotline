@@ -17,14 +17,15 @@ export class PresentationSystem {
     private readonly network: GameNetwork,
   ) {
     const figure = placeholder(scene, "warning-light", 52, 736, 48, 48);
-    const plant = placeholder(scene, "plant", 1795, 740, 110, 120);
-    const pipes = placeholder(scene, "pipe", 1388, 275, 34, 250);
-    const gauge = placeholder(scene, "gauge-face", 1798, 688, 64, 64);
+    const plant = placeholder(scene, "plant", 1848, 842, 65, 95);
+    const pipes = placeholder(scene, "pipe", 1388, 275, 14, 250);
+    const gauge = placeholder(scene, "gauge-face", 1850, 720, 54, 54);
     const demons = placeholder(scene, "demon-eyes", 235, 400, 68, 24);
     this.graphics = { figure, plant, pipes, gauge, demons };
     for (const graphic of Object.values(this.graphics))
       graphic.setDepth(5).setAlpha(0.72);
     if (network.role !== "agent") pipes.setVisible(false);
+    if (network.role === "dispatcher") demons.setPosition(1848, 655);
     if (network.role === "archivist") {
       demons.setVisible(false);
     }

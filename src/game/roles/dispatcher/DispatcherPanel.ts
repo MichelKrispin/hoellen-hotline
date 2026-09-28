@@ -1,9 +1,11 @@
 import Phaser from "phaser";
+import { isolateCanvasInput } from "../../../ui/canvasInput";
 import type { GameNetwork } from "../../../net/gameNetwork";
 import type { CaseId } from "../../core/ids";
 import type { RoleView } from "../../state/contracts";
-import { controlSurface, fitText, label } from "../../presentation/art";
-import { bakeliteControl } from "../../presentation/uiPrimitives";
+import { fitText, label } from "../../presentation/art";
+import { workspaceSprite } from "../../../assets/workspaceSprites";
+import { DISPATCH_LAYOUT } from "../../presentation/workspaceLayout";
 import { placeholder } from "../../../assets/placeholders";
 import { TOKENS } from "../../../ui/tokens";
 import type { AudioSystem } from "../../../audio/AudioSystem";
@@ -48,12 +50,21 @@ export class DispatcherPanel {
   private readonly readyButton = document.createElement("button");
   private readonly commitButton = document.createElement("button");
   private readonly targetLabels: Phaser.GameObjects.Text[] = [];
-  private readonly targetSurfaces: Phaser.GameObjects.NineSlice[] = [];
+  private readonly targetSurfaces: (
+    Phaser.GameObjects.Image | Phaser.GameObjects.NineSlice
+  )[] = [];
   private readonly targetFrames: Phaser.GameObjects.Graphics[] = [];
   private readonly controlLabels: Phaser.GameObjects.Text[] = [];
   private readonly controlValues: Phaser.GameObjects.Text[] = [];
   private readonly controlRanges: Phaser.GameObjects.Text[] = [];
-  private readonly controlFaces: Phaser.GameObjects.Graphics[] = [];
+  private readonly controlFaces: {
+    dial: Phaser.GameObjects.Container;
+    toggle: Phaser.GameObjects.Container;
+    slider: Phaser.GameObjects.Container;
+    pointer: Phaser.GameObjects.Image;
+    handle: Phaser.GameObjects.Image;
+    thumb: Phaser.GameObjects.Image;
+  }[] = [];
   private readonly summaryTitle: Phaser.GameObjects.Text;
   private readonly summaryText: Phaser.GameObjects.Text;
   private readonly summaryPageLabel: Phaser.GameObjects.Text;
@@ -105,6 +116,7 @@ export class DispatcherPanel {
     this.warningLight = scene.children.getByName(
       "dispatcher-warning-light",
     ) as Phaser.GameObjects.Image | null;
+    isolateCanvasInput(this.mirror);
     this.mirror.className = "dispatcher-accessible-controls";
     this.mirror.setAttribute(
       "aria-label",
@@ -156,22 +168,21 @@ export class DispatcherPanel {
     window.addEventListener("pointerdown", this.outsidePointer);
 
     for (let i = 0; i < 12; i++) {
-      const x = 1313 + (i % 2) * 237;
-      const y = 380 + Math.floor(i / 2) * 53;
-      const surface = bakeliteControl(scene, x, y, 225, 51);
+      const { x, y, w, h } = DISPATCH_LAYOUT.target(i);
+      const surface = workspaceSprite(scene, "paper-card", x, y, w, h);
       this.targetSurfaces.push(surface);
       scene.add
         .graphics()
         .fillStyle(colors[i]!)
-        .fillCircle(x + 17, y + 26, 6);
+        .fillCircle(x + 13, y + 17, 6);
       const frame = scene.add
         .graphics()
         .lineStyle(3, C.warning)
-        .strokeRoundedRect(x + 5, y + 5, 215, 41, 7)
+        .strokeRoundedRect(x + 3, y + 3, w - 6, h - 6, 7)
         .setVisible(false);
-      const text = label(scene, x + 31, y + 10, "", 19, C.text, 181);
+      const text = label(scene, x + 28, y + 5, "", 19, C.ink, 250);
       scene.add
-        .zone(x, y, 225, 51)
+        .zone(x, y, w, h)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.selectDestination(i));
@@ -179,103 +190,129 @@ export class DispatcherPanel {
       this.targetLabels.push(text);
     }
     for (let i = 0; i < 6; i++) {
-      const x = 555 + (i % 3) * 233;
-      const y = 575 + Math.floor(i / 3) * 102;
-      controlSurface(scene, x, y, 219, 88, C.metalEdge);
-      const name = label(scene, x + 15, y + 10, "", 20, C.text, 190);
-      const value = label(scene, x + 15, y + 45, "", 23, C.text, 130);
-      const face = scene.add.graphics();
-      const range = label(scene, x + 151, y + 70, "", 13, C.muted, 58);
+      const { x, y, w, h } = DISPATCH_LAYOUT.control(i);
+      workspaceSprite(scene, "control-housing", x, y, w, h);
+      const name = label(scene, x + 17, y + 15, "", 22, C.text, 260);
+      workspaceSprite(scene, "paper-card", x + 28, y + 173, 240, 36);
+      const value = label(scene, x + 43, y + 179, "", 23, C.ink, 210);
+      const range = label(scene, x + 235, y + 143, "", 15, C.muted, 50);
+      const dialFace = workspaceSprite(scene, "dial-face", -62, -62, 124, 124);
+      const pointer = workspaceSprite(
+        scene,
+        "dial-pointer",
+        0,
+        0,
+        124,
+        124,
+      ) as Phaser.GameObjects.Image;
+      pointer.setOrigin(0.5);
+      const dial = scene.add.container(x + w / 2, y + 105, [dialFace, pointer]);
+      const track = workspaceSprite(scene, "switch-track", -60, -60, 120, 120);
+      const handle = workspaceSprite(
+        scene,
+        "switch-handle",
+        -21,
+        -44,
+        42,
+        49,
+      ) as Phaser.GameObjects.Image;
+      const toggle = scene.add.container(x + w / 2, y + 105, [track, handle]);
+      const rail = workspaceSprite(scene, "slider-track", -110, -26, 220, 55);
+      const thumb = workspaceSprite(
+        scene,
+        "slider-thumb",
+        -18,
+        -26,
+        36,
+        55,
+      ) as Phaser.GameObjects.Image;
+      const slider = scene.add.container(x + w / 2, y + 105, [rail, thumb]);
+      this.controlFaces.push({ dial, toggle, slider, pointer, handle, thumb });
       scene.add
-        .zone(x, y, 219, 88)
+        .zone(x, y, w, h)
         .setOrigin(0)
         .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => this.cycleControl(i));
       this.controlLabels.push(name);
       this.controlValues.push(value);
-      this.controlFaces.push(face);
       this.controlRanges.push(range);
     }
-    this.summaryTitle = label(scene, 575, 351, "MASCHINENAUFTRAG", 27, C.ink);
+    this.summaryTitle = label(scene, 1120, 245, "ZIELANFORDERUNGEN", 27, C.ink);
     this.summaryText = label(
       scene,
-      575,
-      398,
+      1120,
+      304,
       "Ziel vorwählen.",
       20,
       C.ink,
-      650,
+      350,
     );
     this.summaryText.setLineSpacing(4);
-    this.previousSummaryPage = label(scene, 575, 483, "◀", 19, C.ink)
+    this.previousSummaryPage = label(scene, 1120, 792, "◀", 19, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeSummaryPage(-1));
-    this.summaryPageLabel = label(scene, 780, 483, "", 18, C.ink);
-    this.nextSummaryPage = label(scene, 1215, 483, "▶", 19, C.ink)
+    this.summaryPageLabel = label(scene, 1210, 792, "", 18, C.ink);
+    this.nextSummaryPage = label(scene, 1450, 792, "▶", 19, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeSummaryPage(1));
-    controlSurface(scene, 1313, 738, 474, 62, C.metalEdge);
-    this.incidentText = label(scene, 1328, 748, "", 18, C.text, 440);
+    this.incidentText = label(scene, 120, 932, "", 21, C.text, 890);
     this.incidentText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
     scene.add
-      .zone(1313, 738, 474, 62)
+      .zone(96, 916, 971, 70)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
-    controlSurface(scene, 1313, 813, 474, 55, C.warning);
-    this.prepareText = label(scene, 1328, 826, "ANLAGE VORBEREITEN", 22);
+    this.prepareText = label(scene, 1115, 874, "ANLAGE VORBEREITEN", 22);
     this.prepareText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
     scene.add
-      .zone(1313, 813, 474, 55)
+      .zone(1090, 852, 411, 72)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
-    controlSurface(scene, 1313, 884, 474, 55, C.success);
-    this.readyText = label(scene, 1328, 897, "BEREIT MELDEN", 22);
+    this.readyText = label(scene, 1115, 956, "BEREIT MELDEN", 22);
     this.readyText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
     scene.add
-      .zone(1313, 884, 474, 55)
+      .zone(1090, 939, 411, 65)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
-    controlSurface(scene, 584, 795, 642, 181, C.error);
     this.leverCheckText = label(
       scene,
-      634,
-      813,
+      1540,
+      744,
       "Ziel: — · Bedingungen offen",
       19,
       C.text,
-      535,
+      270,
     );
-    this.commitText = label(scene, 634, 856, "↗ HEBEL SPERRE", 34);
+    this.commitText = label(scene, 1540, 804, "↗ HEBEL SPERRE", 25);
     this.guardTrack = scene.add.graphics();
     this.guardText = label(
       scene,
-      634,
-      927,
+      1540,
+      969,
       "SCHUTZBÜGEL: GESCHLOSSEN",
       17,
       C.muted,
-      440,
+      270,
     );
     this.commitText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
     scene.add
-      .zone(584, 795, 642, 181)
+      .zone(1512, 721, 328, 283)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
     const arm = placeholder(scene, "lever-arm", -40, -135, 80, 150);
-    this.leverArm = scene.add.container(1188, 936, [arm]);
-    this.feedbackText = label(scene, 1320, 953, "", 18, C.text, 460);
+    this.leverArm = scene.add.container(1670, 954, [arm]);
+    this.feedbackText = label(scene, 1120, 1020, "", 18, C.text, 710);
     this.unsubscribe = network.subscribe(() => this.render());
   }
 
@@ -304,7 +341,7 @@ export class DispatcherPanel {
         const separator = first ? (page ? "\n" : "") : " ";
         const candidate = page + separator + word;
         this.summaryText.setText(candidate);
-        if (page && this.summaryText.height > 72) {
+        if (page && this.summaryText.height > 470) {
           pages.push(page);
           page = word;
         } else page = candidate;
@@ -361,35 +398,23 @@ export class DispatcherPanel {
     control: DispatcherView["controls"][number] | undefined,
   ): void {
     const face = this.controlFaces[index]!;
-    face.clear();
+    face.dial.setVisible(control?.kind === "dial");
+    face.toggle.setVisible(control?.kind === "toggle");
+    face.slider.setVisible(
+      Boolean(control && control.kind !== "dial" && control.kind !== "toggle"),
+    );
     if (!control) return;
-    const x = 555 + (index % 3) * 233 + 180;
-    const y = 575 + Math.floor(index / 3) * 102 + 53;
     const position = Math.max(
       0,
       control.values.findIndex((value) => value === control.value),
     );
     const fraction =
       control.values.length > 1 ? position / (control.values.length - 1) : 0;
-    face.lineStyle(3, C.metalEdge);
-    if (control.kind === "dial") {
-      face.fillStyle(C.bakelite).fillCircle(x, y, 19);
-      face.strokeCircle(x, y, 19);
-      const angle = Math.PI * (0.75 + fraction * 1.5);
-      face
-        .lineStyle(4, C.warning)
-        .lineBetween(x, y, x + Math.cos(angle) * 15, y + Math.sin(angle) * 15);
-    } else if (control.kind === "toggle") {
-      face.fillStyle(C.bakelite).fillRoundedRect(x - 13, y - 22, 26, 44, 11);
-      face.strokeRoundedRect(x - 13, y - 22, 26, 44, 11);
-      face.fillStyle(C.warning).fillCircle(x, y + (fraction ? -10 : 10), 8);
-    } else {
-      face.lineBetween(x - 20, y, x + 20, y);
-      face
-        .fillStyle(C.warning)
-        .fillRoundedRect(x - 22 + fraction * 36, y - 10, 9, 20, 3);
-    }
+    face.pointer.setRotation((fraction - 0.5) * Math.PI * 1.5);
+    face.handle.setY(fraction ? -50 : -5);
+    face.thumb.setX(-102 + fraction * 168);
   }
+
   private recover(): void {
     const id = this.caseId();
     if (id && this.current()?.incident)
@@ -453,14 +478,14 @@ export class DispatcherPanel {
           placeholder(
             this.scene,
             "spark",
-            1160 + i * 12,
-            810 - (i % 3) * 17,
+            1630 + i * 12,
+            860 - (i % 3) * 17,
             24,
             24,
           ),
         );
       }
-    sparks.add(placeholder(this.scene, "smoke", 1120, 790, 110, 60));
+    sparks.add(placeholder(this.scene, "smoke", 1620, 840, 110, 60));
     if (calm) this.scene.time.delayedCall(350, () => sparks.destroy());
     else
       this.scene.tweens.add({
@@ -556,8 +581,8 @@ export class DispatcherPanel {
         fitText(
           text,
           `${destination.id === shared.selectedDestination ? "▶ " : ""}${destination.glyph} ${destination.name}`,
-          181,
-          31,
+          250,
+          26,
           19,
           15,
         );
@@ -570,7 +595,7 @@ export class DispatcherPanel {
         );
         this.targetSurfaces[i]!.setAlpha(1);
       } else {
-        fitText(text, "—", 181, 31, 19, 15).setAlpha(0.35);
+        fitText(text, "—", 250, 26, 19, 15).setAlpha(0.35);
         button.textContent = "Ziel nicht belegt";
         button.disabled = true;
         button.setAttribute("aria-pressed", "false");
@@ -581,12 +606,12 @@ export class DispatcherPanel {
     }
     for (let i = 0; i < 6; i++) {
       const control = role.controls[i];
-      fitText(this.controlLabels[i]!, control?.label ?? "–", 190, 28, 20, 16);
+      fitText(this.controlLabels[i]!, control?.label ?? "–", 260, 30, 22, 17);
       fitText(
         this.controlValues[i]!,
         control ? `${showValue(control.value)}  ↻` : "",
-        130,
-        32,
+        210,
+        28,
         23,
         15,
       );
@@ -604,8 +629,8 @@ export class DispatcherPanel {
     fitText(
       this.summaryTitle,
       selected ? `${selected.glyph} ${selected.name}` : "ZIELBANK",
-      650,
-      38,
+      350,
+      46,
       27,
       22,
     );
@@ -679,8 +704,8 @@ export class DispatcherPanel {
           ? `⚠ ${incident.name}\n↗ STÖRUNG BEHEBEN`
           : `⚠ ${incident.name}: ${incident.diagnosis}`
         : "✓ Keine aktive Störung",
-      440,
-      54,
+      890,
+      46,
       19,
       17,
     );
@@ -695,7 +720,7 @@ export class DispatcherPanel {
     fitText(
       this.prepareText,
       role.prepared ? "✓ ANLAGE VORBEREITET" : "ANLAGE VORBEREITEN",
-      440,
+      360,
       32,
       23,
       17,
@@ -708,7 +733,7 @@ export class DispatcherPanel {
     fitText(
       this.readyText,
       shared.approvals.dispatcher ? "✓ BEREIT · WIDERRUFEN" : "BEREIT MELDEN",
-      440,
+      360,
       32,
       23,
       17,
@@ -732,18 +757,18 @@ export class DispatcherPanel {
     fitText(
       this.leverCheckText,
       `ZIEL: ${selected?.name ?? "—"} · ${missing.length ? `FEHLT: ${missing.join(", ")}` : "TECHNIK UND FREIGABEN ✓"}`,
-      535,
-      36,
+      270,
+      50,
       19,
       15,
     );
     this.guardTrack.clear();
-    this.guardTrack.fillStyle(0x171216).fillRoundedRect(634, 917, 460, 6, 3);
+    this.guardTrack.fillStyle(0x171216).fillRoundedRect(1540, 952, 268, 6, 3);
     this.guardTrack
       .fillStyle(this.armed ? C.success : C.warning)
-      .fillRoundedRect(this.armed ? 1053 : 634, 913, 42, 14, 4);
+      .fillRoundedRect(this.armed ? 1765 : 1540, 948, 42, 14, 4);
     this.guardText.setText(
-      `SCHUTZBÜGEL: ${this.armed ? "OFFEN · ERNEUT ZIEHEN" : "GESCHLOSSEN"}`,
+      `BÜGEL: ${this.armed ? "OFFEN · ZIEHEN" : "GESCHLOSSEN"}`,
     );
     fitText(
       this.commitText,
@@ -752,10 +777,10 @@ export class DispatcherPanel {
           ? "↗ JETZT ZUSTELLEN"
           : "↗ HEBEL ENTSICHERN"
         : "↗ HEBEL GESPERRT",
-      560,
-      55,
-      34,
-      24,
+      270,
+      50,
+      25,
+      19,
     );
     this.commitText.setAlpha(canCommit ? 1 : 0.5);
     this.commitButton.textContent = canCommit
@@ -767,7 +792,7 @@ export class DispatcherPanel {
     fitText(
       this.feedbackText,
       this.network.error || this.feedback,
-      460,
+      710,
       40,
       18,
       15,

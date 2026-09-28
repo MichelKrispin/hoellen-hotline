@@ -1,6 +1,6 @@
 # Art Bible – Batch 1
 
-Stand: 2026-09-23. Quellen: `titlescreen_mockup.png` und `gameplay_mockup.png`. Die Bilder geben Stimmung und Formen vor, keine verbindlichen Pixelpositionen. Jeder Spieler sieht einen Arbeitsplatz desselben Kontrollraums.
+Stand: 2026-09-28. Zusätzliche Rollenreferenzen: `mockups/agent.png`, `mockups/archivist.png`, `mockups/dispatch.png`. Quellen: `titlescreen_mockup.png` und `gameplay_mockup.png`. Die Bilder geben Stimmung und Formen vor, keine verbindlichen Pixelpositionen. Jeder Spieler sieht einen Arbeitsplatz desselben Kontrollraums.
 
 ## Formensprache und Komik
 
@@ -64,3 +64,9 @@ Die gemeinsame Leiste zeigt nur `PublicShiftView`: Queue, Schichtzeit, Teamstres
 - Kontrastmodus: helle Textflächen und dickere Trennlinien, keine transparenten Textträger; Neon bleibt dekorativ. Statussymbole und Wörter sind dauerhaft sichtbar.
 
 Die Zoom- und Kontrastschalter, Tooltips und Fokussteuerung werden mit den bedienbaren Rollenmechaniken umgesetzt. Die Stilprobe bietet bereits die visuelle Grundlage und respektiert reduzierte Bewegung.
+
+## Rollenmockups: erster Umbau
+
+Die Spielviews übernehmen jetzt die Arbeitsrichtung der lokalen Rollenmockups. Der Agent hat links Figur und Telefon, mittig den cyanfarbenen Seelenmonitor, eine separate Gesprächsfläche und fünf Antwortstreifen, rechts das öffentliche Hinweisbrett. Im Archiv stehen Suche und größere Trefferkarten links, das Dossier mittig, das offene Regelbuch rechts und Stempel sowie Pins unten. Die Disposition verwendet eine große 3×2-Reglerbank links, ein Anforderungs-Klemmbrett mittig und zwölf vertikale Zielschalter mit separatem Hebelgehäuse rechts.
+
+Die Kopfzeile bleibt eine gemeinsame Anzeige aus öffentlichen Spieldaten. Die Grafik besteht aus einzelnen, textfreien Placeholder-Sprites; bewegliche Zeiger, Griffe und Schieber bleiben eigene Teile. Der [Sprite-Katalog mit Austauschregeln](../src/assets/source/workspaces/README.md) beschreibt die 18 neuen Bauteile, Dateinamen, 9-Slice-Ränder und Drehpunkte. Bestehende Kulissen- und Figurenassets ergänzen diese Bauteile. Die endgültige Illustration und detaillierte Requisiten aus den Mockups folgen später.
