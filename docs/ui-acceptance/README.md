@@ -22,7 +22,7 @@ Die Aufnahmen zeigen den ersten Umbau nach `mockups/agent.png`, `mockups/archivi
 Screenshots neu erstellen:
 
 ```sh
-CAPTURE_UI=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npx playwright test e2e/modes.spec.ts --grep tutorial --workers=1
+CAPTURE_UI=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npm run test:e2e:extended -- e2e/modes.spec.ts --grep tutorial
 ```
 
 Die Aufnahmen dokumentieren den Layout- und Sprite-Umbau; die detaillierte Illustration aus den Mockups ist noch offen. Der [Sprite-Katalog](../../src/assets/source/workspaces/README.md) beschreibt Austauschformate und 9-Slice-Ränder.

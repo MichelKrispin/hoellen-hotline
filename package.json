@@ -8,12 +8,21 @@
     "build": "tsc --noEmit && vite build",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "test": "vitest run src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm test && npm run content:validate && npm run typecheck",
     "content:validate": "node --import tsx tools/content-validate.ts",
     "content:analyze": "node --import tsx tools/analyze-content.ts",
     "assets:build": "node --import tsx tools/build-assets.ts",
     "audio:build": "node --import tsx tools/build-audio.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:gameplay": "playwright test -c playwright.extended.config.ts --grep @gameplay",
+    "test:e2e:extended": "playwright test -c playwright.extended.config.ts --grep @extended",
+    "test:e2e:network": "playwright test -c playwright.network.config.ts",
+    "test:e2e:one-link": "playwright test -c playwright.one-link.config.ts",
+    "test:e2e:firefox": "playwright test -c playwright.firefox.config.ts",
+    "test:e2e:pages": "playwright test -c playwright.pages.config.ts"
   },
   "dependencies": {
     "peerjs": "^1.5.5",

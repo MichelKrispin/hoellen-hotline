@@ -1,4 +1,10 @@
-import { expect, test, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Browser,
+  type Page,
+  type TestInfo,
+} from "@playwright/test";
 
 // Keep automated link transfers inside the product's 60-second reconnect window.
 async function clickAndReadLink(
@@ -52,10 +58,29 @@ async function pasteAndClick(
   );
 }
 
-test("three browsers join the private lobby and choose distinct roles", async ({
-  browser,
-}, testInfo) => {
-  test.setTimeout(900_000);
+test(
+  "three roles complete one case with keyboard controls and manual reconnect",
+  { tag: "@gameplay" },
+  async ({ browser }, testInfo) => {
+    test.setTimeout(240_000);
+    await playPrivateShift(browser, testInfo, false);
+  },
+);
+
+test(
+  "three roles finish an eight-case shift and open the final report",
+  { tag: "@extended" },
+  async ({ browser }, testInfo) => {
+    test.setTimeout(900_000);
+    await playPrivateShift(browser, testInfo, true);
+  },
+);
+
+async function playPrivateShift(
+  browser: Browser,
+  testInfo: TestInfo,
+  completeShift: boolean,
+): Promise<void> {
   const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
@@ -347,6 +372,21 @@ test("three browsers join the private lobby and choose distinct roles", async ({
       .getByRole("region", { name: "Netzwerkstatus" })
       .locator(".network-reaction img"),
   ).toBeVisible();
+  await expect(machine.getByRole("status")).toContainText("Ergebnis:");
+  await expect(
+    agentControls.getByRole("button", { name: "Anruf annehmen" }),
+  ).toBeEnabled();
+  if (!completeShift) {
+    // Verify the transition to another case, without repeating the same routing
+    // controls seven more times. Rules and full-shift completion also have unit tests.
+    await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
+    await expect(machine).toHaveAttribute(
+      "data-case-id",
+      "core.scenario.first.case.2",
+    );
+    await context.close();
+    return;
+  }
   for (let caseNumber = 2; caseNumber <= 8; caseNumber++) {
     await agentControls.getByRole("button", { name: "Anruf annehmen" }).click();
     await expect(machine).toHaveAttribute(
@@ -417,4 +457,4 @@ test("three browsers join the private lobby and choose distinct roles", async ({
     .click();
   await expect(report).toBeVisible();
   await context.close();
-});
+}

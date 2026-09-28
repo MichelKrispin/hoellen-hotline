@@ -22,21 +22,18 @@ jobs:
         env:
           VITE_BASE: /hoellen-hotline/
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test -c playwright.pages.config.ts e2e/pages-base.spec.ts
-      - run: npx playwright test --grep-invert "tutorial guides|three browsers join the private lobby"
-        env:
-          VITE_STUN_URL: ""
+      - run: npm run test:e2e:pages
+      - run: npm run test:e2e
+      - run: npm run test:e2e:one-link
+      - run: npm run test:e2e:network
+      - run: npx playwright install --with-deps firefox
+      - run: npm run test:e2e:firefox -- --retries=2
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-failures
           path: test-results
           if-no-files-found: ignore
-      - run: npx playwright test e2e/network-failures.spec.ts
-        env:
-          TEST_STUN_URL: stun:127.0.0.1:9
-      - run: npx playwright install --with-deps firefox
-      - run: npx playwright test -c playwright.firefox.config.ts e2e/navigation.spec.ts e2e/accessibility.spec.ts e2e/asset-budget.spec.ts e2e/webrtc-spike.spec.ts e2e/mixed-browsers.spec.ts --retries=2
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

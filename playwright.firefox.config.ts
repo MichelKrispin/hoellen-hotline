@@ -1,14 +1,18 @@
 import { defineConfig } from "@playwright/test";
+import config from "./playwright.config";
 
-export default defineConfig({
-  testDir: "./e2e",
-  workers: 1,
-  reporter: process.env.CI ? [["github"], ["line"]] : "list",
-  use: { baseURL: "http://127.0.0.1:5173", browserName: "firefox" },
-  webServer: {
-    command: "npm run dev",
-    env: { VITE_STUN_URL: "", VITE_SIGNAL_MODE: "manual" },
-    url: "http://127.0.0.1:5173",
-    reuseExistingServer: !process.env.CI,
+export default defineConfig(config, {
+  testMatch: [
+    "**/navigation.spec.ts",
+    "**/accessibility.spec.ts",
+    "**/asset-budget.spec.ts",
+    "**/webrtc-spike.spec.ts",
+    "**/mixed-browsers.spec.ts",
+  ],
+  testIgnore: [],
+  grepInvert: undefined,
+  use: {
+    browserName: "firefox",
+    launchOptions: {},
   },
 });

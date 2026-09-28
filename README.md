@@ -30,16 +30,12 @@ Asset-Build und Lizenzquellen stehen in [src/assets/source/README.md](src/assets
 ## Prüfen
 
 ```sh
-npm run lint
-npm test
-npm run content:validate
-npm run content:analyze
-npm run build
+npm run check
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npm run test:e2e
-PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/sbin/chromium npx playwright test -c playwright.one-link.config.ts
-VITE_BASE=/hoellen-hotline/ npm run build
 ```
 
 Für `test:e2e` muss ein Playwright-kompatibles Chromium verfügbar sein. Ohne `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` verwendet Playwright seine eigene Browserinstallation.
 
-`VITE_BASE` ist der Pages-Unterpfad mit führendem und abschließendem Schrägstrich. Der Standard ist `/`. CI prüft den Unterpfad sowie kurze Chromium- und Firefox-Flows und veröffentlicht erfolgreiche Pushes auf `main` über GitHub Pages. `npm run test:e2e` enthält zusätzlich den Drei-Tab-Tutorialstart und die Acht-Fälle-Schicht; diese ressourcenintensiven Läufe sind auf dem GitHub-Runner nicht Teil des Deploy-Gates. Die Simulation prüft den Tutorialfall bis zur Abschlussakte.
+`npm run check` prüft Lint, Unit-Tests, Content und Typen. `npm run test:e2e` führt neun kurze Browserprüfungen aus. Für Spielablaufänderungen gibt es `test:e2e:gameplay` mit einem Fall und Reconnect; `test:e2e:extended` enthält das Drei-Tab-Tutorial und die vollständige Acht-Fälle-Schicht. Weitere gezielte Skripte und die Auswahl nach Änderungsart stehen in [docs/testing.md](docs/testing.md). Während der Entwicklung ist `npm run test:watch` verfügbar.
+
+`VITE_BASE` ist der Pages-Unterpfad mit führendem und abschließendem Schrägstrich. Der Standard ist `/`. Für den Veröffentlichungstest zuerst `VITE_BASE=/hoellen-hotline/ npm run build`, danach `npm run test:e2e:pages` ausführen. CI prüft den Unterpfad, kurze Chromium- und Firefox-Flows, Ein-Link-Beitritt und Netzwerkfehler und veröffentlicht erfolgreiche Pushes auf `main` über GitHub Pages. Die langen Drei-Tab-Spielprüfungen sind auf dem GitHub-Runner nicht Teil des Deploy-Gates. Die Simulation prüft den Tutorialfall bis zur Abschlussakte.

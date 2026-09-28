@@ -2,6 +2,7 @@ import { chromium, expect, test } from "@playwright/test";
 
 test("Chromium host and guest connect with a Firefox guest", async ({
   browser,
+  baseURL,
 }) => {
   test.setTimeout(120_000);
   const chromiumBrowser = await chromium.launch({
@@ -10,7 +11,7 @@ test("Chromium host and guest connect with a Firefox guest", async ({
   try {
     const host = await chromiumBrowser.newPage();
     const guests = [await browser.newPage(), await chromiumBrowser.newPage()];
-    await host.goto("http://127.0.0.1:5173/");
+    await host.goto(baseURL!);
     await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
     await host.keyboard.press("d");
     await host.keyboard.press("2");

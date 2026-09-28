@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("mockup workspaces load their separate sprites in all three role previews", async ({
   page,
-}) => {
+}, testInfo) => {
   const failures: string[] = [];
   const sprites = new Set<string>();
   page.on("pageerror", (error) => failures.push(error.message));
@@ -40,7 +40,10 @@ test("mockup workspaces load their separate sprites in all three role previews",
     await page.keyboard.press(key);
     await expect(canvas).toHaveAttribute("data-role", role);
     await expect(page.getByRole("alertdialog")).toBeHidden();
-    await page.screenshot({ path: `test-results/workspace-${role}.png` });
+    if (process.env.CAPTURE_UI === "1")
+      await page.screenshot({
+        path: testInfo.outputPath(`workspace-${role}.png`),
+      });
   }
   expect(failures).toEqual([]);
 });
