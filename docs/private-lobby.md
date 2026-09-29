@@ -1,5 +1,7 @@
 # Private Link-Lobby
 
+Die Gestaltung der Lobby aus einzelnen Raum- und Figuren-Sprites ist in [lobby-sprites.md](lobby-sprites.md) beschrieben.
+
 Der Host erhält einen Einladungslink für beide Gäste. Der Link enthält eine zufällige Sitzungskennung; PeerJS vermittelt die Verbindung zum Host und überträgt Offer und Answer automatisch. Der Host weist den Gästen freie Slots zu. Das Spiel selbst bleibt auf direkten WebRTC-Datenkanälen. Der öffentliche PeerJS-Server sieht Verbindungsmetadaten, aber keine Spielzustände. Für lokale Tests kann `VITE_SIGNAL_HOST` mit `VITE_SIGNAL_PORT` und `VITE_SIGNAL_PATH` einen eigenen PeerServer angeben. `VITE_SIGNAL_MODE=manual` deaktiviert die automatische Vermittlung.
 
 Falls die automatische Vermittlung nicht erreichbar ist, kann der Host die manuelle Verbindung öffnen. Dort erstellt er für Gast 1 und Gast 2 je einen Offer-Link. Jeder Gast öffnet seinen Offer-Link, prüft das sechsstellige Sitzungskürzel, erzeugt einen Answer-Link und sendet ihn dem Host. Der Host fügt jeden Answer im passenden Slot seines bestehenden Tabs ein. Ein geöffnetes Answer-Fragment zeigt nur eine Kopierhilfe; es kann keine laufende Host-Verbindung rekonstruieren.

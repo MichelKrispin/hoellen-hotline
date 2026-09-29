@@ -1,0 +1,156 @@
+/* Lobby illustration overrides: keep the Phaser scenery visible behind the DOM controls. */
+/* Phaser supplies canvas margins for FIT; flex centering would apply them twice. */
+body:has(.lobby-overlay) #app {
+  display: flow-root;
+}
+
+.lobby-overlay {
+  inset: 0;
+  padding: clamp(12px, 2vw, 30px);
+  background: linear-gradient(
+    180deg,
+    #10091018 0%,
+    #10091012 34%,
+    #10091070 100%
+  );
+}
+
+/* The initial card stays low so logo, characters and moving background remain readable. */
+.lobby-overlay:has(> .lobby-card--welcome) {
+  align-items: end;
+}
+
+.lobby-overlay > .lobby-card--welcome {
+  width: min(680px, 100%);
+  max-height: min(46dvh, 500px);
+  padding: 12px;
+  border-color: #a85f45;
+  background: linear-gradient(150deg, #281923ee, #1b131bea);
+  box-shadow:
+    0 0 0 3px #160e18d8,
+    0 18px 52px #000c,
+    inset 0 1px #f2a06d66;
+  backdrop-filter: blur(4px);
+}
+
+.lobby-card--welcome .lobby-welcome-paper {
+  padding: 18px 20px 14px;
+}
+
+.lobby-card--welcome .lobby-paper-kicker {
+  font-size: calc(11px * var(--text-scale, 1));
+  letter-spacing: 0.1em;
+}
+
+.lobby-card--welcome h1 {
+  font-size: calc(clamp(26px, 2.2vw, 32px) * var(--text-scale, 1));
+}
+
+.lobby-card--welcome p {
+  margin: 8px auto;
+  font-size: calc(14px * var(--text-scale, 1));
+}
+
+.lobby-welcome-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin: 14px 0;
+}
+
+.lobby-card--welcome .lobby-role-preview {
+  margin: 0;
+  gap: 6px;
+}
+
+.lobby-card--welcome .lobby-role-preview span {
+  padding: 5px 8px;
+  font-size: calc(12px * var(--text-scale, 1));
+}
+
+.lobby-card--welcome .lobby-primary {
+  min-height: 46px;
+  padding-inline: 18px;
+  font-size: calc(16px * var(--text-scale, 1));
+}
+
+.lobby-card--welcome .lobby-footnote,
+.lobby-card--welcome > .lobby-links {
+  font-size: calc(12px * var(--text-scale, 1));
+}
+
+/* During setup the room remains visible at the margins without sacrificing readability. */
+.lobby-overlay > .lobby-card--active {
+  width: min(1320px, 100%);
+  max-height: calc(100dvh - 36px);
+  background: linear-gradient(145deg, #2d1d26f2, #1a141cf0);
+  backdrop-filter: blur(5px);
+}
+
+html[data-palette="contrast"] .lobby-overlay > .lobby-card {
+  background: #16121b;
+  border-color: #fff;
+  box-shadow: none;
+}
+
+html[data-reduced-motion="true"] .lobby-overlay > .lobby-card {
+  backdrop-filter: none;
+}
+
+@media (max-width: 750px) {
+  body:has(.lobby-overlay) #app {
+    height: min(56.25vw, 42dvh);
+  }
+
+  .lobby-overlay {
+    padding: 8px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      #160e1866 35%,
+      #160e18 75%
+    );
+  }
+
+  .lobby-overlay:has(> .lobby-card--welcome) {
+    align-items: start;
+    padding-top: calc(min(56.25vw, 42dvh) + 16px);
+  }
+
+  .lobby-overlay > .lobby-card {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    backdrop-filter: none;
+  }
+
+  .lobby-overlay > .lobby-card--welcome {
+    max-height: calc(100dvh - min(56.25vw, 42dvh) - 24px);
+  }
+
+  .lobby-card--welcome .lobby-welcome-paper {
+    padding-inline: 12px;
+  }
+
+  .lobby-card--active header {
+    padding-top: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lobby-overlay > .lobby-card {
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 750px) and (max-height: 500px) {
+  .lobby-overlay:has(> .lobby-card--welcome) {
+    padding-top: 8px;
+    align-items: center;
+  }
+
+  .lobby-overlay > .lobby-card--welcome {
+    max-height: calc(100dvh - 16px);
+  }
+}

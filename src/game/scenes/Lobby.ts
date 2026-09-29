@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { installDebugNavigation } from "./navigation";
 import { LobbyOverlay } from "../../ui/lobbyOverlay";
-import { titleRoom } from "../presentation/titleRoom";
+import { lobbyRoom } from "../presentation/lobbyRoom";
 
 export class Lobby extends Phaser.Scene {
   private overlay: LobbyOverlay | null = null;
@@ -10,8 +10,7 @@ export class Lobby extends Phaser.Scene {
   }
   create(): void {
     this.game.canvas.dataset.scene = "Lobby";
-    titleRoom(this);
-    this.add.rectangle(960, 540, 1920, 1080, 0x160e18, 0.25);
+    lobbyRoom(this);
     this.overlay = new LobbyOverlay();
     this.overlay.onStart = (role, network) =>
       this.scene.start("Game", { role, network });

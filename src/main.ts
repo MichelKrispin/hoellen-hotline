@@ -7,6 +7,7 @@ import { Game } from "./game/scenes/Game";
 import { Results } from "./game/scenes/Results";
 import { AtlasReview } from "./game/scenes/AtlasReview";
 import "./style.css";
+import "./lobby-art.css";
 import { OptionsOverlay } from "./app/options";
 import { FatalErrorOverlay } from "./app/FatalErrorOverlay";
 
