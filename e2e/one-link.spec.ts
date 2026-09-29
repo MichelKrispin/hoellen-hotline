@@ -1,10 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 test("one invite link connects two guests and starts a shift", async ({
-  browser,
+  context,
 }) => {
-  test.setTimeout(120_000);
-  const context = await browser.newContext();
   const host = await context.newPage();
   await host.goto("/");
   await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
@@ -17,6 +15,10 @@ test("one invite link connects two guests and starts a shift", async ({
   const guests = [await context.newPage(), await context.newPage()];
   for (const [index, guest] of guests.entries()) {
     await guest.goto(invite);
+    // Asset loading and scene setup happen after navigation has completed.
+    await expect(
+      guest.getByRole("region", { name: "Private Lobby" }),
+    ).toBeVisible({ timeout: 60_000 });
     await expect(guest.locator(".member").nth(index + 1)).toContainText(
       "Verbunden",
       {
@@ -59,5 +61,4 @@ test("one invite link connects two guests and starts a shift", async ({
   await expect(
     guests[0]!.getByRole("region", { name: "Netzwerkstatus" }),
   ).toContainText("● Verbunden", { timeout: 30_000 });
-  await context.close();
 });

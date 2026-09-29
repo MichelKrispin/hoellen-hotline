@@ -31,13 +31,24 @@ test("phone title action opens the lobby", async ({ page }) => {
 test("scene navigation covers lobby, three roles and results", async ({
   page,
 }) => {
+  const pressNavigationKey = async (key: string): Promise<void> => {
+    await page.keyboard.press(key);
+    // Phaser handles keyboard events and queued scene changes on game frames.
+    // This also lets assertions about an unchanged scene observe the input.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        }),
+    );
+  };
   await page.goto("/");
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible();
   await expect(canvas).toHaveAttribute("data-scene", "Title");
-  await page.keyboard.press("4");
+  await pressNavigationKey("4");
   await expect(canvas).toHaveAttribute("data-scene", "Title");
-  await page.keyboard.press("d");
+  await pressNavigationKey("d");
   for (const [key, scene] of [
     ["2", "Lobby"],
     ["3", "Game"],
@@ -47,7 +58,7 @@ test("scene navigation covers lobby, three roles and results", async ({
     ["7", "AtlasReview"],
     ["1", "Title"],
   ] as const) {
-    await page.keyboard.press(key);
+    await pressNavigationKey(key);
     await expect(canvas).toHaveAttribute("data-scene", scene);
     if (key === "3") await expect(canvas).toHaveAttribute("data-role", "agent");
     if (key === "4")
@@ -55,8 +66,8 @@ test("scene navigation covers lobby, three roles and results", async ({
     if (key === "5")
       await expect(canvas).toHaveAttribute("data-role", "dispatcher");
   }
-  await page.keyboard.press("d");
-  await page.keyboard.press("4");
+  await pressNavigationKey("d");
+  await pressNavigationKey("4");
   await expect(canvas).toHaveAttribute("data-scene", "Title");
   await expect(page).toHaveURL("/");
 });

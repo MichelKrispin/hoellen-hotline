@@ -3,12 +3,17 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/one-link.spec.ts",
+  // Two joins, three workplace loads and a reconnect share this test budget.
+  timeout: 300_000,
+  expect: { timeout: 30_000 },
   workers: 1,
   retries: 0,
   forbidOnly: !!process.env.CI,
   reporter: process.env.CI ? [["github"], ["line"]] : "list",
   use: {
     baseURL: "http://127.0.0.1:5175",
+    // Three software-rendered tabs must leave CPU time for the WebRTC handshake.
+    reducedMotion: "reduce",
     launchOptions: {
       executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
       args: [
