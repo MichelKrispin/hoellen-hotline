@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="iron" x2="0" y2="1"><stop stop-color="#806047"/><stop offset=".12" stop-color="#29201c"/><stop offset=".53" stop-color="#171313"/><stop offset=".9" stop-color="#3a2a22"/><stop offset="1" stop-color="#0d0a0a"/></linearGradient>
+    <linearGradient id="well" x2="0" y2="1"><stop stop-color="#171413"/><stop offset="1" stop-color="#29201c"/></linearGradient>
+    <linearGradient id="paper" x2="1" y2="1"><stop stop-color="#f7e5be"/><stop offset=".65" stop-color="#efd3a7"/><stop offset="1" stop-color="#c69868"/></linearGradient>
+    <linearGradient id="brass" x2="0" y2="1"><stop stop-color="#e7b56c"/><stop offset=".4" stop-color="#8e5b32"/><stop offset="1" stop-color="#3e261a"/></linearGradient>
+    <pattern id="stripe" width="38" height="38" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="38" height="38" fill="#b56d25"/><rect width="19" height="38" fill="#171515"/></pattern>
+    <pattern id="grain" width="41" height="37" patternUnits="userSpaceOnUse"><path d="M2 9l11-2M29 18l6 2M13 31l3-2" fill="none" stroke="#775333" stroke-width="1" opacity=".22"/></pattern>
+    <g id="screw"><circle r="7" fill="#0c0a0a" stroke="#9b724d" stroke-width="2"/><path d="M-3-2l6 4" stroke="#c6a179" stroke-width="1.5"/></g>
+  </defs>
+  <!-- Artwork contains only surfaces. All labels and case data are Phaser objects. -->
+  <path d="M0 1010h1920v70H0z" fill="#1a100d" opacity=".9"/>
+  <path d="M0 1017h1920m0 15H0" stroke="#9e5428" stroke-width="5" opacity=".5"/>
+  <path d="M15 949h1890v91H15z" fill="url(#iron)" stroke="#0b0808" stroke-width="12"/>
+  <path d="M31 970h1858" stroke="#98633b" stroke-width="3" opacity=".65"/>
+
+  <!-- Operator station and the six-socket machine housing. -->
+  <path d="M130 299h951l18 655-978 1z" fill="#0c0909" stroke="#100b0a" stroke-width="15"/>
+  <path d="M130 296h949v654H130z" fill="url(#iron)" stroke="#946b46" stroke-width="5"/>
+  <path d="M144 308h921v627H144z" fill="none" stroke="#15100f" stroke-width="5"/>
+  <path d="M334 264h520l29 44H305z" fill="url(#iron)" stroke="#0d0909" stroke-width="8"/>
+  <path d="M353 272h485v26H353z" fill="#171211" stroke="#916b4a" stroke-width="2"/>
+  <g fill="url(#well)" stroke="#090808" stroke-width="8">
+    <rect x="155" y="320" width="294" height="276" rx="7"/><rect x="460" y="320" width="294" height="276" rx="7"/><rect x="765" y="320" width="294" height="276" rx="7"/>
+    <rect x="155" y="607" width="294" height="272" rx="7"/><rect x="460" y="607" width="294" height="272" rx="7"/><rect x="765" y="607" width="294" height="272" rx="7"/>
+  </g>
+  <g fill="none" stroke="#97704e" stroke-width="2" opacity=".7">
+    <rect x="165" y="330" width="274" height="256" rx="3"/><rect x="470" y="330" width="274" height="256" rx="3"/><rect x="775" y="330" width="274" height="256" rx="3"/>
+    <rect x="165" y="617" width="274" height="252" rx="3"/><rect x="470" y="617" width="274" height="252" rx="3"/><rect x="775" y="617" width="274" height="252" rx="3"/>
+  </g>
+  <path d="M150 896h914v43H150z" fill="#171313" stroke="#a47a50" stroke-width="3"/>
+  <path d="M133 963h930v74H133z" fill="url(#iron)" stroke="#0d0909" stroke-width="9"/>
+  <path d="M147 975h902v48H147z" fill="#1a1513" stroke="#9c7048" stroke-width="2"/>
+
+  <!-- Requirements clipboard and the current transfer card. -->
+  <path d="M1097 171h438l13 424-452 1z" fill="#0d0908" stroke="#0b0807" stroke-width="14"/>
+  <path d="M1104 176h426v408h-426z" fill="url(#iron)" stroke="#97683f" stroke-width="4"/>
+  <path d="M1117 183q95-12 198-5 105-8 203 3l5 394q-104 13-202 2-105 13-202 0z" fill="url(#paper)" stroke="#6d4729" stroke-width="4"/>
+  <path d="M1117 183q95-12 198-5 105-8 203 3l5 394q-104 13-202 2-105 13-202 0z" fill="url(#grain)"/>
+  <path d="M1138 253h359M1138 291h359M1138 340h359M1138 389h359M1138 438h359M1138 487h359" stroke="#a78360" stroke-width="2" opacity=".55"/>
+  <path d="M1253 165v-18q0-10 11-10h97q11 0 11 10v18" fill="url(#iron)" stroke="#0e0b0a" stroke-width="6"/>
+  <rect x="1241" y="157" width="146" height="31" rx="4" fill="url(#iron)" stroke="#0d0a09" stroke-width="6"/>
+  <circle cx="1314" cy="148" r="12" fill="#12100f" stroke="#977455" stroke-width="3"/>
+  <path d="M1110 609h428v387h-428z" fill="url(#iron)" stroke="#0b0808" stroke-width="10"/>
+  <path d="M1120 620h408v33h-408z" fill="#181312" stroke="#9d7148" stroke-width="2"/>
+  <path d="M1121 659h405v327h-405z" fill="url(#paper)" stroke="#754a2b" stroke-width="5"/>
+  <path d="M1121 659h405v327h-405z" fill="url(#grain)"/>
+  <path d="M1136 730h373M1136 820h373M1326 735v236" stroke="#b39069" stroke-width="2" opacity=".7"/>
+
+  <!-- Target selection bank and the right-side number rail. -->
+  <path d="M1547 177h302v497h-302z" fill="url(#iron)" stroke="#0a0808" stroke-width="10"/>
+  <path d="M1560 190h275v45h-275z" fill="#191311" stroke="#a47b50" stroke-width="3"/>
+  <path d="M1558 244h267v413h-267z" fill="#130f0e" stroke="#865d3f" stroke-width="3"/>
+  <path d="M1835 225h55v457h-55z" fill="url(#iron)" stroke="#090808" stroke-width="7"/>
+  <g fill="#120e0d" stroke="#9a6e43" stroke-width="2"><circle cx="1862" cy="259" r="11"/><circle cx="1862" cy="293" r="11"/><circle cx="1862" cy="327" r="11"/><circle cx="1862" cy="361" r="11"/><circle cx="1862" cy="395" r="11"/><circle cx="1862" cy="429" r="11"/><circle cx="1862" cy="463" r="11"/><circle cx="1862" cy="497" r="11"/><circle cx="1862" cy="531" r="11"/><circle cx="1862" cy="565" r="11"/><circle cx="1862" cy="599" r="11"/><circle cx="1862" cy="633" r="11"/></g>
+
+  <!-- Warning-striped, guarded delivery lever. -->
+  <path d="M1545 688h315l20 322-347 4z" fill="url(#iron)" stroke="#0b0808" stroke-width="12"/>
+  <path d="M1556 697h292v118h-292z" fill="url(#stripe)" stroke="#0c0908" stroke-width="6"/>
+  <path d="M1569 720h266v48h-266z" fill="url(#brass)" stroke="#1a100b" stroke-width="5"/>
+  <path d="M1571 783h262v201h-262z" fill="#18110f" stroke="#ad6840" stroke-width="5"/>
+  <path d="M1592 806h220v100h-220z" fill="#5b2119" stroke="#16100e" stroke-width="6"/>
+  <path d="M1581 915h243v66h-243z" fill="url(#brass)" stroke="#1b100c" stroke-width="5"/>
+  <path d="M1596 924h211" stroke="#e4ad62" stroke-width="2" opacity=".6"/>
+  <g><use href="#screw" x="140" y="309"/><use href="#screw" x="1072" y="309"/><use href="#screw" x="140" y="940"/><use href="#screw" x="1072" y="940"/><use href="#screw" x="1107" y="178"/><use href="#screw" x="1535" y="178"/><use href="#screw" x="1107" y="586"/><use href="#screw" x="1535" y="586"/><use href="#screw" x="1555" y="186"/><use href="#screw" x="1840" y="186"/><use href="#screw" x="1555" y="668"/><use href="#screw" x="1840" y="668"/><use href="#screw" x="1548" y="698"/><use href="#screw" x="1860" y="698"/><use href="#screw" x="1548" y="1006"/><use href="#screw" x="1860" y="1006"/></g>
+</svg>

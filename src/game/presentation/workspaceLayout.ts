@@ -17,11 +17,11 @@ export const ARCHIVE_LAYOUT = {
 } as const;
 
 export const DISPATCH_LAYOUT = {
-  target: (index: number) => ({ x: 1530, y: 237 + index * 38, w: 292, h: 35 }),
+  target: (index: number) => ({ x: 1563, y: 237 + index * 38, w: 261, h: 35 }),
   control: (index: number) => ({
-    x: 120 + (index % 3) * 310,
-    y: 370 + Math.floor(index / 3) * 236,
-    w: 296,
-    h: 222,
+    x: 155 + (index % 3) * 305,
+    y: 320 + Math.floor(index / 3) * 287,
+    w: 294,
+    h: 276,
   }),
 } as const;

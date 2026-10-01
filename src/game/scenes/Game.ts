@@ -19,7 +19,9 @@ import agentCallConsole from "../../assets/agent-call-console.webp?url";
 import agentCoffeeMug from "../../assets/agent-coffee-mug.webp?url";
 import agentCallMonitor from "../../assets/agent-call-monitor.webp?url";
 import agentHintsClipboard from "../../assets/agent-hints-clipboard.webp?url";
+import agentFrame from "../../assets/source/agent-frame.svg?url";
 import archivistFrame from "../../assets/source/archivist-frame.svg?url";
+import dispatchFrame from "../../assets/source/dispatch-frame.svg?url";
 
 const C = TOKENS.color;
 
@@ -55,6 +57,7 @@ export class Game extends Phaser.Scene {
     preloadAssetGroups(this, ["shared", `role-${this.role}`]);
     preloadRoleSprites(this, this.role);
     if (this.role === "agent") {
+      this.load.image("agent-frame", agentFrame);
       this.load.image("agent-operator", agentOperator);
       this.load.image("agent-call-console", agentCallConsole);
       this.load.image("agent-coffee-mug", agentCoffeeMug);
@@ -63,6 +66,8 @@ export class Game extends Phaser.Scene {
     }
     if (this.role === "archivist")
       this.load.image("archivist-frame", archivistFrame);
+    if (this.role === "dispatcher")
+      this.load.image("dispatch-frame", dispatchFrame);
   }
   create(): void {
     document.body.classList.add("role-game");

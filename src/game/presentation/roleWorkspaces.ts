@@ -24,6 +24,7 @@ function heading(
 }
 
 function agentDesk(scene: Phaser.Scene, live: boolean): void {
+  scene.add.image(0, 0, "agent-frame").setOrigin(0);
   prop(scene, "paper_note", 20, 185, 150, 215).setAngle(-6).setDepth(1);
   label(
     scene,
@@ -220,39 +221,32 @@ function archiveDesk(scene: Phaser.Scene, live: boolean): void {
 }
 
 function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
-  devil(scene, 285, 254, 0.52, 0xa64131).setName("dispatcher-worker");
-  prop(scene, "lever_bank", 115, 300, 240, 78);
-  prop(scene, "receipt_roll", 409, 186, 35, 112);
-  prop(scene, "horned_signplate", 465, 185, 137, 72);
-  heading(scene, 457, 260, "DISPOSITION / ÜBERGABE-PARAMETER");
-  sprite(scene, "iron-frame", 96, 348, 971, 505);
-  prop(scene, "routing_console", 96, 335, 971, 520);
+  devil(scene, 277, 203, 0.82, 0xa64131).setName("dispatcher-worker");
+  scene.add.image(0, 0, "dispatch-frame").setOrigin(0);
+  prop(scene, "lever_bank", 132, 259, 198, 53);
+  prop(scene, "receipt_roll", 461, 179, 32, 100);
+  heading(scene, 405, 271, "ÜBERGABE-PARAMETER");
   if (!live)
     for (let i = 0; i < 6; i++) {
       const box = DISPATCH_LAYOUT.control(i);
-      sprite(scene, "control-housing", box.x, box.y, box.w, box.h);
       heading(scene, box.x + 17, box.y + 17, `REGLER ${i + 1}`);
-      prop(scene, "analog_gauge", box.x + 78, box.y + 53, 140, 140);
-      prop(scene, "gauge_needle", 0, 0, 25, 90)
-        .setOrigin(0.5, 0.75)
-        .setPosition(box.x + 148, box.y + 123);
+      prop(scene, "analog_gauge", box.x + 83, box.y + 58, 130, 130);
     }
-  sprite(scene, "dossier-paper", 1090, 194, 411, 642);
-  sprite(scene, "clipboard-clip", 1220, 170, 150, 61);
   if (!live) {
-    heading(scene, 1120, 245, "ZIELANFORDERUNGEN", C.ink);
+    heading(scene, 1140, 213, "ZIELANFORDERUNGEN", C.ink);
     label(
       scene,
-      1120,
-      304,
+      1140,
+      270,
       "Ziel wählen, Anforderungen prüfen,\nAnlage einstellen.",
       22,
       C.ink,
-      340,
+      350,
     );
+    heading(scene, 1140, 623, "AKTUELLE ÜBERGABE");
+    label(scene, 1140, 676, "Noch kein Ziel gewählt.", 22, C.ink, 360);
   }
-  sprite(scene, "iron-frame", 1512, 180, 328, 523);
-  heading(scene, 1543, 201, "ZIELAUSWAHL");
+  heading(scene, 1608, 194, "ZIELAUSWAHL");
   if (!live)
     for (let i = 0; i < 12; i++) {
       const box = DISPATCH_LAYOUT.target(i);
@@ -279,25 +273,21 @@ function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {
         C.ink,
       );
     }
-  sprite(scene, "iron-frame", 96, 870, 971, 134);
-  heading(scene, 120, 886, "SYSTEMSTATUS / REPARATUR");
-  prop(scene, "warning_beacon", 1010, 850, 54, 68)
+  heading(scene, 156, 896, "SYSTEMSTATUS / REPARATUR");
+  prop(scene, "warning_beacon", 987, 885, 54, 60)
     .setName("dispatcher-warning-light")
     .setVisible(false);
-  sprite(scene, "control-housing", 1090, 852, 411, 72);
-  sprite(scene, "control-housing", 1090, 939, 411, 65);
-  prop(scene, "red_push_button", 1433, 859, 57, 55);
+  prop(scene, "red_push_button", 1409, 878, 57, 55);
   if (!live) {
-    label(scene, 120, 932, "✓ Keine aktive Störung", 21);
-    label(scene, 1115, 874, "ANLAGE VORBEREITEN", 22);
-    label(scene, 1115, 956, "BEREIT MELDEN", 22);
+    label(scene, 156, 981, "✓ Keine aktive Störung", 21);
+    label(scene, 1140, 881, "ANLAGE VORBEREITEN", 20, C.ink);
+    label(scene, 1140, 944, "BEREIT MELDEN", 20, C.ink);
   }
-  sprite(scene, "lever-housing", 1512, 721, 328, 283);
   if (!live) {
-    label(scene, 1540, 744, "ZIEL: — · OFFEN", 19, C.text, 270);
-    label(scene, 1540, 792, "↗ HEBEL GESPERRT", 25, C.text, 250);
-    prop(scene, "single_lever", 1626, 830, 80, 125);
-    label(scene, 1540, 969, "SCHUTZBÜGEL: ZU", 17);
+    label(scene, 1581, 727, "ZIEL: — · OFFEN", 18, C.ink, 240);
+    label(scene, 1582, 782, "↗ HEBEL GESPERRT", 22, C.text, 240);
+    prop(scene, "single_lever", 1656, 811, 80, 116);
+    label(scene, 1585, 944, "SCHUTZBÜGEL: ZU", 17, C.ink);
   }
 }
 

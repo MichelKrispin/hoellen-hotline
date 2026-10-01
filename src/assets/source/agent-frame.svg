@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="iron" x2="0" y2="1"><stop stop-color="#745038"/><stop offset=".08" stop-color="#201613"/><stop offset=".52" stop-color="#130e0d"/><stop offset=".91" stop-color="#38251b"/><stop offset="1" stop-color="#090707"/></linearGradient>
+    <linearGradient id="wood" x2="0" y2="1"><stop stop-color="#6f3c20"/><stop offset=".16" stop-color="#32190f"/><stop offset=".7" stop-color="#1a0e0a"/><stop offset="1" stop-color="#522816"/></linearGradient>
+    <linearGradient id="paper" x2="1" y2="1"><stop stop-color="#ffe7b5"/><stop offset=".6" stop-color="#dcaa70"/><stop offset="1" stop-color="#a76b40"/></linearGradient>
+    <radialGradient id="fire"><stop stop-color="#ffb843" stop-opacity=".9"/><stop offset=".48" stop-color="#e64019" stop-opacity=".5"/><stop offset="1" stop-color="#6c1b13" stop-opacity="0"/></radialGradient>
+    <pattern id="bricks" width="72" height="42" patternUnits="userSpaceOnUse"><path d="M0 0h72M0 42h72M36 0v21M0 21h72M0 21v21M72 21v21" fill="none" stroke="#1b0d0b" stroke-width="5" opacity=".7"/></pattern>
+    <g id="bolt"><circle r="9" fill="#080707" stroke="#8c5d37" stroke-width="3"/><circle r="4" fill="#4c3020"/><path d="M-3 1l6-2" stroke="#c28a51" stroke-width="1.5"/></g>
+    <g id="arch"><path d="M0 176V51Q42-19 84 51v125" fill="#250f0d" stroke="#100909" stroke-width="12"/><path d="M10 176V54Q42 0 74 54v122" fill="url(#fire)" stroke="#7d3b20" stroke-width="4"/><path d="M42 18v158M10 94h64" stroke="#281611" stroke-width="7"/><path d="M42 18v158M10 94h64" stroke="#bd6932" stroke-width="2" opacity=".6"/></g>
+  </defs>
+  <!-- The playable cards and controls are separate scene objects above this transparent scenery. -->
+  <path d="M0 112h1920v765H0z" fill="url(#bricks)" opacity=".42"/>
+  <g opacity=".68"><use href="#arch" x="8" y="126"/><use href="#arch" x="105" y="125"/><use href="#arch" x="397" y="128"/><use href="#arch" x="1818" y="131"/></g>
+  <path d="M0 112h47v773H0zM454 120h53v824h-53zM1840 119h80v825h-80z" fill="url(#iron)" stroke="#0a0707" stroke-width="9"/>
+  <path d="M16 124v756M475 127v808M1868 125v820" stroke="#b46a35" stroke-width="3" opacity=".5"/>
+  <path d="M7 476h489v34H7zM11 522h474v21H11zM0 845h519v30H0z" fill="url(#wood)" stroke="#0c0807" stroke-width="7"/>
+  <path d="M0 486h480M13 854h491" stroke="#c16d30" stroke-width="3" opacity=".58"/>
+  <g fill="#160b09" stroke="#763c20" stroke-width="3" opacity=".9"><path d="M0 390h81v96H0z"/><path d="M382 401h98v84h-98z"/><path d="M0 770h74v80H0z"/><path d="M431 755h71v101h-71z"/></g>
+
+  <!-- A continuous bolted cabinet makes the conversation and response cards read as one station. -->
+  <path d="M500 153h893l14 903H491z" fill="#090707" stroke="#090606" stroke-width="17"/>
+  <path d="M510 157h882l9 890H501z" fill="url(#iron)" stroke="#98633b" stroke-width="5"/>
+  <path d="M524 174h857v862H516z" fill="#190f0d" stroke="#080606" stroke-width="6"/>
+  <path d="M530 184h842v835H524z" fill="none" stroke="#a76b3e" stroke-width="3" opacity=".75"/>
+  <path d="M518 416h868v15H518zM518 578h868v12H518zM518 932h868v13H518z" fill="url(#iron)" stroke="#0b0807" stroke-width="5"/>
+  <path d="M535 593h835v327H535z" fill="#372014" stroke="#0b0706" stroke-width="7"/>
+  <path d="M543 601h819v311H543z" fill="none" stroke="#ae7040" stroke-width="2" opacity=".7"/>
+  <path d="M550 592v339M1354 592v339" stroke="#0b0807" stroke-width="15"/>
+  <path d="M556 600v320M1348 600v320" stroke="#a56b3d" stroke-width="2" opacity=".8"/>
+  <path d="M511 1046h881l20 34H485z" fill="url(#iron)" stroke="#0b0807" stroke-width="7"/>
+  <g><use href="#bolt" x="515" y="170"/><use href="#bolt" x="1386" y="170"/><use href="#bolt" x="515" y="412"/><use href="#bolt" x="1386" y="412"/><use href="#bolt" x="516" y="583"/><use href="#bolt" x="1385" y="583"/><use href="#bolt" x="517" y="937"/><use href="#bolt" x="1386" y="937"/><use href="#bolt" x="514" y="1047"/><use href="#bolt" x="1391" y="1047"/></g>
+
+  <!-- Countertop clutter fills the noninteractive corners without touching the controls. -->
+  <path d="M0 905h505v175H0zM1400 1045h520v35h-520z" fill="url(#wood)" stroke="#0a0706" stroke-width="7"/>
+  <path d="M0 914h505M0 971h505M1412 1055h508" stroke="#aa582b" stroke-width="3" opacity=".62"/>
+  <g transform="translate(17 943) rotate(-8)"><path d="M0 17l191-13 22 104-205 13z" fill="#130b09" stroke="#070606" stroke-width="9"/><path d="M6 4l196-4 16 99-205 9z" fill="url(#paper)" stroke="#58301a" stroke-width="4"/><path d="M23 34h155M20 51h143M25 68h167" stroke="#8d5836" stroke-width="3" opacity=".55"/></g>
+  <g transform="translate(192 970) rotate(5)"><path d="M0 13h246v92H0z" fill="#100b08" stroke="#080706" stroke-width="7"/><path d="M5 0h235v97H5z" fill="url(#paper)" stroke="#6a3a1e" stroke-width="4"/><path d="M25 30h190M19 53h168M24 73h181" stroke="#9b5b31" stroke-width="3" opacity=".6"/></g>
+  <path d="M427 951l13-5 54 114-14 5z" fill="#a51f16" stroke="#0a0707" stroke-width="5"/><path d="M430 947l9-4 11 20-10 4z" fill="#c59a57"/>
+  <g transform="translate(1847 808) rotate(12)"><path d="M0 0h77v155H0z" fill="#1a0e0b" stroke="#090707" stroke-width="7"/><path d="M9 8h61v139H9z" fill="url(#paper)" stroke="#804626" stroke-width="3"/><path d="M16 40h47M16 57h38M16 74h46M16 91h36" stroke="#8b4c2a" stroke-width="2"/></g>
+  <path d="M1801 963h107v82h-107z" fill="url(#iron)" stroke="#0b0807" stroke-width="8"/><path d="M1814 971h82v53h-82z" fill="#201510" stroke="#9e6438" stroke-width="3"/><path d="M1832 970l-13-100m35 99l4-116m16 117l22-89" stroke="#160e0c" stroke-width="11"/><path d="M1832 970l-13-100m35 99l4-116m16 117l22-89" stroke="#ba7738" stroke-width="4"/>
+  <g><use href="#bolt" x="24" y="492"/><use href="#bolt" x="479" y="492"/><use href="#bolt" x="27" y="855"/><use href="#bolt" x="481" y="855"/><use href="#bolt" x="1820" y="980"/><use href="#bolt" x="1890" y="980"/></g>
+</svg>

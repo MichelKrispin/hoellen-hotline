@@ -327,6 +327,7 @@ export function statusBar(
 ): { update: (view: PublicShiftView) => void } {
   if (role === "agent") return agentStatusBar(scene);
   if (role === "archivist") return archivistStatusBar(scene);
+  if (role === "dispatcher") return dispatcherStatusBar(scene);
   workspaceSprite(scene, "iron-frame", 82, 16, 1756, 105);
   const names: Record<Role, string> = {
     agent: "AGENT",
@@ -419,6 +420,81 @@ export function statusBar(
           })
           .join("     "),
       );
+    },
+  };
+}
+
+function dispatcherStatusBar(scene: Phaser.Scene): {
+  update: (view: PublicShiftView) => void;
+} {
+  const g = scene.add.graphics();
+  const boxes = [
+    { x: 485, w: 275 },
+    { x: 770, w: 205 },
+    { x: 985, w: 207 },
+    { x: 1202, w: 250 },
+    { x: 1462, w: 340 },
+  ];
+  for (const { x, w } of boxes) {
+    g.fillStyle(0x0c0909).fillRoundedRect(x - 6, 5, w + 12, 112, 7);
+    g.fillStyle(0x594535).fillRoundedRect(x, 8, w, 100, 6);
+    g.fillStyle(0x171211).fillRoundedRect(x + 8, 16, w - 16, 84, 4);
+    g.lineStyle(2, 0x99714e).strokeRoundedRect(x + 7, 15, w - 14, 86, 4);
+    for (const sx of [x + 10, x + w - 10])
+      for (const sy of [18, 98]) g.fillStyle(0x080707).fillCircle(sx, sy, 4);
+  }
+  label(scene, 505, 18, "WARTENDE SEELEN", 19);
+  label(scene, 786, 18, "SCHICHTZEIT", 19);
+  label(scene, 1001, 18, "TEAM-STRESS", 19);
+  label(scene, 1220, 18, "FALL", 19);
+  const queue = label(scene, 629, 50, "000", 40, "#f5dcaa");
+  const clock = label(scene, 791, 51, "00:00", 36, "#f5dcaa");
+  const stress = scene.add.graphics();
+  const caseId = label(scene, 1220, 54, "—", 28, "#f5dcaa", 211);
+  const approvals = ["DISPATCH", "ANALYSE", "DOKU"].map((name, index) => {
+    const x = 1507 + index * 103;
+    const lamp = scene.add.graphics();
+    lamp.fillStyle(0x090808).fillCircle(x + 22, 53, 25);
+    lamp.lineStyle(3, 0x98704e).strokeCircle(x + 22, 53, 25);
+    lamp
+      .fillStyle([0x3d803d, 0xa66717, 0x8f2820][index]!)
+      .fillCircle(x + 22, 53, 17);
+    label(scene, x - 8, 83, name, 12, "#e3c996");
+    return lamp;
+  });
+  return {
+    update(view) {
+      queue.setText(String(view.queueLength).padStart(3, "0"));
+      const seconds = Math.floor(view.elapsedMs / 1000);
+      clock.setText(
+        `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`,
+      );
+      const pressure = Math.round(
+        (view.queuePressure + view.boilerPressure + view.auditRisk) / 3,
+      );
+      stress.clear();
+      stress.fillStyle(0x080707).fillRoundedRect(1007, 57, 161, 29, 3);
+      stress
+        .fillStyle(pressure > 66 ? C.error : C.warning)
+        .fillRoundedRect(1011, 61, Math.max(4, pressure * 1.53), 21, 2);
+      caseId.setText(view.activeCaseId?.split(".").at(-1) ?? "—");
+      [
+        view.approvals.dispatcher,
+        view.approvals.archivist,
+        view.approvals.agent,
+      ].forEach((ready, index) => {
+        const x = 1507 + index * 103;
+        approvals[index]!.fillStyle(ready ? 0x77df70 : 0x7b2c20).fillCircle(
+          x + 22,
+          53,
+          17,
+        );
+        approvals[index]!.fillStyle(0xffebad, ready ? 0.65 : 0.25).fillCircle(
+          x + 16,
+          47,
+          6,
+        );
+      });
     },
   };
 }

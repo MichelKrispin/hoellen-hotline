@@ -68,6 +68,7 @@ export class DispatcherPanel {
   }[] = [];
   private readonly summaryTitle: Phaser.GameObjects.Text;
   private readonly summaryText: Phaser.GameObjects.Text;
+  private readonly transferText: Phaser.GameObjects.Text;
   private readonly summaryPageLabel: Phaser.GameObjects.Text;
   private readonly previousSummaryPage: Phaser.GameObjects.Text;
   private readonly nextSummaryPage: Phaser.GameObjects.Text;
@@ -175,13 +176,13 @@ export class DispatcherPanel {
       scene.add
         .graphics()
         .fillStyle(colors[i]!)
-        .fillCircle(x + 13, y + 17, 6);
+        .fillCircle(x + 12, y + 16, 5);
       const frame = scene.add
         .graphics()
         .lineStyle(3, C.warning)
         .strokeRoundedRect(x + 3, y + 3, w - 6, h - 6, 7)
         .setVisible(false);
-      const text = label(scene, x + 28, y + 5, "", 19, C.ink, 250);
+      const text = label(scene, x + 27, y + 3, "", 18, C.ink, 227);
       scene.add
         .zone(x, y, w, h)
         .setOrigin(0)
@@ -192,16 +193,15 @@ export class DispatcherPanel {
     }
     for (let i = 0; i < 6; i++) {
       const { x, y, w, h } = DISPATCH_LAYOUT.control(i);
-      workspaceSprite(scene, "control-housing", x, y, w, h);
-      const name = label(scene, x + 17, y + 15, "", 22, C.text, 260);
-      workspaceSprite(scene, "paper-card", x + 28, y + 173, 240, 36);
-      const value = label(scene, x + 43, y + 179, "", 23, C.ink, 210);
-      const range = label(scene, x + 235, y + 143, "", 15, C.muted, 50);
+      const name = label(scene, x + 18, y + 17, "", 21, C.text, 253);
+      workspaceSprite(scene, "paper-card", x + 29, y + 227, 237, 35);
+      const value = label(scene, x + 43, y + 232, "", 21, C.ink, 205);
+      const range = label(scene, x + 228, y + 192, "", 15, C.muted, 55);
       const dialFace = roleSprite(scene, "analog_gauge", -62, -62, 124, 124);
       const pointer = roleSprite(scene, "gauge_needle", 0, 0, 22, 78);
       // The needle hub sits three quarters down the supplied crop.
       pointer.setOrigin(0.5, 0.75).setPosition(0, 0);
-      const dial = scene.add.container(x + w / 2, y + 105, [dialFace, pointer]);
+      const dial = scene.add.container(x + w / 2, y + 140, [dialFace, pointer]);
       const track = workspaceSprite(scene, "switch-track", -60, -60, 120, 120);
       const handle = workspaceSprite(
         scene,
@@ -211,7 +211,7 @@ export class DispatcherPanel {
         42,
         49,
       ) as Phaser.GameObjects.Image;
-      const toggle = scene.add.container(x + w / 2, y + 105, [track, handle]);
+      const toggle = scene.add.container(x + w / 2, y + 140, [track, handle]);
       const rail = workspaceSprite(scene, "slider-track", -110, -26, 220, 55);
       const thumb = workspaceSprite(
         scene,
@@ -221,7 +221,7 @@ export class DispatcherPanel {
         36,
         55,
       ) as Phaser.GameObjects.Image;
-      const slider = scene.add.container(x + w / 2, y + 105, [rail, thumb]);
+      const slider = scene.add.container(x + w / 2, y + 140, [rail, thumb]);
       this.controlFaces.push({ dial, toggle, slider, pointer, handle, thumb });
       scene.add
         .zone(x, y, w, h)
@@ -232,82 +232,84 @@ export class DispatcherPanel {
       this.controlValues.push(value);
       this.controlRanges.push(range);
     }
-    this.summaryTitle = label(scene, 1120, 245, "ZIELANFORDERUNGEN", 27, C.ink);
+    this.summaryTitle = label(scene, 1138, 208, "ZIELANFORDERUNGEN", 26, C.ink);
     this.summaryText = label(
       scene,
-      1120,
-      304,
+      1138,
+      267,
       "Ziel vorwählen.",
-      20,
+      19,
       C.ink,
-      350,
+      355,
     );
     this.summaryText.setLineSpacing(4);
-    this.previousSummaryPage = label(scene, 1120, 792, "◀", 19, C.ink)
+    this.previousSummaryPage = label(scene, 1138, 539, "◀", 19, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeSummaryPage(-1));
-    this.summaryPageLabel = label(scene, 1210, 792, "", 18, C.ink);
-    this.nextSummaryPage = label(scene, 1450, 792, "▶", 19, C.ink)
+    this.summaryPageLabel = label(scene, 1210, 539, "", 18, C.ink);
+    this.nextSummaryPage = label(scene, 1480, 539, "▶", 19, C.ink)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.changeSummaryPage(1));
-    this.incidentText = label(scene, 120, 932, "", 21, C.text, 890);
+    label(scene, 1140, 623, "AKTUELLE ÜBERGABE", 22, C.text);
+    this.transferText = label(scene, 1140, 675, "", 18, C.ink, 367);
+    this.incidentText = label(scene, 156, 981, "", 21, C.text, 860);
     this.incidentText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
     scene.add
-      .zone(96, 916, 971, 70)
+      .zone(145, 967, 915, 68)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.recover());
-    this.prepareText = label(scene, 1115, 874, "ANLAGE VORBEREITEN", 22);
+    this.prepareText = label(scene, 1140, 864, "ANLAGE VORBEREITEN", 20, C.ink);
     this.prepareText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
     scene.add
-      .zone(1090, 852, 411, 72)
+      .zone(1127, 851, 380, 52)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.prepare());
-    this.readyText = label(scene, 1115, 956, "BEREIT MELDEN", 22);
+    this.readyText = label(scene, 1140, 926, "BEREIT MELDEN", 20, C.ink);
     this.readyText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
     scene.add
-      .zone(1090, 939, 411, 65)
+      .zone(1127, 914, 380, 52)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleReady());
     this.leverCheckText = label(
       scene,
-      1540,
-      744,
+      1581,
+      723,
       "Ziel: — · Bedingungen offen",
       19,
       C.text,
-      270,
+      245,
     );
-    this.commitText = label(scene, 1540, 804, "↗ HEBEL SPERRE", 25);
+    this.commitText = label(scene, 1581, 783, "↗ HEBEL SPERRE", 22);
     this.guardTrack = scene.add.graphics();
     this.guardText = label(
       scene,
-      1540,
-      969,
+      1581,
+      940,
       "SCHUTZBÜGEL: GESCHLOSSEN",
       17,
       C.muted,
-      270,
+      245,
     );
     this.commitText
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
     scene.add
-      .zone(1512, 721, 328, 283)
+      .zone(1550, 696, 305, 309)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.commit());
     const arm = roleSprite(scene, "single_lever", -40, -125, 80, 125);
-    this.leverArm = scene.add.container(1670, 954, [arm]);
-    this.feedbackText = label(scene, 1120, 1020, "", 18, C.text, 710);
+    this.leverArm = scene.add.container(1700, 939, [arm]);
+    this.feedbackText = label(scene, 1135, 1006, "", 18, C.text, 700);
     this.unsubscribe = network.subscribe(() => this.render());
   }
 
@@ -336,7 +338,7 @@ export class DispatcherPanel {
         const separator = first ? (page ? "\n" : "") : " ";
         const candidate = page + separator + word;
         this.summaryText.setText(candidate);
-        if (page && this.summaryText.height > 470) {
+        if (page && this.summaryText.height > 258) {
           pages.push(page);
           page = word;
         } else page = candidate;
@@ -576,7 +578,7 @@ export class DispatcherPanel {
         fitText(
           text,
           `${destination.id === shared.selectedDestination ? "▶ " : ""}${destination.glyph} ${destination.name}`,
-          250,
+          225,
           26,
           19,
           15,
@@ -590,7 +592,7 @@ export class DispatcherPanel {
         );
         this.targetSurfaces[i]!.setAlpha(1);
       } else {
-        fitText(text, "—", 250, 26, 19, 15).setAlpha(0.35);
+        fitText(text, "—", 225, 26, 18, 15).setAlpha(0.35);
         button.textContent = "Ziel nicht belegt";
         button.disabled = true;
         button.setAttribute("aria-pressed", "false");
@@ -646,7 +648,7 @@ export class DispatcherPanel {
         )
         .map((entry) => entry.label) ?? [];
     const summary = selected
-      ? `VORGABEN ${requirementLines.length - unmetRequirements.length}/${requirementLines.length} · FREIGABEN ${shared.approvals.agent ? "A✓" : "A○"} ${shared.approvals.archivist ? "R✓" : "R○"} ${shared.approvals.dispatcher ? "D✓" : "D○"}\n${unmetRequirements.length ? `FEHLT: ${unmetRequirements.join(", ")}` : "✓ Alle technischen Vorgaben erfüllt"}\n${selected.description}\n\nEINSTELLUNG\n${role.controls.map((control) => `${control.label}: ${showValue(control.value)}`).join("\n")}\n\nVORGABEN IM DETAIL\n${requirementLines.join("\n") || "Keine Vorgaben"}`
+      ? `${selected.description}\n\nVORGABEN ${requirementLines.length - unmetRequirements.length}/${requirementLines.length}\n${requirementLines.join("\n") || "Keine Vorgaben"}\n\n${unmetRequirements.length ? `FEHLT: ${unmetRequirements.join(", ")}` : "✓ Alle technischen Vorgaben erfüllt"}`
       : "Neun Regelziele und drei Sonderrohre.\nZiel wählen, Anlage einstellen, Freigaben prüfen.";
     if (this.summarySource !== summary) {
       this.summarySource = summary;
@@ -667,6 +669,16 @@ export class DispatcherPanel {
       this.summaryPageIndex === this.summaryPages.length - 1 ? 0.35 : 1,
     );
     this.mirrorSummary.textContent = `Auftrag Seite ${this.summaryPageIndex + 1} von ${this.summaryPages.length}. ${this.summaryPages[this.summaryPageIndex] ?? ""}`;
+    fitText(
+      this.transferText,
+      selected
+        ? `${selected.glyph} ${selected.name}\n${role.controls.map((control) => `${control.label}: ${showValue(control.value)}`).join(" · ")}\n\nFREIGABEN  ${shared.approvals.agent ? "AGENT ✓" : "AGENT ○"}  ${shared.approvals.archivist ? "ARCHIV ✓" : "ARCHIV ○"}\nDISPOSITION ${shared.approvals.dispatcher ? "✓" : "○"}`
+        : "Ziel wählen. Die Übergabe erscheint hier mit den eingestellten Parametern und Team-Freigaben.",
+      367,
+      160,
+      18,
+      15,
+    );
     this.previousSummaryButton.disabled =
       !hasSummaryPages || this.summaryPageIndex === 0;
     this.nextSummaryButton.disabled =
@@ -758,10 +770,10 @@ export class DispatcherPanel {
       15,
     );
     this.guardTrack.clear();
-    this.guardTrack.fillStyle(0x171216).fillRoundedRect(1540, 952, 268, 6, 3);
+    this.guardTrack.fillStyle(0x171216).fillRoundedRect(1581, 920, 239, 6, 3);
     this.guardTrack
       .fillStyle(this.armed ? C.success : C.warning)
-      .fillRoundedRect(this.armed ? 1765 : 1540, 948, 42, 14, 4);
+      .fillRoundedRect(this.armed ? 1778 : 1581, 916, 42, 14, 4);
     this.guardText.setText(
       `BÜGEL: ${this.armed ? "OFFEN · ZIEHEN" : "GESCHLOSSEN"}`,
     );
@@ -769,13 +781,13 @@ export class DispatcherPanel {
       this.commitText,
       canCommit
         ? this.armed
-          ? "↗ JETZT ZUSTELLEN"
-          : "↗ HEBEL ENTSICHERN"
-        : "↗ HEBEL GESPERRT",
-      270,
-      50,
-      25,
-      19,
+          ? "2. SEELEN-HEBEL ZIEHEN"
+          : "1. ARRETIERUNG ÖFFNEN"
+        : "HEBEL GESPERRT",
+      238,
+      48,
+      20,
+      17,
     );
     this.commitText.setAlpha(canCommit ? 1 : 0.5);
     this.commitButton.textContent = canCommit
