@@ -325,6 +325,7 @@ export function statusBar(
   scene: Phaser.Scene,
   role: Role,
 ): { update: (view: PublicShiftView) => void } {
+  if (role === "agent") return agentStatusBar(scene);
   workspaceSprite(scene, "iron-frame", 82, 16, 1756, 105);
   const names: Record<Role, string> = {
     agent: "AGENT",
@@ -417,6 +418,102 @@ export function statusBar(
           })
           .join("     "),
       );
+    },
+  };
+}
+
+function agentStatusBar(scene: Phaser.Scene): {
+  update: (view: PublicShiftView) => void;
+} {
+  workspaceSprite(scene, "iron-frame", 55, 13, 1810, 105);
+  workspaceSprite(scene, "control-housing", 65, 21, 380, 92);
+  workspaceSprite(scene, "dossier-paper", 78, 30, 354, 72);
+  label(scene, 91, 38, "♆", 59, "#8b241b");
+  label(scene, 151, 37, "HÖLLEN-HOTLINE", 29, C.ink);
+  label(scene, 153, 77, "AUFNAHME. PRÜFUNG. ZUWEISUNG.", 15, C.ink);
+
+  for (const box of [
+    { x: 452, w: 233 },
+    { x: 695, w: 100 },
+    { x: 805, w: 199 },
+    { x: 1014, w: 257 },
+    { x: 1281, w: 209 },
+    { x: 1500, w: 355 },
+  ])
+    workspaceSprite(scene, "control-housing", box.x, 21, box.w, 92);
+
+  label(scene, 469, 31, "WARTESCHLANGE", 18);
+  label(scene, 475, 67, "♟ ♟ ♟", 26, "#b8c7c8");
+  const queue = label(scene, 628, 65, "— / 7", 28);
+  workspaceSprite(scene, "dial-face", 703, 28, 84, 84);
+  const clockHand = scene.add.graphics();
+  clockHand.lineStyle(3, 0xff8e3d).lineBetween(745, 70, 745, 43);
+  clockHand.fillStyle(0xffb35c).fillCircle(745, 70, 4);
+  label(scene, 823, 31, "SCHICHTZEIT", 18);
+  const clock = label(scene, 821, 65, "00:00:00", 28);
+  label(scene, 1031, 31, "TEAM-STRESS", 18);
+  const stressBar = scene.add.graphics();
+  stressBar.fillStyle(0x120d0c).fillRoundedRect(1033, 66, 219, 22, 4);
+  stressBar.fillStyle(C.warning).fillRoundedRect(1036, 69, 80, 16, 3);
+  label(scene, 1297, 31, "FALL-ID", 18);
+  const caseId = label(scene, 1297, 67, "—", 23, C.text, 175);
+  label(scene, 1519, 31, "ÖFFENTLICHE ZUSTIMMUNG", 17);
+  const approvalLamps = scene.add.graphics();
+  [0x54ff7e, 0xffa82d, 0xf43f32].forEach((color, index) => {
+    const x = [1566, 1670, 1773][index]!;
+    approvalLamps.fillStyle(0x120b0b).fillCircle(x, 68, 18);
+    approvalLamps.fillStyle(color).fillCircle(x, 68, 11);
+    approvalLamps.fillStyle(0xffffff, 0.45).fillCircle(x - 3, 64, 3);
+  });
+  for (const [name, x] of [
+    ["AGENT", 1534],
+    ["ARCHIV", 1640],
+    ["ROUTE", 1742],
+  ] as const)
+    label(scene, x, 86, name, 14, C.text);
+
+  return {
+    update(view) {
+      queue.setText(`${view.queueLength} / 7`);
+      const seconds = Math.floor(view.elapsedMs / 1000);
+      clock.setText(
+        `${String(Math.floor(seconds / 3600)).padStart(2, "0")}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`,
+      );
+      clockHand.clear();
+      const angle = (seconds % 60) * (Math.PI / 30) - Math.PI / 2;
+      clockHand
+        .lineStyle(3, 0xff8e3d)
+        .lineBetween(
+          745,
+          70,
+          745 + Math.cos(angle) * 27,
+          70 + Math.sin(angle) * 27,
+        );
+      clockHand.fillStyle(0xffb35c).fillCircle(745, 70, 4);
+      const stress = Math.round(
+        (view.queuePressure + view.boilerPressure + view.auditRisk) / 3,
+      );
+      stressBar.clear();
+      stressBar.fillStyle(0x120d0c).fillRoundedRect(1033, 66, 219, 22, 4);
+      stressBar
+        .fillStyle(
+          stress >= 70 ? C.error : stress >= 40 ? C.warning : C.success,
+        )
+        .fillRoundedRect(1036, 69, Math.max(3, stress * 2.13), 16, 3);
+      caseId.setText(view.activeCaseId?.split(".").at(-1) ?? "—");
+      approvalLamps.clear();
+      [
+        view.approvals.agent,
+        view.approvals.archivist,
+        view.approvals.dispatcher,
+      ].forEach((approved, index) => {
+        const x = [1566, 1670, 1773][index]!;
+        approvalLamps.fillStyle(0x120b0b).fillCircle(x, 68, 18);
+        approvalLamps
+          .fillStyle(approved ? 0x54ff7e : index === 1 ? 0xffa82d : 0xf43f32)
+          .fillCircle(x, 68, 11);
+        approvalLamps.fillStyle(0xffffff, 0.45).fillCircle(x - 3, 64, 3);
+      });
     },
   };
 }

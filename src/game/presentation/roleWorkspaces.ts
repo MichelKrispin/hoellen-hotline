@@ -24,92 +24,130 @@ function heading(
 }
 
 function agentDesk(scene: Phaser.Scene, live: boolean): void {
-  prop(scene, "paper_note", 76, 195, 170, 210).setAngle(-6);
+  prop(scene, "paper_note", 20, 185, 150, 215).setAngle(-6).setDepth(1);
   label(
     scene,
-    94,
-    226,
+    43,
+    218,
     "NETT ZUHÖREN.\nSCHARF FRAGEN.\nRICHTIG SCHICKEN.",
-    19,
+    17,
     C.ink,
-    140,
-  );
+    112,
+  ).setDepth(1);
   const operator = scene.add
-    .image(290, 466, "agent-operator")
-    .setDisplaySize(430, 477)
+    .image(257, 369, "agent-operator")
+    .setDisplaySize(470, 515)
     .setName("agent-operator");
   if (!prefersReducedMotion())
     scene.tweens.add({
       targets: operator,
-      y: 460,
+      y: 364,
       duration: 2500,
       yoyo: true,
       repeat: -1,
       ease: "Sine.easeInOut",
     });
-  prop(scene, "phone_base", 160, 552, 320, 240);
-  if (!live) prop(scene, "handset", 363, 569, 67, 120).setAngle(-12);
-  sprite(scene, "control-housing", 95, 758, 395, 224);
-  sprite(scene, "control-housing", 119, 775, 346, 72).setTint(0xe38d6f);
-  sprite(scene, "control-housing", 119, 857, 346, 62);
-  prop(scene, "push_button", 124, 785, 48, 45);
-  prop(scene, "alarm_button", 123, 865, 43, 42);
+  scene.add
+    .image(20, 545, "agent-call-console")
+    .setOrigin(0)
+    .setDisplaySize(480, 355)
+    .setName("agent-call-console");
+  scene.add
+    .image(-2, 753, "agent-coffee-mug")
+    .setOrigin(0)
+    .setDisplaySize(135, 136)
+    .setName("agent-coffee-mug");
   if (!live) {
-    label(scene, 181, 795, "ANNEHMEN (A)", 27);
-    label(scene, 173, 870, "UNTERBRECHEN (I)", 22);
-    label(scene, 130, 943, "STIMMUNG  —", 21, "#ffc69c");
+    label(scene, 228, 663, "ANNEHMEN", 27, "#21100e").setAngle(-5);
+    label(scene, 220, 746, "UNTERBRECHEN", 20, C.ink).setAngle(-5);
+    label(scene, 255, 826, "ABKLINGZEIT  --:--", 15, C.text).setAngle(-5);
   }
-  sprite(scene, "iron-frame", 501, 180, 889, 247);
-  sprite(scene, "cyan-monitor", 525, 199, 841, 207);
-  heading(scene, 551, 216, "EINGEHENDER ANRUF / SEELENKANAL", "#91eafa");
-  prop(scene, "cyan_neon_frame", 552, 245, 185, 155);
+  scene.add
+    .image(501, 169, "agent-call-monitor")
+    .setOrigin(0)
+    .setDisplaySize(889, 253)
+    .setName("agent-call-monitor");
+  heading(scene, 548, 205, "EINGEHENDER ANRUF …", "#91eafa");
+  prop(scene, "cyan_neon_frame", 546, 241, 188, 153);
+  scene.add
+    .graphics()
+    .lineStyle(2, 0x34727c, 0.8)
+    .lineBetween(1134, 241, 1134, 389);
+  label(scene, 1152, 249, "STIMMUNG", 17, "#91eafa");
   if (!live) {
-    prop(scene, "caller_ghost", 579, 247, 138, 148);
-    prop(scene, "ring_energy", 695, 333, 42, 30);
-    label(scene, 746, 276, "Noch kein Anruf", 35);
-    label(scene, 746, 334, "FALL  —", 19, "#91eafa");
+    prop(scene, "caller_ghost", 573, 244, 138, 145);
+    prop(scene, "ring_energy", 695, 328, 42, 30);
+    label(scene, 746, 251, "Noch kein Anruf", 32, "#91eafa");
+    label(scene, 746, 296, "FALL-ID  —", 19, "#91eafa");
+    label(scene, 746, 323, "BERUF  —", 18, "#91eafa");
+    label(scene, 746, 349, "EREIGNIS  —", 17, "#91eafa");
+    label(scene, 1155, 306, "—", 30, "#91eafa");
   }
-  sprite(scene, "dossier-paper", 525, 438, 841, 144);
-  heading(scene, 548, 451, "ANRUFER", C.ink);
-  if (!live) label(scene, 548, 489, "Leitung frei.", 25, C.ink, 790);
+  sprite(scene, "dossier-paper", 525, 429, 841, 148);
+  heading(scene, 548, 442, "ANRUFER:", C.ink);
+  if (!live) label(scene, 675, 451, "Leitung frei.", 25, C.ink, 660);
+  label(scene, 548, 542, "DU:", 21, C.ink);
+  sprite(scene, "cyan-monitor", 607, 535, 742, 32).setAlpha(0.6);
   for (let i = 0; i < 5; i++) {
     const box = AGENT_LAYOUT.choice(i);
     if (!live) {
       sprite(scene, "paper-card", box.x, box.y, box.w, box.h);
-      label(scene, box.x + 18, box.y + 16, String(i + 1), 25, C.ink);
+      scene.add
+        .rectangle(box.x + 10, box.y + 6, 54, 52, 0x211a17)
+        .setOrigin(0)
+        .setStrokeStyle(2, 0x987459);
+      label(scene, box.x + 24, box.y + 12, String(i + 1), 30, C.text);
       label(
         scene,
-        box.x + 60,
-        box.y + 18,
+        box.x + 82,
+        box.y + 13,
         "Antwort verfügbar nach Anrufannahme",
-        23,
+        22,
         C.ink,
       );
     }
   }
-  sprite(scene, "iron-frame", 527, 933, 835, 75);
-  sprite(scene, "paper-card", 543, 944, 581, 52);
-  sprite(scene, "control-housing", 1135, 944, 207, 52);
-  if (!live) {
-    label(scene, 558, 956, "→ Zielbitte: —", 23, C.ink);
-    label(scene, 1151, 957, "BITTE SENDEN", 22);
+  sprite(scene, "iron-frame", 527, 938, 839, 112);
+  label(scene, 548, 943, "PRIVATE HINWEISE", 18, C.text);
+  for (let i = 0; i < 3; i++) {
+    const box = AGENT_LAYOUT.privateHint(i);
+    sprite(scene, "hint-slip", box.x, box.y, box.w, box.h);
   }
-  sprite(scene, "iron-frame", 1402, 193, 394, 641);
-  sprite(scene, "dossier-paper", 1416, 207, 367, 610);
-  sprite(scene, "clipboard-clip", 1524, 173, 150, 61);
-  heading(scene, 1436, 255, "ÖFFENTLICHE HINWEISE", C.ink);
+  if (!live) {
+    label(scene, 560, 978, "Noch keine Hinweise", 19, C.ink);
+  }
+  scene.add
+    .image(1402, 165, "agent-hints-clipboard")
+    .setOrigin(0)
+    .setDisplaySize(394, 639)
+    .setName("agent-hints-clipboard");
+  heading(scene, 1436, 244, "ÖFFENTLICHE HINWEISE", C.ink);
+  label(scene, 1436, 275, "Slot anklicken · max. 3 für das Team", 16, C.ink);
   for (let i = 0; i < 3; i++) {
     const box = AGENT_LAYOUT.hint(i);
     sprite(scene, "hint-slip", box.x, box.y, box.w, box.h);
-    if (!live) label(scene, 1450, box.y + 25, `◇ HINWEIS ${i + 1}`, 24, C.ink);
+    scene.add
+      .rectangle(box.x + 11, box.y + 14, 50, 64, 0x211a17)
+      .setOrigin(0)
+      .setStrokeStyle(2, 0x987459);
+    label(scene, box.x + 27, box.y + 27, String(i + 1), 29, C.text);
+    if (!live) label(scene, 1512, box.y + 25, `HINWEIS ${i + 1}`, 22, C.ink);
   }
   if (!live) {
-    label(scene, 1450, 686, "Entdeckt: —", 21, C.ink);
-    label(scene, 1450, 758, "◇ Freigabe: Ziel fehlt", 21, C.ink);
+    label(scene, 1450, 666, "Hinweis auswählen: —", 19, C.ink);
+    label(scene, 1450, 744, "◇ Freigabe: Ziel fehlt", 21, C.ink);
   }
-  sprite(scene, "iron-frame", 1402, 856, 394, 152);
-  heading(scene, 1427, 878, "LEITUNGSDRUCK");
-  if (!live) label(scene, 1428, 924, "◇ Ruhig", 24);
+  sprite(scene, "iron-frame", 1402, 817, 394, 233);
+  heading(scene, 1427, 839, "TEAM-STATUS");
+  sprite(scene, "control-housing", 1595, 955, 184, 34);
+  if (!live) {
+    label(scene, 1428, 883, "ARCHIV  —", 20);
+    label(scene, 1428, 913, "DISPOSITION  —", 20);
+    label(scene, 1428, 943, "ZIELBITTE  —", 20);
+    label(scene, 1610, 961, "BITTE SENDEN", 17);
+    label(scene, 1428, 998, "FREIGABE  —", 20);
+    label(scene, 1428, 1021, "LEITUNGSDRUCK  ◇ Ruhig", 17);
+  }
 }
 
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {

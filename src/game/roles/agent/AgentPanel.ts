@@ -26,7 +26,10 @@ export class AgentPanel {
   private readonly callerSprite: Phaser.GameObjects.Image;
   private readonly caller: Phaser.GameObjects.Text;
   private readonly callerCase: Phaser.GameObjects.Text;
+  private readonly occupation: Phaser.GameObjects.Text;
+  private readonly event: Phaser.GameObjects.Text;
   private readonly speech: Phaser.GameObjects.Text;
+  private readonly replyPreview: Phaser.GameObjects.Text;
   private readonly mood: Phaser.GameObjects.Text;
   private readonly queue: Phaser.GameObjects.Text;
   private readonly accept: Phaser.GameObjects.Text;
@@ -35,14 +38,17 @@ export class AgentPanel {
   private readonly choicePlates: (
     Phaser.GameObjects.Image | Phaser.GameObjects.NineSlice
   )[] = [];
+  private readonly choiceNumbers: Phaser.GameObjects.Rectangle[] = [];
   private readonly hints: Phaser.GameObjects.Text[] = [];
+  private readonly privateHints: Phaser.GameObjects.Text[] = [];
   private readonly publishedTags: (string | undefined)[] = [];
   private readonly discovered: Phaser.GameObjects.Text;
   private readonly suggestion: Phaser.GameObjects.Text;
   private readonly suggestionAction: Phaser.GameObjects.Text;
   private readonly approval: Phaser.GameObjects.Text;
+  private readonly archiveStatus: Phaser.GameObjects.Text;
+  private readonly dispatchStatus: Phaser.GameObjects.Text;
   private readonly feedback: Phaser.GameObjects.Text;
-  private readonly handset: Phaser.GameObjects.Image;
   private readonly face: Phaser.GameObjects.Image;
   private readonly ring: Phaser.GameObjects.Image;
   private readonly operator: Phaser.GameObjects.Image | null;
@@ -60,6 +66,7 @@ export class AgentPanel {
   private readonly unsubscribe: () => void;
   private transcriptCase: CaseId | null = null;
   private lastDialogueText: string | null = null;
+  private lastReply = "";
   private selectedTag: string | null = null;
   private selectedDestination: string | null = null;
   private pendingUntil = 0;
@@ -97,40 +104,39 @@ export class AgentPanel {
     this.operator = scene.children.getByName(
       "agent-operator",
     ) as Phaser.GameObjects.Image | null;
-    this.callerSprite = roleSprite(scene, "caller_ghost", 579, 247, 138, 148);
+    this.callerSprite = roleSprite(scene, "caller_ghost", 573, 244, 138, 145);
     const initialPortrait = textureFor(scene, "asset.core.portrait.clerk");
     this.portrait = scene.add.image(
-      648,
-      321,
+      642,
+      317,
       initialPortrait.key,
       initialPortrait.frame,
     );
-    this.portrait.setDisplaySize(138, 148).setVisible(false);
-    this.caller = label(scene, 746, 276, "Noch kein Anruf", 35, C.text, 590);
-    this.callerCase = label(scene, 746, 334, "FALL  —", 19, "#91eafa", 305);
-    this.speech = label(scene, 548, 489, "Leitung frei.", 25, C.ink, 790);
-    this.mood = label(scene, 130, 943, "STIMMUNG  —", 21, "#ffc69c");
-    this.queue = label(scene, 1428, 924, "◇ Ruhig", 24);
-    this.accept = label(scene, 181, 795, "ANNEHMEN (A)", 27).setFontFamily(
-      '"Trebuchet MS", "DejaVu Sans", sans-serif',
-    );
+    this.portrait.setDisplaySize(138, 145).setVisible(false);
+    this.caller = label(scene, 746, 249, "Noch kein Anruf", 32, "#91eafa", 380);
+    this.callerCase = label(scene, 746, 295, "FALL-ID  —", 19, "#91eafa", 370);
+    this.occupation = label(scene, 746, 322, "BERUF  —", 18, "#91eafa", 370);
+    this.event = label(scene, 746, 348, "EREIGNIS  —", 17, "#91eafa", 370);
+    this.speech = label(scene, 675, 452, "Leitung frei.", 24, C.ink, 660);
+    this.replyPreview = label(scene, 621, 539, "…", 18, "#91eafa", 710);
+    this.mood = label(scene, 1151, 299, "—", 24, "#91eafa", 184);
+    this.queue = label(scene, 1428, 1018, "◇ Ruhig", 19);
+    this.accept = label(scene, 228, 663, "ANNEHMEN", 27, "#21100e")
+      .setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif')
+      .setAngle(-5);
     scene.add
-      .zone(119, 775, 346, 72)
+      .zone(184, 626, 247, 91)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.acceptCase());
     this.accept
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.acceptCase());
-    this.interrupt = label(
-      scene,
-      173,
-      870,
-      "UNTERBRECHEN (I)",
-      22,
-    ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
+    this.interrupt = label(scene, 220, 746, "UNTERBRECHEN", 20, C.ink)
+      .setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif')
+      .setAngle(-5);
     scene.add
-      .zone(119, 857, 346, 62)
+      .zone(192, 724, 242, 73)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.interruptCall());
@@ -141,15 +147,28 @@ export class AgentPanel {
       const { x, y, w, h } = AGENT_LAYOUT.choice(i);
       const card = workspaceSprite(scene, "paper-card", x, y, w, h);
       this.choicePlates.push(card);
-      const number = label(scene, 558, y + 15, String(i + 1), 25, C.ink, 30);
+      const numberBack = scene.add
+        .rectangle(x + 10, y + 6, 54, 52, 0x211a17)
+        .setOrigin(0)
+        .setStrokeStyle(2, 0x987459);
+      this.choiceNumbers.push(numberBack);
+      const number = label(
+        scene,
+        x + 24,
+        y + 12,
+        String(i + 1),
+        30,
+        C.text,
+        38,
+      );
       const choice = label(
         scene,
-        601,
-        y + 16,
+        x + 82,
+        y + 12,
         "",
-        23,
+        22,
         C.ink,
-        713,
+        w - 104,
       ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
       scene.add
         .zone(x, y, w, h)
@@ -158,25 +177,29 @@ export class AgentPanel {
         .on("pointerover", () => {
           if (!prefersReducedMotion()) {
             card.setY(y - 3);
-            number.setY(y + 12);
-            choice.setY(y + 13);
+            numberBack.setY(y + 3);
+            number.setY(y + 9);
+            choice.setY(y + 9);
           }
         })
         .on("pointerout", () => {
           card.setY(y);
-          number.setY(y + 15);
-          choice.setY(y + 16);
+          numberBack.setY(y + 6);
+          number.setY(y + 12);
+          choice.setY(y + 12);
         })
         .on("pointerdown", () => {
           card.setY(y + 2);
-          number.setY(y + 17);
-          choice.setY(y + 18);
+          numberBack.setY(y + 8);
+          number.setY(y + 14);
+          choice.setY(y + 14);
           this.choose(i);
           scene.time.delayedCall(120, () => {
             if (!card.active) return;
             card.setY(y);
-            number.setY(y + 15);
-            choice.setY(y + 16);
+            numberBack.setY(y + 6);
+            number.setY(y + 12);
+            choice.setY(y + 12);
           });
         });
       this.choices.push(choice);
@@ -184,12 +207,12 @@ export class AgentPanel {
     for (let i = 0; i < 3; i++) {
       const hint = label(
         scene,
-        1450,
-        AGENT_LAYOUT.hint(i).y + 25,
-        `◇  HINWEIS ${i + 1}`,
-        24,
+        1512,
+        AGENT_LAYOUT.hint(i).y + 22,
+        `HINWEIS ${i + 1}`,
+        22,
         C.ink,
-        300,
+        254,
       ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
       hint
         .setInteractive({ useHandCursor: true })
@@ -202,40 +225,58 @@ export class AgentPanel {
         .on("pointerdown", () => this.publish(i));
       this.hints.push(hint);
     }
+    for (let i = 0; i < 3; i++) {
+      const box = AGENT_LAYOUT.privateHint(i);
+      const hint = label(
+        scene,
+        box.x + 12,
+        box.y + 13,
+        "Noch leer",
+        18,
+        C.ink,
+        box.w - 24,
+      );
+      scene.add
+        .zone(box.x, box.y, box.w, box.h)
+        .setOrigin(0)
+        .setInteractive({ useHandCursor: true })
+        .on("pointerdown", () => this.selectPrivateHint(i));
+      this.privateHints.push(hint);
+    }
     this.discovered = label(
       scene,
       1450,
-      686,
-      "Entdeckte Hinweise: –",
-      21,
+      666,
+      "Hinweis auswählen: –",
+      19,
       C.ink,
-      300,
+      314,
     ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     this.discovered
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.cycleTag());
     this.suggestion = label(
       scene,
-      558,
-      956,
-      "→ Zielbitte: –",
-      23,
-      C.ink,
-      550,
+      1428,
+      933,
+      "ZIELBITTE  –",
+      18,
+      C.text,
+      340,
     ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     this.suggestion
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.cycleDestination());
     this.suggestionAction = label(
       scene,
-      1151,
-      957,
+      1610,
+      960,
       "BITTE SENDEN",
-      22,
+      17,
       C.text,
     ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     scene.add
-      .zone(1135, 944, 207, 52)
+      .zone(1595, 955, 184, 30)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.sendSuggestion());
@@ -244,29 +285,36 @@ export class AgentPanel {
       .on("pointerdown", () => this.sendSuggestion());
     this.approval = label(
       scene,
-      1450,
-      758,
+      1428,
+      990,
       "◇ Freigabe offen",
-      22,
-      C.ink,
-      310,
+      19,
+      C.text,
+      345,
     ).setFontFamily('"Trebuchet MS", "DejaVu Sans", sans-serif');
     this.approval
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.toggleApproval());
-    this.feedback = label(scene, 559, 1021, "", 18, C.text, 740);
-    this.handset = roleSprite(scene, "handset", 363, 569, 67, 120).setAngle(
-      -12,
+    this.archiveStatus = label(scene, 1428, 871, "ARCHIV  —", 18, C.text, 340);
+    this.dispatchStatus = label(
+      scene,
+      1428,
+      901,
+      "DISPOSITION  —",
+      18,
+      C.text,
+      340,
     );
+    this.feedback = label(scene, 557, 1033, "", 15, C.text, 790);
     this.face = roleSprite(
       scene,
       "spectral_mouth",
-      625,
-      321,
+      619,
+      317,
       46,
       35,
     ).setVisible(false);
-    this.ring = roleSprite(scene, "ring_energy", 695, 333, 42, 30).setVisible(
+    this.ring = roleSprite(scene, "ring_energy", 695, 328, 42, 30).setVisible(
       false,
     );
     this.setupMirror();
@@ -356,8 +404,10 @@ export class AgentPanel {
   private choose(index: number): void {
     const id = this.caseId();
     const choiceId = this.current()?.dialogueOptions[index];
-    if (id && choiceId && !this.current()?.cooldownMs)
+    if (id && choiceId && !this.current()?.cooldownMs) {
+      this.lastReply = this.current()?.dialogueLabels[choiceId] ?? choiceId;
       this.submit({ kind: "DIALOGUE", caseId: id, choiceId });
+    }
   }
   private interruptCall(): void {
     const id = this.caseId();
@@ -374,6 +424,13 @@ export class AgentPanel {
     this.selectedTag =
       tags[(tags.indexOf(this.selectedTag ?? "") + 1) % tags.length]!;
     this.tagSelect.value = this.selectedTag;
+    this.render();
+  }
+  private selectPrivateHint(index: number): void {
+    const tag = this.current()?.discoveredTags[index];
+    if (!tag) return;
+    this.selectedTag = tag;
+    this.tagSelect.value = tag;
     this.render();
   }
   private publish(slot: number): void {
@@ -450,6 +507,7 @@ export class AgentPanel {
     if (this.transcriptCase !== view.public.activeCaseId) {
       this.transcriptCase = view.public.activeCaseId;
       this.lastDialogueText = null;
+      this.lastReply = "";
       this.mirrorTranscript.replaceChildren();
       this.mirrorTranscript.hidden = true;
     }
@@ -467,18 +525,34 @@ export class AgentPanel {
     fitText(
       this.caller,
       role.callerName ?? role.incomingCallerName ?? "Noch kein Anruf",
-      590,
-      48,
-      35,
-      22,
+      375,
+      40,
+      32,
+      20,
     );
     fitText(
       this.callerCase,
-      `FALL  ${view.public.activeCaseId?.split(".").at(-1) ?? role.incomingCaseId?.split(".").at(-1) ?? "—"}`,
-      305,
+      `FALL-ID  ${view.public.activeCaseId?.split(".").at(-1) ?? role.incomingCaseId?.split(".").at(-1) ?? "—"}`,
+      370,
       26,
       19,
       16,
+    );
+    fitText(
+      this.occupation,
+      `BERUF  ${role.callerOccupation ?? "—"}`,
+      370,
+      24,
+      18,
+      15,
+    );
+    fitText(
+      this.event,
+      `EREIGNIS  ${role.callerEvent ?? "—"}`,
+      370,
+      42,
+      17,
+      14,
     );
     fitText(
       this.speech,
@@ -486,37 +560,50 @@ export class AgentPanel {
         (role.incomingCaseId
           ? "Ein Anruf wartet in der Leitung."
           : "Leitung frei."),
-      790,
-      76,
-      25,
-      19,
+      660,
+      79,
+      24,
+      17,
     );
-    this.mood.setText(
-      `STIMMUNG  ${role.callerMood === null ? "—" : role.callerMood >= 70 ? "☺ ruhig" : role.callerMood >= 40 ? "◇ angespannt" : "! gereizt"}`,
+    fitText(this.replyPreview, this.lastReply || "…", 708, 27, 18, 15);
+    fitText(
+      this.mood,
+      role.callerMood === null
+        ? "—"
+        : role.callerMood >= 70
+          ? "☺ RUHIG"
+          : role.callerMood >= 40
+            ? "◇ ANGESPANNT"
+            : "! GEREIZT",
+      184,
+      60,
+      24,
+      17,
     );
     fitText(
       this.queue,
-      pressureLabel(view.public.queuePressure),
-      300,
-      30,
-      24,
-      18,
+      `LEITUNGSDRUCK  ${pressureLabel(view.public.queuePressure)}`,
+      340,
+      26,
+      19,
+      16,
     );
     fitText(
       this.accept,
-      active ? "● LEITUNG AKTIV" : "ANNEHMEN (A)",
-      275,
+      active ? "LEITUNG AKTIV" : "ANNEHMEN",
+      180,
       36,
       27,
-      22,
+      19,
     );
     this.accept.setAlpha(role.incomingCaseId || active ? 1 : 0.45);
     this.acceptButton.disabled = !role.incomingCaseId;
     for (let i = 0; i < 5; i++) {
       const choiceId = role.dialogueOptions[i];
       const text = choiceId ? (role.dialogueLabels[choiceId] ?? choiceId) : "";
-      fitText(this.choices[i]!, text, 713, 44, 23, 17);
+      fitText(this.choices[i]!, text, 715, 48, 22, 16);
       this.choicePlates[i]!.setAlpha(choiceId && !role.cooldownMs ? 1 : 0.56);
+      this.choiceNumbers[i]!.setAlpha(choiceId && !role.cooldownMs ? 1 : 0.56);
       this.mirrorChoices[i]!.textContent = text
         ? `Antwort ${i + 1}: ${text}`
         : `Antwort ${i + 1} nicht verfügbar`;
@@ -524,11 +611,13 @@ export class AgentPanel {
     }
     fitText(
       this.interrupt,
-      `UNTERBRECHEN (I)${role.cooldownMs ? ` · ${Math.ceil(role.cooldownMs / 1000)} s` : ""}`,
-      283,
+      role.cooldownMs
+        ? `WARTEN ${Math.ceil(role.cooldownMs / 1000)} s`
+        : "UNTERBRECHEN",
+      194,
       32,
-      22,
-      18,
+      20,
+      16,
     );
     this.interrupt.setAlpha(
       active && role.dialogueOptions.length && !role.cooldownMs ? 1 : 0.45,
@@ -543,11 +632,26 @@ export class AgentPanel {
     this.tagSelect.disabled = role.discoveredTags.length === 0;
     fitText(
       this.discovered,
-      `Entdeckt: ${this.selectedTag ? (role.tagLabels[this.selectedTag] ?? this.selectedTag) : "–"}  ↻`,
-      300,
-      46,
-      21,
+      `AUSGEWÄHLT: ${this.selectedTag ? (role.tagLabels[this.selectedTag] ?? this.selectedTag) : "–"}  ↻`,
+      314,
+      52,
+      19,
+      15,
     );
+    for (let i = 0; i < 3; i++) {
+      const tag = role.discoveredTags[i];
+      fitText(
+        this.privateHints[i]!,
+        tag
+          ? `${tag === this.selectedTag ? "●" : "◇"} ${role.tagLabels[tag] ?? tag}`
+          : "◇ Noch leer",
+        AGENT_LAYOUT.privateHint(i).w - 24,
+        49,
+        18,
+        14,
+      );
+      this.privateHints[i]!.setAlpha(tag ? 1 : 0.55);
+    }
     for (let i = 0; i < 3; i++) {
       const tag = view.public.publishedTags[i];
       if (
@@ -557,22 +661,22 @@ export class AgentPanel {
       ) {
         const slip = this.hints[i]!;
         this.scene.tweens.killTweensOf(slip);
-        slip.setAlpha(0.2).setY(AGENT_LAYOUT.hint(i).y + 12);
+        slip.setAlpha(0.2).setY(AGENT_LAYOUT.hint(i).y + 10);
         this.scene.tweens.add({
           targets: slip,
           alpha: 1,
-          y: AGENT_LAYOUT.hint(i).y + 25,
+          y: AGENT_LAYOUT.hint(i).y + 22,
           duration: 180,
         });
       }
       this.publishedTags[i] = tag;
       fitText(
         this.hints[i]!,
-        `◇  ${tag ? (role.tagLabels[tag] ?? tag) : `Hinweis ${i + 1} frei`}`,
-        300,
-        54,
-        24,
-        17,
+        tag ? (role.tagLabels[tag] ?? tag) : `Hinweis ${i + 1} frei`,
+        254,
+        59,
+        21,
+        15,
       );
       this.mirrorHints[i]!.textContent =
         `${tag ? "Hinweis ersetzen" : "Hinweis veröffentlichen"}, Slot ${i + 1}: ${tag ? (role.tagLabels[tag] ?? tag) : "frei"}`;
@@ -591,12 +695,12 @@ export class AgentPanel {
     fitText(
       this.suggestion,
       suggested
-        ? `→ Zielbitte gesendet: ${role.suggestableDestinations.find((item) => item.id === suggested)?.name ?? suggested}`
-        : `→ Zielbitte: ${selectedName ?? "–"}  ↻`,
-      550,
-      38,
-      23,
+        ? `ZIELBITTE: ${role.suggestableDestinations.find((item) => item.id === suggested)?.name ?? suggested}`
+        : `ZIELBITTE: ${selectedName ?? "–"}  ↻`,
+      340,
+      25,
       18,
+      15,
     );
     this.suggestButton.disabled =
       !active || !this.selectedDestination || Boolean(suggested);
@@ -611,10 +715,32 @@ export class AgentPanel {
       view.public.selectedDestination
         ? `${view.public.approvals.agent ? "✓ Freigegeben" : "◇ Freigeben"}: ${approvalName}`
         : "◇ Freigabe: Ziel fehlt",
-      310,
-      48,
-      22,
-      17,
+      345,
+      27,
+      19,
+      15,
+    );
+    const archive = view.public.colleagues.find(
+      (item) => item.role === "archivist",
+    );
+    const dispatch = view.public.colleagues.find(
+      (item) => item.role === "dispatcher",
+    );
+    fitText(
+      this.archiveStatus,
+      `ARCHIV  ${archive?.activity ?? "getrennt"} · ${view.public.archivePins.length} Pins`,
+      340,
+      26,
+      18,
+      15,
+    );
+    fitText(
+      this.dispatchStatus,
+      `DISPOSITION  ${dispatch?.activity ?? "getrennt"}`,
+      340,
+      26,
+      18,
+      15,
     );
     this.approval.setAlpha(view.public.selectedDestination ? 1 : 0.5);
     this.approvalButton.textContent = view.public.approvals.agent
@@ -624,10 +750,10 @@ export class AgentPanel {
     fitText(
       this.feedback,
       this.network.error || this.localFeedback,
-      740,
-      28,
-      18,
-      16,
+      790,
+      19,
+      15,
+      13,
     );
     const accessibleStatus = `${role.callerName ?? role.incomingCallerName ?? "Kein Anruf"}. ${role.dialogueText ?? ""} Queue ${pressureLabel(view.public.queuePressure)}. Freigabe ${view.public.approvals.agent ? "erteilt" : "offen"}. ${this.network.error || this.localFeedback}`;
     if (this.mirrorStatus.textContent !== accessibleStatus)
@@ -650,7 +776,7 @@ export class AgentPanel {
       worm && !prefersReducedMotion()
         ? Math.sin(sceneTime(this.scene) / 170) * 10
         : 0;
-    this.handset.setX(396.5 + offset);
+    this.operator?.setX(257 + offset * 0.2);
   }
   destroy(): void {
     this.unsubscribe();

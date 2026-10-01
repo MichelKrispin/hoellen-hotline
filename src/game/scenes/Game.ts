@@ -14,6 +14,11 @@ import { ShiftMirror } from "../../ui/shiftMirror";
 import { prefersReducedMotion } from "../../app/options";
 import { room, statusBar } from "../presentation/art";
 import { roleWorkspace } from "../presentation/roleWorkspaces";
+import agentOperator from "../../assets/agent-operator-mockup.webp?url";
+import agentCallConsole from "../../assets/agent-call-console.webp?url";
+import agentCoffeeMug from "../../assets/agent-coffee-mug.webp?url";
+import agentCallMonitor from "../../assets/agent-call-monitor.webp?url";
+import agentHintsClipboard from "../../assets/agent-hints-clipboard.webp?url";
 
 const C = TOKENS.color;
 
@@ -48,6 +53,13 @@ export class Game extends Phaser.Scene {
     this.load.once("complete", () => progress.destroy());
     preloadAssetGroups(this, ["shared", `role-${this.role}`]);
     preloadRoleSprites(this, this.role);
+    if (this.role === "agent") {
+      this.load.image("agent-operator", agentOperator);
+      this.load.image("agent-call-console", agentCallConsole);
+      this.load.image("agent-coffee-mug", agentCoffeeMug);
+      this.load.image("agent-call-monitor", agentCallMonitor);
+      this.load.image("agent-hints-clipboard", agentHintsClipboard);
+    }
   }
   create(): void {
     document.body.classList.add("role-game");

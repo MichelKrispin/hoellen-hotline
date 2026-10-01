@@ -199,6 +199,8 @@ export type RoleView =
       role: "agent";
       callerName: string | null;
       callerPortrait: string | null;
+      callerOccupation: string | null;
+      callerEvent: string | null;
       callerMood: number | null;
       dialogueOptions: string[];
       dialogueText: string | null;

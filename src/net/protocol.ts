@@ -166,6 +166,8 @@ const roleView = z.discriminatedUnion("role", [
       role: z.literal("agent"),
       callerName: z.string().nullable(),
       callerPortrait: z.string().nullable(),
+      callerOccupation: z.string().nullable(),
+      callerEvent: z.string().nullable(),
       callerMood: z.number().nullable(),
       dialogueOptions: z.array(z.string()),
       dialogueText: z.string().nullable(),

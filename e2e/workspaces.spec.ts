@@ -3,6 +3,15 @@ import { expect, test } from "@playwright/test";
 test("mockup workspaces load their separate sprites in all three role previews", async ({
   page,
 }, testInfo) => {
+  const pressNavigationKey = async (key: string): Promise<void> => {
+    await page.keyboard.press(key);
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        }),
+    );
+  };
   const failures: string[] = [];
   const sprites = new Set<string>();
   const roleSprites = new Set<string>();
@@ -50,13 +59,13 @@ test("mockup workspaces load their separate sprites in all three role previews",
   expect(sprites.has("slider-thumb")).toBe(true);
   expect(sprites.size).toBe(18);
   expect(roleSprites.size).toBe(0);
-  await page.keyboard.press("d");
+  await pressNavigationKey("d");
   for (const [key, role] of [
     ["3", "agent"],
     ["4", "archivist"],
     ["5", "dispatcher"],
   ] as const) {
-    await page.keyboard.press(key);
+    await pressNavigationKey(key);
     await expect(canvas).toHaveAttribute("data-role", role);
     await expect
       .poll(() =>

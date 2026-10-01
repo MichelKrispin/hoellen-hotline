@@ -1,7 +1,13 @@
 // Coordinates in the 1920 × 1080 design space, shared by art and live controls.
 export const AGENT_LAYOUT = {
-  choice: (index: number) => ({ x: 541, y: 602 + index * 64, w: 790, h: 58 }),
-  hint: (index: number) => ({ x: 1440, y: 304 + index * 112, w: 340, h: 96 }),
+  choice: (index: number) => ({ x: 541, y: 587 + index * 68, w: 825, h: 64 }),
+  hint: (index: number) => ({ x: 1440, y: 300 + index * 112, w: 340, h: 96 }),
+  privateHint: (index: number) => ({
+    x: 548 + index * 264,
+    y: 961,
+    w: 254,
+    h: 69,
+  }),
 } as const;
 
 export const ARCHIVE_LAYOUT = {

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("role atlases load within the documented client budget", async ({
+test("agent artwork loads within the documented client budget", async ({
   page,
 }) => {
   await page.goto("/");
@@ -16,7 +16,9 @@ test("role atlases load within the documented client budget", async ({
       "resource",
     ) as PerformanceResourceTiming[];
     const atlases = resources.filter((entry) =>
-      /role-agent|shared|generated\/role-sprites/.test(entry.name),
+      /role-agent|shared|generated\/role-sprites|agent-(operator-mockup|call-console|coffee-mug|call-monitor|hints-clipboard)/.test(
+        entry.name,
+      ),
     );
     return {
       renderer: gl ? "webgl" : target.getContext("2d") ? "canvas" : "none",
@@ -41,6 +43,16 @@ test("role atlases load within the documented client budget", async ({
   expect(metrics.atlasNames.some((name) => name?.includes("role-agent"))).toBe(
     true,
   );
+  for (const sprite of [
+    "agent-operator-mockup",
+    "agent-call-console",
+    "agent-coffee-mug",
+    "agent-call-monitor",
+    "agent-hints-clipboard",
+  ])
+    expect(metrics.atlasNames.some((name) => name?.includes(sprite))).toBe(
+      true,
+    );
   expect(metrics.atlasTransferBytes).toBeLessThan(2 * 1024 * 1024);
   console.log(`Asset profile: ${JSON.stringify(metrics)}`);
 });

@@ -66,6 +66,9 @@ export function projectView(
     packs
       .flatMap((pack) => pack.archetypes)
       .find((item) => item.id === archetypeId)?.portrait ?? null;
+  const activeArchetype = packs
+    .flatMap((pack) => pack.archetypes)
+    .find((item) => item.id === simCase?.generated?.archetypeId);
   const agentId = Object.entries(state.players).find(
     ([, player]) => player.role === "agent",
   )?.[0];
@@ -187,6 +190,12 @@ export function projectView(
           role,
           callerName: active ? translate(active.callerName) : null,
           callerPortrait: portraitFor(simCase?.generated?.archetypeId),
+          callerOccupation: activeArchetype?.occupationKey
+            ? translate(activeArchetype.occupationKey)
+            : null,
+          callerEvent: activeArchetype?.eventKeys?.[0]
+            ? translate(activeArchetype.eventKeys[0])
+            : null,
           callerMood: active?.callerMood ?? null,
           dialogueOptions: [...(active?.dialogueOptions ?? [])],
           dialogueText: node ? translate(node.textKey) : null,

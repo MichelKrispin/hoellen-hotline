@@ -42,6 +42,8 @@ const view = (revision: number): PlayerViewState => ({
     role: "agent",
     callerName: "caller",
     callerPortrait: null,
+    callerOccupation: null,
+    callerEvent: null,
     callerMood: 50,
     dialogueOptions: ["a"],
     dialogueText: "Hello",

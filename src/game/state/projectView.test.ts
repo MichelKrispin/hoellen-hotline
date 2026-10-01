@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 import core from "../../content/core/fixture.json";
 import { loadContent } from "../../content/registry";
 import type { CampaignPackage } from "../../content/schemas";
-import { createSimulation } from "./simulation";
+import { createSimulation, reduceInput } from "./simulation";
 import { projectView } from "./projectView";
 import type { GameState } from "./contracts";
 import type {
+  ActionId,
   CaseId,
   DestinationId,
   PlayerId,
@@ -62,6 +63,54 @@ const state: GameState = {
 };
 
 describe("role projection", () => {
+  it("supplies translated caller details to the agent monitor", async () => {
+    const campaign = structuredClone(core) as CampaignPackage;
+    const hash = (await loadContent([campaign])).gameplayHash;
+    let sim = createSimulation(
+      {
+        sessionId: state.sessionId,
+        hostPlayerId: "agent" as PlayerId,
+        scenarioId: "core.scenario.first",
+        players: [
+          { id: "agent" as PlayerId, role: "agent" },
+          { id: "archivist" as PlayerId, role: "archivist" },
+          { id: "dispatcher" as PlayerId, role: "dispatcher" },
+        ],
+      },
+      "caller-details",
+      hash,
+    );
+    for (const playerId of ["agent", "archivist", "dispatcher"])
+      sim = reduceInput(
+        sim,
+        {
+          type: "command",
+          playerId: playerId as PlayerId,
+          actionId: `ready-${playerId}` as ActionId,
+          command: { kind: "READY", ready: true },
+        },
+        [campaign],
+      ).state;
+    sim = reduceInput(
+      sim,
+      {
+        type: "command",
+        playerId: "agent" as PlayerId,
+        actionId: "start" as ActionId,
+        command: { kind: "START" },
+      },
+      [campaign],
+    ).state;
+    const first = sim.cases[0]!;
+    first.status = "active";
+    first.generated.archetypeId = "core.archetype.clerk";
+    const role = projectView(sim, "agent", [campaign]).role;
+    expect(role.role).toBe("agent");
+    if (role.role !== "agent") return;
+    expect(role.callerOccupation).toBe("Aktiver Sachbearbeiter");
+    expect(role.callerEvent).toBe("Heute am roten Tintenschalter eingeteilt.");
+  });
+
   it("announces an upcoming shift rule and then reports it as active", async () => {
     const campaign = structuredClone(core) as CampaignPackage;
     campaign.scenarios[0]!.casePlan.count = 8;
