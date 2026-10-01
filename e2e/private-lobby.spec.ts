@@ -212,8 +212,8 @@ async function playPrivateShift(
       const search = await archiveSearch.boundingBox();
       return canvas && search
         ? Math.max(
-            Math.abs(search.x - (canvas.x + (136 * canvas.width) / 1920)),
-            Math.abs(search.y - (canvas.y + (278 * canvas.height) / 1080)),
+            Math.abs(search.x - (canvas.x + (158 * canvas.width) / 1920)),
+            Math.abs(search.y - (canvas.y + (224 * canvas.height) / 1080)),
           )
         : Infinity;
     })

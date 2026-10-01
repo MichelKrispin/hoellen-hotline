@@ -11,9 +11,9 @@ export const AGENT_LAYOUT = {
 } as const;
 
 export const ARCHIVE_LAYOUT = {
-  result: (index: number) => ({ x: 116, y: 376 + index * 121, w: 350, h: 110 }),
-  stamp: (index: number) => ({ x: 550 + index * 220, y: 839, w: 204, h: 152 }),
-  tab: (index: number) => ({ x: 1265 + index * 128, y: 292, w: 124, h: 38 }),
+  result: (index: number) => ({ x: 145, y: 345 + index * 101, w: 348, h: 93 }),
+  stamp: (index: number) => ({ x: 585 + index * 218, y: 825, w: 192, h: 169 }),
+  tab: (index: number) => ({ x: 1847, y: 265 + index * 67, w: 46, h: 53 }),
 } as const;
 
 export const DISPATCH_LAYOUT = {

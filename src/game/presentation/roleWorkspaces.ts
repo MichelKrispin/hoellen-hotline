@@ -151,75 +151,72 @@ function agentDesk(scene: Phaser.Scene, live: boolean): void {
 }
 
 function archiveDesk(scene: Phaser.Scene, live: boolean): void {
-  prop(scene, "filing_cabinet", 12, 310, 100, 300);
-  prop(scene, "case_file_stack", 20, 650, 78, 175);
-  sprite(scene, "iron-frame", 109, 194, 390, 620);
-  heading(scene, 130, 220, "ARCHIVSUCHE");
-  sprite(scene, "paper-card", 124, 270, 360, 70);
-  if (!live) label(scene, 140, 289, "Akten durchsuchen …", 22, C.ink);
+  scene.add.image(0, 0, "archivist-frame").setOrigin(0);
+  prop(scene, "filing_cabinet", 0, 218, 95, 540);
+  prop(scene, "case_file_stack", 6, 816, 215, 240);
+  heading(scene, 172, 181, "ARCHIVSUCHE");
+  heading(scene, 615, 170, "HÖLLEN-HOTLINE / ARCHIV", C.ink);
+  heading(scene, 1242, 216, "REGELWERK", C.ink);
+  heading(scene, 1243, 243, "TAGESKLAUSELN", C.ink);
+  heading(scene, 1565, 216, "AUSNAHMEN", C.ink);
+  heading(scene, 1565, 243, "& QUERVERWEISE", C.ink);
+  for (const [text, x] of [
+    ["ALLE", 155],
+    ["NAMEN", 235],
+    ["BERUFE", 327],
+    ["TAGS", 414],
+  ] as const) {
+    sprite(scene, "book-tab", x, 285, x === 155 ? 76 : 82, 38);
+    label(scene, x + 10, 293, text, 15, C.ink).setFontFamily("Georgia, serif");
+  }
   if (!live)
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       const box = ARCHIVE_LAYOUT.result(i);
       sprite(scene, "paper-card", box.x, box.y, box.w, box.h);
-      label(
-        scene,
-        136,
-        box.y + 22,
-        i === 0 ? "Keine Akte geöffnet" : "—",
-        20,
-        C.ink,
-      );
+      label(scene, box.x + 91, box.y + 22, i ? "—" : "Keine Akte", 20, C.ink);
     }
-  sprite(scene, "dossier-paper", 530, 194, 690, 620);
-  sprite(scene, "clipboard-clip", 555, 170, 130, 53).setAngle(-4);
-  prop(scene, "paper_stack", 1157, 198, 50, 62);
-  heading(scene, 575, 241, "HÖLLEN-HOTLINE / SEELEN-DOSSIER", C.ink);
-  if (!live) {
-    label(scene, 575, 305, "Keine Akte geöffnet", 29, C.ink);
-    label(scene, 575, 386, "Alias · Beruf · Ereignis", 23, C.ink);
-    label(scene, 575, 490, "Beschwerde · Unstimmigkeiten", 23, C.ink);
-  }
-  sprite(scene, "book-spread", 1240, 210, 555, 604);
-  prop(scene, "rulebook_open", 1630, 219, 125, 70);
-  heading(scene, 1280, 250, "REGELWERK", C.ink);
-  for (let i = 0; i < 4; i++) {
-    const box = ARCHIVE_LAYOUT.tab(i);
-    sprite(scene, "book-tab", box.x, box.y, box.w, box.h);
-    label(
-      scene,
-      box.x + 11,
-      box.y + 8,
-      ["AKTE", "REGELN", "AUSN.", "NOTIZ"][i]!,
-      16,
-      C.ink,
+  for (const [index, title] of ["AKTE", "REGEL", "FÄLLE", "NOTIZ"].entries()) {
+    const box = ARCHIVE_LAYOUT.tab(index);
+    label(scene, box.x + 2, box.y + 18, title, 10, C.ink).setFontFamily(
+      "Georgia, serif",
     );
-  }
-  if (!live)
-    label(scene, 1280, 370, "Noch keine Schicht begonnen.", 22, C.ink, 465);
-  sprite(scene, "iron-frame", 109, 835, 390, 169);
-  heading(scene, 130, 854, "ÖFFENTLICHE PINS");
-  for (let i = 0; i < 2; i++)
-    prop(scene, "wax_seal_pin", 112, 888 + i * 43, 18, 32);
-  if (!live) {
-    label(scene, 130, 897, "◇ PIN 1: frei", 20);
-    label(scene, 130, 940, "◇ PIN 2: frei", 20);
   }
   for (let i = 0; i < 3; i++) {
     const box = ARCHIVE_LAYOUT.stamp(i);
     sprite(scene, "stamp-base", box.x, box.y, box.w, box.h);
-    prop(scene, "infernal_stamp", box.x + 60, box.y + 5, 80, 90);
     if (!live)
       label(
         scene,
-        box.x + 12,
-        945,
-        ["✓ VERIFIZIERT", "? FRAGWÜRDIG", "× NICHT FREIGEBEN"][i]!,
-        18,
+        box.x + 16,
+        953,
+        ["VERIFIZIERT", "FRAGWÜRDIG", "NICHT FREIGEBEN"][i]!,
+        17,
       );
   }
-  sprite(scene, "iron-frame", 1240, 835, 555, 169);
-  heading(scene, 1270, 858, "ARCHIV-FREIGABE");
-  if (!live) label(scene, 1270, 926, "◇ FREIGABE OFFEN", 22);
+  prop(scene, "wax_seal_pin", 1320, 877, 52, 64);
+  prop(scene, "wax_seal_pin", 1402, 877, 52, 64);
+  scene.add
+    .graphics()
+    .fillStyle(0x6d4124)
+    .fillRoundedRect(1722, 911, 84, 44, 8)
+    .lineStyle(5, 0x130d0c)
+    .strokeRoundedRect(1722, 911, 84, 44, 8)
+    .lineStyle(14, 0x2b1b17)
+    .lineBetween(1763, 924, 1785, 863)
+    .fillStyle(0x9b251d)
+    .fillCircle(1786, 857, 25)
+    .lineStyle(5, 0x170e0d)
+    .strokeCircle(1786, 857, 25);
+  heading(scene, 1312, 835, "ÖFFENTLICHE PINS");
+  heading(scene, 1617, 808, "ARCHIV-FREIGABE", C.ink);
+  if (!live) {
+    label(scene, 165, 779, "0 Treffer  ·  Seite 1", 19);
+    label(scene, 615, 240, "Keine Akte geöffnet", 29, C.ink);
+    label(scene, 615, 513, "Akte auswählen, Hinweise prüfen.", 23, C.ink);
+    label(scene, 1250, 316, "Noch keine Schicht begonnen.", 20, C.ink);
+    label(scene, 1300, 960, "0 / 2", 18);
+    label(scene, 1610, 937, "◇ Ziel noch offen", 19);
+  }
 }
 
 function dispatcherDesk(scene: Phaser.Scene, live: boolean): void {

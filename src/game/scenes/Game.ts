@@ -19,6 +19,7 @@ import agentCallConsole from "../../assets/agent-call-console.webp?url";
 import agentCoffeeMug from "../../assets/agent-coffee-mug.webp?url";
 import agentCallMonitor from "../../assets/agent-call-monitor.webp?url";
 import agentHintsClipboard from "../../assets/agent-hints-clipboard.webp?url";
+import archivistFrame from "../../assets/source/archivist-frame.svg?url";
 
 const C = TOKENS.color;
 
@@ -60,6 +61,8 @@ export class Game extends Phaser.Scene {
       this.load.image("agent-call-monitor", agentCallMonitor);
       this.load.image("agent-hints-clipboard", agentHintsClipboard);
     }
+    if (this.role === "archivist")
+      this.load.image("archivist-frame", archivistFrame);
   }
   create(): void {
     document.body.classList.add("role-game");
@@ -70,11 +73,11 @@ export class Game extends Phaser.Scene {
       this,
       this.role === "agent" ? 0 : this.role === "archivist" ? 120 : 240,
     );
+    roleWorkspace(this, this.role, Boolean(this.network));
     const hud = statusBar(this, this.role);
     const unsubscribeHud = this.network?.subscribe(() => {
       if (this.network?.view) hud.update(this.network.view.public);
     });
-    roleWorkspace(this, this.role, Boolean(this.network));
     const shiftEnded = (): boolean =>
       this.network?.status === "ended" ||
       this.network?.status === "host-aborted" ||

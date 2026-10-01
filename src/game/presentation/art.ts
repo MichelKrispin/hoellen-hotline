@@ -326,6 +326,7 @@ export function statusBar(
   role: Role,
 ): { update: (view: PublicShiftView) => void } {
   if (role === "agent") return agentStatusBar(scene);
+  if (role === "archivist") return archivistStatusBar(scene);
   workspaceSprite(scene, "iron-frame", 82, 16, 1756, 105);
   const names: Record<Role, string> = {
     agent: "AGENT",
@@ -418,6 +419,56 @@ export function statusBar(
           })
           .join("     "),
       );
+    },
+  };
+}
+
+function archivistStatusBar(scene: Phaser.Scene): {
+  update: (view: PublicShiftView) => void;
+} {
+  const serif = (
+    x: number,
+    y: number,
+    text: string,
+    size: number,
+    color: string = C.text,
+  ) => label(scene, x, y, text, size, color).setFontFamily("Georgia, serif");
+  serif(139, 20, "◈", 79, "#b678df");
+  serif(224, 19, "ARCHIVIST", 30, "#d18bf7");
+  serif(225, 53, "Akten prüfen.\nRegeln anwenden.\nDas Archiv wahren.", 15);
+  serif(462, 17, "WARTESCHLANGE", 19);
+  serif(677, 16, "SCHICHTZEIT", 19);
+  serif(1020, 16, "TEAM-STRESS", 19);
+  serif(1244, 16, "FALL-ID", 19);
+  serif(1446, 16, "FREIGABEN", 19);
+  const queue = serif(475, 52, "0", 32);
+  const time = serif(702, 47, "00:00", 42);
+  const stress = serif(1073, 51, "○ ○ ○ ○", 29, "#e15c47");
+  const caseId = serif(1243, 53, "—", 27);
+  const approvals = serif(1450, 53, "0 / 3", 30);
+  const bar = scene.add.graphics();
+  return {
+    update(view) {
+      queue.setText(String(view.queueLength));
+      const seconds = Math.floor(view.elapsedMs / 1000);
+      time.setText(
+        `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`,
+      );
+      const pressure = Math.round(
+        (view.queuePressure + view.boilerPressure + view.auditRisk) / 3,
+      );
+      stress.setText(
+        `${"● ".repeat(Math.min(4, Math.ceil(pressure / 25)))}${"○ ".repeat(Math.max(0, 4 - Math.ceil(pressure / 25)))}`.trim(),
+      );
+      caseId.setText(view.activeCaseId?.split(".").at(-1) ?? "—");
+      approvals.setText(
+        `${Object.values(view.approvals).filter(Boolean).length} / 3`,
+      );
+      bar.clear();
+      bar.fillStyle(0x0d0a0a).fillRoundedRect(674, 87, 288, 9, 4);
+      bar
+        .fillStyle(pressure > 66 ? C.error : C.warning)
+        .fillRoundedRect(677, 89, Math.max(3, pressure * 2.82), 5, 3);
     },
   };
 }

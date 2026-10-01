@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="iron" x2="0" y2="1"><stop stop-color="#5b4b40"/><stop offset=".12" stop-color="#1c1919"/><stop offset=".83" stop-color="#302923"/><stop offset="1" stop-color="#0e0c0d"/></linearGradient>
+    <linearGradient id="paper" x2="1" y2="1"><stop stop-color="#f4dfb9"/><stop offset=".55" stop-color="#e8c99c"/><stop offset="1" stop-color="#c69d70"/></linearGradient>
+    <linearGradient id="book" x2="1" y2=".4"><stop stop-color="#f5dfb9"/><stop offset="1" stop-color="#d3ae7e"/></linearGradient>
+    <linearGradient id="button" x2="0" y2="1"><stop stop-color="#5d5146"/><stop offset=".4" stop-color="#241c1b"/><stop offset="1" stop-color="#0e0d0e"/></linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%"><feGaussianBlur stdDeviation="8"/></filter>
+    <pattern id="grain" width="37" height="31" patternUnits="userSpaceOnUse"><path d="M4 9l9-2M24 19l6 1M17 28l3-1" stroke="#583922" stroke-opacity=".16" stroke-width="1"/></pattern>
+    <g id="screw"><circle r="7" fill="#120f0f" stroke="#9d7350" stroke-width="2"/><path d="M-3-2l6 4" stroke="#ba9871" stroke-width="1.5"/></g>
+  </defs>
+  <!-- The complete architectural silhouette follows the supplied 1672 × 941 reference. -->
+  <path d="M38 136h1813v756H38z" fill="#090708" opacity=".55" filter="url(#shadow)"/>
+  <path d="M27 120h1824v762H27z" fill="none" stroke="#1a1110" stroke-width="16"/>
+  <path d="M34 127h1810v748H34z" fill="none" stroke="#87512f" stroke-width="5" opacity=".8"/>
+  <path d="M28 174h61v618H28zm1822-43h45v757h-45z" fill="url(#iron)" stroke="#0a0808" stroke-width="8"/>
+  <path d="M22 976h1870v42l-50 21H84l-62-24z" fill="url(#iron)" stroke="#130d0b" stroke-width="8"/>
+  <path d="M44 1000h1832" stroke="#b77138" stroke-width="4" opacity=".55"/>
+
+  <!-- Individual status instruments. The legends and values are live Phaser text. -->
+  <g fill="url(#iron)" stroke="#100c0b" stroke-width="7">
+    <rect x="119" y="4" width="299" height="124" rx="8"/>
+    <rect x="441" y="3" width="203" height="103" rx="7"/>
+    <rect x="654" y="3" width="335" height="103" rx="7"/>
+    <rect x="998" y="3" width="213" height="103" rx="7"/>
+    <rect x="1221" y="3" width="194" height="103" rx="7"/>
+    <rect x="1425" y="3" width="164" height="103" rx="7"/>
+  </g>
+  <g fill="none" stroke="#a16b3e" stroke-width="2" opacity=".85">
+    <rect x="130" y="14" width="277" height="101" rx="4"/>
+    <rect x="451" y="13" width="183" height="82" rx="3"/>
+    <rect x="664" y="13" width="315" height="82" rx="3"/>
+    <rect x="1008" y="13" width="193" height="82" rx="3"/>
+    <rect x="1231" y="13" width="174" height="82" rx="3"/>
+    <rect x="1435" y="13" width="144" height="82" rx="3"/>
+  </g>
+  <path d="M1578 0h342v138l-40-9-36 15-28-17-49 10-35-16-45 10-43-17-66 8z" fill="#622b20" opacity=".57"/>
+
+  <!-- Search cabinet and its recessed face. -->
+  <path d="M100 145l429-7 9 726-440 4z" fill="#100d0d" stroke="#090809" stroke-width="13"/>
+  <path d="M109 153h410v698H109z" fill="url(#iron)" stroke="#a07146" stroke-width="4"/>
+  <path d="M128 174h374v655H128z" fill="#211c1b" stroke="#080707" stroke-width="8"/>
+  <path d="M133 178h364v647H133z" fill="none" stroke="#a17b54" stroke-width="2" opacity=".65"/>
+  <path d="M149 215h327v46H149z" fill="#140f10" stroke="#7f5d42" stroke-width="3"/>
+  <path d="M151 221h324v49H151z" fill="url(#paper)" stroke="#120e0d" stroke-width="5"/>
+  <path d="M143 282h355v47H143z" fill="url(#button)" stroke="#0d0b0c" stroke-width="5"/>
+  <path d="M153 757h333v66H153z" fill="#181514" stroke="#8f6b49" stroke-width="2"/>
+
+  <!-- Dossier: stacked pages and irregular paper edges, with clear writing surfaces. -->
+  <path d="M569 144l603-8 14 663-618 12z" fill="#130d0b" stroke="#0b0908" stroke-width="14"/>
+  <path d="M572 137l591-7 11 651-598 17z" fill="#806448" stroke="#241510" stroke-width="5"/>
+  <path d="M586 130l579 15 10 639-596 1z" fill="url(#paper)" stroke="#482e1c" stroke-width="5"/>
+  <path d="M586 130l579 15 10 639-596 1z" fill="url(#grain)"/>
+  <path d="M605 203h541M605 446h541M605 489h541M605 630h541" fill="none" stroke="#8d6e53" stroke-width="2" opacity=".55"/>
+  <rect x="615" y="223" width="169" height="205" fill="#332820" stroke="#110c0b" stroke-width="5"/>
+  <rect x="625" y="231" width="149" height="187" fill="#ddc7a2" stroke="#a1805d" stroke-width="2"/>
+  <path d="M643 126l4-31 12-3 7 3-2 39-6 11-11-2z" fill="#ba8653" stroke="#1b1110" stroke-width="4"/>
+  <path d="M650 99l7 1-1 36-6 0z" fill="#e5b36d"/>
+  <path d="M1121 502l57-20 13 135-71 15z" fill="#d8b589" stroke="#51351f" stroke-width="3"/>
+  <path d="M1140 509l10-36q15-17 22 1l-13 52" fill="none" stroke="#1a1311" stroke-width="6"/>
+
+  <!-- The open rulebook occupies the right half, with an actual central gutter. -->
+  <path d="M1204 187q157-20 316 0 167-20 322 0l8 580q-162-7-330 18-169-25-321-15z" fill="#180f0e" stroke="#0d0909" stroke-width="14"/>
+  <path d="M1213 195q148-20 301 1v556q-155-19-301 4z" fill="url(#book)" stroke="#69482c" stroke-width="5"/>
+  <path d="M1527 196q153-21 306-1v562q-145-23-306-5z" fill="url(#book)" stroke="#69482c" stroke-width="5"/>
+  <path d="M1213 195q148-20 301 1v556q-155-19-301 4zM1527 196q153-21 306-1v562q-145-23-306-5z" fill="url(#grain)"/>
+  <path d="M1515 192q-11 278 0 560m11-560q10 278 0 560" fill="none" stroke="#9c7955" stroke-width="5"/>
+  <path d="M1240 269h250m55 0h260M1240 657h250m55 0h260" stroke="#ac8962" stroke-width="2" opacity=".6"/>
+  <path d="M1841 261h52v56h-52zm0 66h52v57h-52zm0 67h52v58h-52zm0 68h52v58h-52z" fill="#ad7a4b" stroke="#21130f" stroke-width="4"/>
+
+  <!-- Press bed, public pins, and heavy approval lever frame. -->
+  <path d="M544 800l709-11 18 226-746 4z" fill="url(#iron)" stroke="#0b0909" stroke-width="12"/>
+  <path d="M563 817l676-10 12 186-706 8z" fill="none" stroke="#9e724c" stroke-width="4"/>
+  <path d="M1277 817l284-9 14 213-311-7z" fill="url(#iron)" stroke="#0b0909" stroke-width="10"/>
+  <path d="M1292 829l255-7 10 176-275-3z" fill="none" stroke="#a07149" stroke-width="3"/>
+  <path d="M1586 805l255-6 26 228-281-10z" fill="url(#iron)" stroke="#0b0909" stroke-width="12"/>
+  <path d="M1600 821l225-6 23 192-247-7z" fill="none" stroke="#a77850" stroke-width="3"/>
+  <path d="M1609 851l212-4v128l-211-5z" fill="#181414" stroke="#100b0b" stroke-width="5"/>
+  <g fill="#b88b54" stroke="#24160f" stroke-width="4"><rect x="1611" y="804" width="222" height="40" rx="3"/><rect x="1301" y="826" width="230" height="40" rx="3"/></g>
+  <g><use href="#screw" x="116" y="160"/><use href="#screw" x="514" y="153"/><use href="#screw" x="116" y="844"/><use href="#screw" x="518" y="846"/><use href="#screw" x="576" y="148"/><use href="#screw" x="1163" y="151"/><use href="#screw" x="581" y="782"/><use href="#screw" x="1171" y="780"/><use href="#screw" x="1215" y="202"/><use href="#screw" x="1831" y="202"/><use href="#screw" x="1214" y="755"/><use href="#screw" x="1835" y="754"/><use href="#screw" x="560" y="821"/><use href="#screw" x="1242" y="815"/><use href="#screw" x="550" y="998"/><use href="#screw" x="1255" y="995"/><use href="#screw" x="1288" y="829"/><use href="#screw" x="1550" y="825"/><use href="#screw" x="1292" y="1000"/><use href="#screw" x="1561" y="1000"/><use href="#screw" x="1599" y="821"/><use href="#screw" x="1840" y="816"/><use href="#screw" x="1603" y="1003"/><use href="#screw" x="1850" y="1005"/></g>
+</svg>
