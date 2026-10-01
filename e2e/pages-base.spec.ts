@@ -21,7 +21,7 @@ test("built Pages subpath loads assets, legal pages and invite links", async ({
       loadedProps.add(url.pathname.split("/").at(-1)!.split("-")[0]!);
   });
   await page.goto(base);
-  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
   await page.keyboard.press("d");
   await page.keyboard.press("2");
   await expect(

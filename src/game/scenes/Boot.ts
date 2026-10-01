@@ -5,6 +5,7 @@ import agentPortrait from "../../assets/generated/role-agent/clerk@2x.png?url";
 import archivistPortrait from "../../assets/generated/role-agent/map-folder@2x.png?url";
 import dispatcherPortrait from "../../assets/generated/role-agent/biscuit-auditor@2x.png?url";
 import titleRoom from "../../assets/title-room.webp?url";
+import lobbySign from "../../assets/lobby-sign.png?url";
 import agentOperator from "../../assets/agent-operator.webp?url";
 
 export class Boot extends Phaser.Scene {
@@ -18,9 +19,10 @@ export class Boot extends Phaser.Scene {
     this.load.image("role-figure-archivist", archivistPortrait);
     this.load.image("role-figure-dispatcher", dispatcherPortrait);
     this.load.image("title-room", titleRoom);
+    this.load.image("lobby-sign", lobbySign);
     this.load.image("agent-operator", agentOperator);
   }
   create(): void {
-    this.scene.start(location.hash ? "Lobby" : "Title");
+    this.scene.start("Lobby");
   }
 }

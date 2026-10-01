@@ -11,7 +11,7 @@ export class Results extends Phaser.Scene {
       "Abschlussakte",
       "Ergebnisplatzhalter · Wertung und Fehlerchronik folgen in späteren Batches.",
     );
-    button(this, 320, 540, "Zurück zum Titel", () => this.scene.start("Title"));
+    button(this, 320, 540, "Zurück zur Lobby", () => this.scene.start("Lobby"));
     installDebugNavigation(this, debugHint);
   }
 }

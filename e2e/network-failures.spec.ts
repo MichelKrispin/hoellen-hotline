@@ -36,7 +36,7 @@ test(
     });
     const host = await context.newPage();
     await host.goto("/");
-    await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
+    await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
     await host.keyboard.press("d");
     await host.keyboard.press("2");
     await host.getByRole("button", { name: "Lobby erstellen" }).click();

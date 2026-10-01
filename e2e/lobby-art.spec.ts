@@ -9,7 +9,7 @@ test("lobby motion follows live display preferences across scene changes", async
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await expect(canvas).toHaveAttribute("data-scene", "Title");
+  await expect(canvas).toHaveAttribute("data-scene", "Lobby");
   await page.keyboard.press("d");
   await page.keyboard.press("2");
   await expect(page.locator(".lobby-card--welcome")).toBeVisible();
@@ -53,7 +53,7 @@ test("lobby illustration and controls fit desktop, phone and landscape", async (
   test.setTimeout(90_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
   await page.keyboard.press("d");
   await page.keyboard.press("2");
   const create = page.getByRole("button", { name: /Lobby erstellen/ });

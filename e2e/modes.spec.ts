@@ -5,7 +5,7 @@ test("host configures free play and sees registered campaign scenarios", async (
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
   await page.keyboard.press("d");
   await page.keyboard.press("2");
   await page.getByRole("button", { name: "Lobby erstellen" }).click();
@@ -49,7 +49,7 @@ test(
     const context = await browser.newContext();
     const host = await context.newPage();
     await host.goto("/");
-    await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
+    await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
     await host.keyboard.press("d");
     await host.keyboard.press("2");
     await host.getByRole("button", { name: "Lobby erstellen" }).click();

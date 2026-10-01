@@ -80,14 +80,14 @@ export class Game extends Phaser.Scene {
         if (!this.network) this.scene.start("Results");
         else if (this.network.isHost && !shiftEnded())
           this.network.submit({ kind: "ABANDON" });
-        else this.scene.start("Title");
+        else this.scene.start("Lobby");
       },
       C.dispatcher,
       260,
       48,
     );
     const unsubscribeExit = this.network?.subscribe(() => {
-      if (shiftEnded()) exitButton.setText("ZUM TITEL");
+      if (shiftEnded()) exitButton.setText("ZUR LOBBY");
     });
     if (this.network) this.overlay = new GameNetworkOverlay(this.network);
     if (this.network && this.role === "agent")

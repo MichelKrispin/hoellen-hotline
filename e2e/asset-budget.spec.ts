@@ -4,7 +4,7 @@ test("role atlases load within the documented client budget", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Title");
+  await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
   await page.evaluate(() => performance.clearResourceTimings());
   await page.keyboard.press("d");
   await page.keyboard.press("3");

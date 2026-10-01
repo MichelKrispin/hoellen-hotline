@@ -43,7 +43,7 @@ test("mockup workspaces load their separate sprites in all three role previews",
   await page.setViewportSize({ width: 1672, height: 941 });
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await expect(canvas).toHaveAttribute("data-scene", "Title");
+  await expect(canvas).toHaveAttribute("data-scene", "Lobby");
   // The module imports and the texture loader may both request a source.
   expect(sprites.has("dial-pointer")).toBe(true);
   expect(sprites.has("switch-handle")).toBe(true);

@@ -12,7 +12,7 @@ test("Chromium host and guest connect with a Firefox guest", async ({
     const host = await chromiumBrowser.newPage();
     const guests = [await browser.newPage(), await chromiumBrowser.newPage()];
     await host.goto(baseURL!);
-    await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Title");
+    await expect(host.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
     await host.keyboard.press("d");
     await host.keyboard.press("2");
     await host.getByRole("button", { name: "Lobby erstellen" }).click();

@@ -83,6 +83,36 @@ function ensureLavaTexture(scene: Phaser.Scene): string {
   return key;
 }
 
+function edgeConduit(
+  scene: Phaser.Scene,
+  parent: Phaser.GameObjects.Container,
+  x: number,
+): void {
+  const shaft = scene.add.graphics();
+  shaft.lineStyle(94, 0x09070c, 0.78);
+  shaft.lineBetween(x, 352, x, 1080);
+  shaft.lineStyle(69, 0x21181b);
+  shaft.lineBetween(x, 352, x, 1080);
+  shaft.lineStyle(55, 0x49302d);
+  shaft.lineBetween(x, 352, x, 1080);
+  shaft.lineStyle(35, 0x261c20);
+  shaft.lineBetween(x + 5, 352, x + 5, 1080);
+  shaft.lineStyle(5, 0xa95032, 0.75);
+  shaft.lineBetween(x - 22, 352, x - 22, 1080);
+  for (const y of [490, 698, 906]) {
+    shaft.fillStyle(0x140d13);
+    shaft.fillRoundedRect(x - 46, y - 17, 92, 34, 7);
+    shaft.fillStyle(0x50332e);
+    shaft.fillRoundedRect(x - 40, y - 13, 80, 26, 5);
+    shaft.lineStyle(3, 0xa95032, 0.7);
+    shaft.lineBetween(x - 35, y - 10, x + 35, y - 10);
+    shaft.fillStyle(0xb9673d);
+    shaft.fillCircle(x - 28, y, 3);
+    shaft.fillCircle(x + 28, y, 3);
+  }
+  parent.add(shaft);
+}
+
 function addLogo(
   scene: Phaser.Scene,
   parent: Phaser.GameObjects.Container,
@@ -91,72 +121,27 @@ function addLogo(
   waiting: Phaser.GameObjects.Container;
 } {
   const root = scene.add.container(960, 174);
-  const plate = scene.add.graphics();
-  plate.fillStyle(0x0b070c, 0.96);
-  plate.fillRoundedRect(-386, -105, 772, 210, 46);
-  plate.lineStyle(9, 0x2a1719, 1);
-  plate.strokeRoundedRect(-386, -105, 772, 210, 46);
-  plate.lineStyle(5, 0xd83a28, 1);
-  plate.strokeRoundedRect(-370, -89, 740, 178, 38);
-  plate.lineStyle(2, 0xff9b5e, 0.8);
-  plate.strokeRoundedRect(-358, -78, 716, 156, 31);
-  plate.fillStyle(0x1b0f13, 1);
-  plate.fillTriangle(-304, -88, -268, -145, -238, -82);
-  plate.fillTriangle(304, -88, 268, -145, 238, -82);
-  plate.lineStyle(5, 0xa92e24, 1);
-  plate.strokeTriangle(-304, -88, -268, -145, -238, -82);
-  plate.strokeTriangle(304, -88, 268, -145, 238, -82);
-
-  const skull = scene.add
-    .text(0, -96, "☠", {
-      fontFamily: "Georgia, serif",
-      fontSize: "40px",
-      color: "#ff6a38",
-    })
-    .setOrigin(0.5)
-    .setShadow(0, 0, "#ff4f29", 16, true, true);
-
-  const title = scene.add
-    .text(0, -22, "Höllen-Hotline", {
-      fontFamily: "Georgia, serif",
-      fontSize: "78px",
-      fontStyle: "bold",
-      color: "#ffc497",
-      stroke: "#6d161a",
-      strokeThickness: 9,
-    })
-    .setOrigin(0.5)
-    .setShadow(0, 0, "#ff4b2f", 20, true, true);
-
-  const subPlate = scene.add.graphics();
-  subPlate.fillStyle(0x5d1719, 0.98);
-  subPlate.fillRoundedRect(-214, 53, 428, 48, 15);
-  subPlate.lineStyle(3, 0xff7a4c, 1);
-  subPlate.strokeRoundedRect(-214, 53, 428, 48, 15);
-
-  const subtitle = scene.add
-    .text(-14, 77, "Bitte bleiben Sie dran", {
-      fontFamily: '"Trebuchet MS", Arial, sans-serif',
-      fontSize: "24px",
-      fontStyle: "bold",
-      color: "#ffe8cf",
-    })
-    .setOrigin(0.5);
-
-  const waiting = scene.add.container(171, 77);
+  const chains = [-306, 306].map((x) =>
+    scene.add
+      .image(x, -180, placeholderKey("chain"))
+      .setDisplaySize(35, 140)
+      .setOrigin(0.5, 0),
+  );
+  const sign = scene.add.image(0, 0, "lobby-sign").setDisplaySize(840, 360);
+  const waiting = scene.add.container(221, 103);
   for (let index = 0; index < 9; index++) {
     const angle = (Math.PI * 2 * index) / 9;
     const dot = scene.add.circle(
       Math.cos(angle) * 13,
       Math.sin(angle) * 13,
-      2.8,
+      3.5,
       0xffd1a0,
-      0.2 + index * 0.085,
+      0.28 + index * 0.075,
     );
     waiting.add(dot);
   }
 
-  root.add([plate, skull, title, subPlate, subtitle, waiting]);
+  root.add([...chains, sign, waiting]);
   parent.add(root);
   return { root, waiting };
 }
@@ -242,40 +227,28 @@ export function lobbyRoom(scene: Phaser.Scene): void {
   ).setAlpha(0.83);
   bridge.setTint(0xffe8df);
 
+  edgeConduit(scene, architecture.container, 136);
+  edgeConduit(scene, architecture.container, 1784);
   const leftPipe = placeholderImage(
     scene,
     architecture.container,
     "pipe",
-    112,
-    270,
-    260,
-    390,
+    82,
+    215,
+    330,
+    430,
   );
-  leftPipe.setRotation(-0.08);
+  leftPipe.setAlpha(0.92);
   const rightPipe = placeholderImage(
     scene,
     architecture.container,
     "pipe",
-    1812,
-    286,
-    250,
-    376,
+    1838,
+    215,
+    330,
+    430,
   );
-  rightPipe.setFlipX(true).setRotation(0.07);
-
-  const chains = [196, 520, 1400, 1715].map((x, index) => {
-    const chain = placeholderImage(
-      scene,
-      architecture.container,
-      "chain",
-      x,
-      128 + (index % 2) * 28,
-      58,
-      290,
-    );
-    chain.setOrigin(0.5, 0.12);
-    return chain;
-  });
+  rightPipe.setFlipX(true).setAlpha(0.92);
 
   const warningLights = [
     placeholderImage(
@@ -477,7 +450,6 @@ export function lobbyRoom(scene: Phaser.Scene): void {
     eyeBases.forEach(({ sprite, scaleY }) =>
       sprite.setScale(sprite.scaleX, scaleY),
     );
-    chains.forEach((chain) => chain.setRotation(0));
     warningLights.forEach((light) => light.setAlpha(0.86));
     lavaA.tilePositionY = lavaB.tilePositionY = 0;
     waiting.rotation = logo.rotation = 0;
@@ -531,9 +503,6 @@ export function lobbyRoom(scene: Phaser.Scene): void {
         : 1 - Math.sin(((blinkPhase - 4060) / 140) * Math.PI) * 0.92;
     eyeBases.forEach(({ sprite, scaleY }) =>
       sprite.setScale(sprite.scaleX, scaleY * blinkScale),
-    );
-    chains.forEach((chain, index) =>
-      chain.setRotation(Math.sin(seconds * 0.5 + index * 1.2) * 0.014),
     );
     actorBases.forEach(({ sprite, y, phase }) =>
       sprite.setY(y + Math.sin(seconds * 0.72 + phase) * 5.5),

@@ -1,28 +1,24 @@
 import { test, expect } from "@playwright/test";
 
-test("title action opens the lobby", async ({ page }) => {
+test("desktop opens directly in the interactive lobby", async ({ page }) => {
   await page.goto("/");
   const canvas = page.locator("canvas");
-  await expect(canvas).toHaveAttribute("data-scene", "Title");
-  const box = await canvas.boundingBox();
-  expect(box).not.toBeNull();
-  await page.mouse.click(
-    box!.x + (960 / 1920) * box!.width,
-    box!.y + (430 / 1080) * box!.height,
-  );
   await expect(canvas).toHaveAttribute("data-scene", "Lobby");
+  await expect(page.getByRole("button", { name: "Zur Lobby →" })).toHaveCount(
+    0,
+  );
   await expect(
     page.getByRole("button", { name: /Lobby erstellen/ }),
   ).toBeVisible();
 });
 
-test("phone title action opens the lobby", async ({ page }) => {
+test("phone opens directly in the interactive lobby", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const action = page.getByRole("button", { name: "Zur Lobby →" });
-  await expect(action).toBeVisible();
-  await action.click();
   await expect(page.locator("canvas")).toHaveAttribute("data-scene", "Lobby");
+  await expect(page.getByRole("button", { name: "Zur Lobby →" })).toHaveCount(
+    0,
+  );
   await expect(
     page.getByRole("button", { name: /Lobby erstellen/ }),
   ).toBeVisible();
@@ -45,9 +41,9 @@ test("scene navigation covers lobby, three roles and results", async ({
   await page.goto("/");
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute("data-scene", "Title");
+  await expect(canvas).toHaveAttribute("data-scene", "Lobby");
   await pressNavigationKey("4");
-  await expect(canvas).toHaveAttribute("data-scene", "Title");
+  await expect(canvas).toHaveAttribute("data-scene", "Lobby");
   await pressNavigationKey("d");
   for (const [key, scene] of [
     ["2", "Lobby"],
