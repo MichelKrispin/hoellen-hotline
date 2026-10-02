@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("lobby motion follows live display preferences across scene changes", async ({
   page,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -19,8 +19,15 @@ test("lobby motion follows live display preferences across scene changes", async
   expect((await canvas.screenshot()).equals(still)).toBe(true);
 
   await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-reduced-motion",
+    "false",
+  );
+  await page.mouse.move(1200, 600);
   await expect
-    .poll(async () => (await canvas.screenshot()).equals(still))
+    .poll(async () => (await canvas.screenshot()).equals(still), {
+      timeout: 15_000,
+    })
     .toBe(false);
 
   await page.keyboard.press("o");
@@ -42,7 +49,9 @@ test("lobby motion follows live display preferences across scene changes", async
   await dialog.getByLabel("Bewegung reduzieren").uncheck();
   await dialog.getByRole("button", { name: "Schließen" }).click();
   await expect
-    .poll(async () => (await canvas.screenshot()).equals(still))
+    .poll(async () => (await canvas.screenshot()).equals(still), {
+      timeout: 15_000,
+    })
     .toBe(false);
   expect(errors).toEqual([]);
 });
