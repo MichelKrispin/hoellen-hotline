@@ -4,10 +4,29 @@
     <linearGradient id="paper" x2="1" y2="1"><stop stop-color="#f4dfb9"/><stop offset=".55" stop-color="#e8c99c"/><stop offset="1" stop-color="#c69d70"/></linearGradient>
     <linearGradient id="book" x2="1" y2=".4"><stop stop-color="#f5dfb9"/><stop offset="1" stop-color="#d3ae7e"/></linearGradient>
     <linearGradient id="button" x2="0" y2="1"><stop stop-color="#5d5146"/><stop offset=".4" stop-color="#241c1b"/><stop offset="1" stop-color="#0e0d0e"/></linearGradient>
+    <radialGradient id="furnace"><stop stop-color="#ffbb52" stop-opacity=".8"/><stop offset=".38" stop-color="#e64c1f" stop-opacity=".52"/><stop offset="1" stop-color="#4d1915" stop-opacity="0"/></radialGradient>
+    <linearGradient id="edgeIron" x2="1" y2=".2"><stop stop-color="#100c0d"/><stop offset=".43" stop-color="#4b3127"/><stop offset=".55" stop-color="#a65327"/><stop offset=".66" stop-color="#281c1a"/><stop offset="1" stop-color="#0d0a0b"/></linearGradient>
+    <linearGradient id="desk" x2="0" y2="1"><stop stop-color="#8a3f21"/><stop offset=".18" stop-color="#3c1f19"/><stop offset=".7" stop-color="#5c2a1b"/><stop offset="1" stop-color="#1c1110"/></linearGradient>
     <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%"><feGaussianBlur stdDeviation="8"/></filter>
     <pattern id="grain" width="37" height="31" patternUnits="userSpaceOnUse"><path d="M4 9l9-2M24 19l6 1M17 28l3-1" stroke="#583922" stroke-opacity=".16" stroke-width="1"/></pattern>
+    <pattern id="masonry" width="94" height="70" patternUnits="userSpaceOnUse"><path d="M0 0h94M0 35h94M0 70h94M46 0v35M9 35v35M82 35v35" fill="none" stroke="#ad4930" stroke-opacity=".45" stroke-width="3"/><path d="M4 8l24-3m49 48 12-2M35 48l14-2" stroke="#e68043" stroke-opacity=".19" stroke-width="2"/></pattern>
     <g id="screw"><circle r="7" fill="#120f0f" stroke="#9d7350" stroke-width="2"/><path d="M-3-2l6 4" stroke="#ba9871" stroke-width="1.5"/></g>
   </defs>
+  <!-- Exposed archive walls and furnace glow frame the work surfaces. -->
+  <path d="M0 100h111v780H0zm1809 4h111v800h-111z" fill="#241512" opacity=".86"/>
+  <path d="M0 100h111v780H0zm1809 4h111v800h-111z" fill="url(#masonry)"/>
+  <ellipse cx="39" cy="351" rx="122" ry="246" fill="url(#furnace)"/>
+  <ellipse cx="1898" cy="383" rx="128" ry="310" fill="url(#furnace)"/>
+  <path d="M78 130v735m1811-744v761" fill="none" stroke="url(#edgeIron)" stroke-width="43"/>
+  <path d="M83 135v715m1800-729v750" fill="none" stroke="#dc7839" stroke-opacity=".5" stroke-width="3"/>
+  <path d="M0 169q32-28 73 6m1819-11q20-25 37-15M0 708q34-32 75 9m1810-33q25-24 48-8" fill="none" stroke="#0c0809" stroke-width="21"/>
+  <path d="M0 170q30-26 70 6m1822-11q20-24 36-15M0 709q35-31 73 9m1815-35q23-22 43-7" fill="none" stroke="#93502c" stroke-width="5"/>
+  <path d="M44 189l-12 94 28 24-8 122m1832-282 17 78-15 67 18 111" fill="none" stroke="#1a1010" stroke-width="17"/>
+  <path d="M44 189l-12 94 28 24-8 122m1832-282 17 78-15 67 18 111" fill="none" stroke="#a45b2e" stroke-width="4" stroke-opacity=".7"/>
+  <!-- The lower shelf remains behind the stamps, pins, and approval lever. -->
+  <path d="M0 956q321-25 552 13 324-32 714-9 362-23 654 2v118H0z" fill="url(#desk)" stroke="#120b0b" stroke-width="12"/>
+  <path d="M0 975q287-27 551 5 344-25 714-9 323-22 655 7M0 1039q340-18 612 3 358-13 680-2 336-9 628 5" fill="none" stroke="#bb6b36" stroke-opacity=".56" stroke-width="5"/>
+  <path d="M48 1017q209-8 388 13m390-25q220 15 374 4m309 28q172-21 312-4" fill="none" stroke="#180e0d" stroke-width="10" stroke-linecap="round"/>
   <!-- The complete architectural silhouette follows the supplied 1672 × 941 reference. -->
   <path d="M38 136h1813v756H38z" fill="#090708" opacity=".55" filter="url(#shadow)"/>
   <path d="M27 120h1824v762H27z" fill="none" stroke="#1a1110" stroke-width="16"/>
@@ -77,4 +96,58 @@
   <path d="M1609 851l212-4v128l-211-5z" fill="#181414" stroke="#100b0b" stroke-width="5"/>
   <g fill="#b88b54" stroke="#24160f" stroke-width="4"><rect x="1611" y="804" width="222" height="40" rx="3"/><rect x="1301" y="826" width="230" height="40" rx="3"/></g>
   <g><use href="#screw" x="116" y="160"/><use href="#screw" x="514" y="153"/><use href="#screw" x="116" y="844"/><use href="#screw" x="518" y="846"/><use href="#screw" x="576" y="148"/><use href="#screw" x="1163" y="151"/><use href="#screw" x="581" y="782"/><use href="#screw" x="1171" y="780"/><use href="#screw" x="1215" y="202"/><use href="#screw" x="1831" y="202"/><use href="#screw" x="1214" y="755"/><use href="#screw" x="1835" y="754"/><use href="#screw" x="560" y="821"/><use href="#screw" x="1242" y="815"/><use href="#screw" x="550" y="998"/><use href="#screw" x="1255" y="995"/><use href="#screw" x="1288" y="829"/><use href="#screw" x="1550" y="825"/><use href="#screw" x="1292" y="1000"/><use href="#screw" x="1561" y="1000"/><use href="#screw" x="1599" y="821"/><use href="#screw" x="1840" y="816"/><use href="#screw" x="1603" y="1003"/><use href="#screw" x="1850" y="1005"/></g>
+  <!-- Static paper, seals, and a watch make the exposed desk read as an archive. -->
+  <g transform="translate(254 985) rotate(-8)">
+    <path d="M-12 7l210-6 8 84-211 7z" fill="#251710" stroke="#0d0908" stroke-width="10"/>
+    <path d="M0 0l203 4-7 83-205-5z" fill="#c59a6a" stroke="#4a2818" stroke-width="4"/>
+    <path d="M17 18h151m-154 15h174M12 48h111m15 0h44M10 64h161" stroke="#6e4934" stroke-opacity=".68" stroke-width="2"/>
+    <circle cx="161" cy="61" r="13" fill="#733832" stroke="#39201a" stroke-width="3"/><path d="M155 61l5 5 9-12" fill="none" stroke="#c89759" stroke-width="3"/>
+  </g>
+  <g transform="translate(1088 1015) rotate(11)">
+    <path d="M0 0l171-4-4 74-169 3z" fill="#c9a170" stroke="#3a2117" stroke-width="5"/>
+    <path d="M14 19h128M15 32h103m-100 15h133" stroke="#79533c" stroke-width="2"/>
+    <path d="M146 6l17 20-21-2z" fill="#e9c99b" stroke="#906947" stroke-width="2"/>
+  </g>
+  <g transform="translate(-13 358) rotate(-4)">
+    <path d="M0 0l124-8-5 171-115 8z" fill="#cba474" stroke="#21130e" stroke-width="7"/>
+    <path d="M17 30h81M16 46h73M15 77h90M14 93h64M14 124h82M13 141h51" stroke="#74503b" stroke-width="3" stroke-linecap="round"/>
+    <path d="M96-8l20 16-24 3z" fill="#e7c89c" stroke="#694832" stroke-width="2"/>
+    <circle cx="52" cy="4" r="7" fill="#181110" stroke="#aa6837" stroke-width="3"/>
+  </g>
+  <g transform="translate(-17 605) rotate(5)">
+    <path d="M0 0l120-8 8 125-129 9z" fill="#b99267" stroke="#231611" stroke-width="7"/>
+    <path d="M15 23h83M14 38h67M12 69h93M11 84h80" stroke="#68452f" stroke-width="3"/>
+    <path d="M50 0l-2-25q12-16 23-1l-3 30" fill="none" stroke="#1b1311" stroke-width="6"/>
+  </g>
+  <g transform="translate(1798 126) rotate(8)">
+    <path d="M0 0l116-7 1 78-113 13z" fill="#cba373" stroke="#2f1b13" stroke-width="6"/>
+    <path d="M18 20h69M17 34h79M16 51h60" stroke="#72503b" stroke-width="3"/>
+    <circle cx="60" cy="2" r="7" fill="#251410" stroke="#b77335" stroke-width="3"/>
+  </g>
+  <g transform="translate(486 1025) rotate(-12)">
+    <circle r="39" fill="#1b120f" stroke="#ae7137" stroke-width="9"/>
+    <circle r="29" fill="#b99159" stroke="#2a1b13" stroke-width="4"/>
+    <circle r="22" fill="none" stroke="#59402a" stroke-width="2"/>
+    <path d="M0-18v17l13 8M-2-28v6m0 43v7m-27-28h7m43 0h7" fill="none" stroke="#3b291b" stroke-width="3" stroke-linecap="round"/>
+    <path d="M32-28q28-27 59-11t47-7" fill="none" stroke="#9b5b2f" stroke-width="8"/>
+    <path d="M32-28q28-27 59-11t47-7" fill="none" stroke="#23150f" stroke-width="3" stroke-dasharray="3 9"/>
+  </g>
+  <g transform="translate(1858 683)">
+    <path d="M21 26q-41-34-32-78 19 12 32 34 14-29 39-39 4 34-30 78" fill="#211212" stroke="#080707" stroke-width="6"/>
+    <path d="M-6 15q17-23 38-16 28 2 32 39l-13 34-42 12-29-39z" fill="#3a2520" stroke="#0c0808" stroke-width="7"/>
+    <path d="M-15 24l-20-5 16 31m74-15 26-13-15 34" fill="#231512" stroke="#0c0808" stroke-width="5"/>
+    <path d="M3 34l14 5-11 8m39-12-15 7 14 7" fill="#ed692c" stroke="#1b0e0b" stroke-width="2"/>
+    <path d="M15 64q18 10 32-4l-9 21-15 7z" fill="#1c1110" stroke="#0c0808" stroke-width="4"/>
+  </g>
+  <g transform="translate(1890 790)">
+    <ellipse rx="26" ry="7" fill="#100a09" opacity=".8"/>
+    <path d="M-20 0l5-62 29-3 8 65z" fill="#a5512a" stroke="#2a120d" stroke-width="6"/>
+    <path d="M-10-65q-8-24 8-39 3 17 11 25 9-14 4-27 20 21 5 42z" fill="#ffb344" stroke="#e54a21" stroke-width="4"/>
+    <path d="M0-69q-6-17 4-28 9 17 4 29z" fill="#fff1a3"/>
+  </g>
+  <g fill="#bd8050" stroke="#1a1010" stroke-width="4">
+    <circle cx="1025" cy="1042" r="18"/><circle cx="1025" cy="1042" r="10" fill="#2e201a"/>
+    <circle cx="1043" cy="1052" r="6" fill="#a97241"/>
+    <path d="M1356 1042q54-6 74 15l-12 11q-34-13-67-10z"/>
+  </g>
 </svg>
